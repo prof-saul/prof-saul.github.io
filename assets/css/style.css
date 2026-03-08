@@ -1,0 +1,24 @@
+/* Estilo limpio para la lista */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 1.1em;
+}
+
+li::before {
+    content: "📁 "; /* Icono de carpeta */
+}
+
+li a {
+    text-decoration: none;
+    color: #333;
+}
+
+li:hover {
+    background-color: #f9f9f9;
+}
