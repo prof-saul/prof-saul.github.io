@@ -12,18 +12,11 @@ layout: default
 
 Aquí puedes encontrar el material organizado por áreas temáticas:
 
-# Recursos Educativos
-Bienvenido al centro de recursos. Selecciona una carpeta para explorar el contenido:
-
 <ul>
   <li><a href="matematicas/">Matemáticas</a></li>
   <li><a href="ciencias/">Ciencias Naturales</a></li>
   <li><a href="tecnologia/">Tecnología</a></li>
 </ul>
-
-* **[Matemáticas](/matematicas/)**: Guías de ejercicios, fórmulas y resolución de problemas paso a paso.
-* **[Ciencias Naturales](/ciencias/)**: Presentaciones, experimentos y lecturas complementarias.
-* **[Tecnología y Programación](/tech/)**: Tutoriales de herramientas digitales y conceptos básicos de código.
 
 ---
 
@@ -38,4 +31,5 @@ El objetivo de este sitio es democratizar el acceso al conocimiento y ofrecer un
 * 📧 Correo electrónico: [saul.antonio.guardado@clases.edu.sv](mailto:saul.antonio.guardado@clases.edu.sv)
 
 ---
+
 
