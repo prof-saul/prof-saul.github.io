@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursos Educativos - Profe Saul</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Paleta de colores y variables */
+        :root {
+            --primary-color: #2563eb; /* Azul educativo */
+            --bg-color: #f1f5f9; /* Fondo gris muy claro */
+            --card-bg: #ffffff;
+            --text-main: #1e293b; /* Texto oscuro suave */
+            --text-muted: #64748b;
+        }
+
+        /* Estilos generales */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Contenedor principal para centrar el contenido */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Encabezado */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Estilo de los enlaces */
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        /* Estilo de las secciones (Tarjetas/Cards) */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 0;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 12px;
+            color: #0f172a;
+        }
+
+        /* Estilo para las listas (Carpetas) */
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            padding: 12px 16px;
+            background: #f8fafc;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #f1f5f9;
+            transition: background 0.2s;
+        }
+
+        li:hover {
+            background: #e2e8f0;
+        }
+
+        /* Pie de página */
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-bottom: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Recursos Educativos</h1>
+            <p>Material de apoyo y guías de estudio</p>
+            <a href="https://github.com/prof-saul">Ver mi perfil de GitHub</a>
+        </header>
+
+        <div class="card">
+            <h2>👋 Bienvenidos</h2>
+            <p>¡Hola! Soy el profe Saul. Este espacio está dedicado a compartir materiales, guías y recursos de aprendizaje que he desarrollado a lo largo de mi trayectoria docente.</p>
+        </div>
+
+        <div class="card">
+            <h2>📚 Mis Recursos</h2>
+            <p>Aquí puedes encontrar el material organizado por áreas temáticas:</p>
+            <ul>
+                <li>📁 <a href="#">Matemáticas</a></li>
+                <li>📁 <a href="#">Ciencias Naturales</a></li>
+                <li>📁 <a href="#">Tecnología</a></li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>💡 Sobre este espacio</h2>
+            <p>El objetivo de este sitio es democratizar el acceso al conocimiento y ofrecer una herramienta de apoyo para estudiantes y colegas. Todo el material aquí compartido está bajo una licencia <strong>Creative Commons (CC BY-NC 4.0)</strong>, por lo que puedes usarlo libremente con fines educativos no comerciales, siempre que atribuyas la autoría.</p>
+        </div>
+
+        <div class="card">
+            <h2>📫 Contacto</h2>
+            <p>¿Tienes dudas sobre algún recurso o te gustaría colaborar?</p>
+            <ul>
+                <li>📧 <span><strong>Correo electrónico:</strong> <a href="mailto:saul.antonio.guardado@clases.edu.sv">saul.antonio.guardado@clases.edu.sv</a></span></li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>Creado por el Profe Saul • Alojado en GitHub Pages</p>
+        </footer>
+    </div>
+
+</body>
+</html>
