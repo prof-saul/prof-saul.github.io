@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Gramática y Acentuación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&display=swap');
+
+        :root {
+            --lab-blue: #3a86ff;
+            --lab-purple: #8338ec;
+            --lab-pink: #ff006e;
+            --lab-orange: #fb5607;
+            --lab-yellow: #ffbe0b;
+            --lab-green: #38b000;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn.active {
+            background-color: var(--lab-blue);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .animate-pop {
+            animation: pop 0.3s ease-out;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .bubble {
+            border-radius: 50%;
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            animation: rise 5s infinite ease-in;
+            bottom: -100px;
+            pointer-events: none;
+        }
+
+        @keyframes rise {
+            0% { bottom: -100px; transform: translateX(0); }
+            50% { transform: translateX(50px); }
+            100% { bottom: 1080px; transform: translateX(-50px); }
+        }
+
+        .game-canvas {
+            min-height: 450px;
+            background: white;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vowel-box {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .vowel-strong { background-color: var(--lab-orange); color: white; }
+        .vowel-weak { background-color: var(--lab-blue); color: white; }
+    </style>
+</head>
+<body class="bg-indigo-50 min-h-screen overflow-x-hidden">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white py-6 px-4 shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
+            <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                <div class="bg-white p-3 rounded-full text-indigo-600">
+                    <i class="fas fa-flask fa-2x"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl tracking-wide uppercase">Laboratorio de Letras</h1>
+                    <p class="text-indigo-100 text-sm">ADN de las Palabras • Nivel Primaria</p>
+                </div>
+            </div>
+            
+            <nav class="flex space-x-2 bg-indigo-700 p-1 rounded-xl">
+                <button onclick="switchTab('learn')" id="btn-learn" class="tab-btn active px-4 py-2 rounded-lg font-bold transition-all">
+                    <i class="fas fa-microscope mr-2"></i>Aprender
+                </button>
+                <button onclick="switchTab('games')" id="btn-games" class="tab-btn px-4 py-2 rounded-lg font-bold transition-all">
+                    <i class="fas fa-gamepad mr-2"></i>Jugar
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto p-4 md:p-8">
+        
+        <!-- SECTION: LEARN -->
+        <section id="section-learn" class="animate-pop">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Syllables Card -->
+                <div class="bg-white rounded-3xl p-6 card-shadow border-t-8 border-blue-500">
+                    <h2 class="text-blue-600 text-2xl mb-4"><i class="fas fa-cut mr-2"></i>¿Qué es una sílaba?</h2>
+                    <p class="mb-4 text-gray-700 leading-relaxed">
+                        Es el sonido (o grupo de sonidos) que pronunciamos de <b>un solo golpe de voz</b>. Imagina que cada palabra es un tren y las sílabas son sus vagones.
+                    </p>
+                    <div class="bg-blue-50 p-4 rounded-2xl flex justify-around items-center mb-4">
+                        <div class="text-center">
+                            <span class="text-3xl font-bold text-blue-700">CA</span>
+                            <p class="text-xs text-blue-400">Vagón 1</p>
+                        </div>
+                        <div class="text-gray-300">-</div>
+                        <div class="text-center">
+                            <span class="text-3xl font-bold text-blue-700">SA</span>
+                            <p class="text-xs text-blue-400">Vagón 2</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 bg-gray-100 p-3 rounded-lg italic">
+                        <b>Tip Científico:</b> ¡Usa tus manos! Da un aplauso por cada golpe de voz que sientas al hablar.
+                    </p>
+                </div>
+
+                <!-- Diphthong/Hiatus Card -->
+                <div class="bg-white rounded-3xl p-6 card-shadow border-t-8 border-orange-500">
+                    <h2 class="text-orange-600 text-2xl mb-4"><i class="fas fa-atom mr-2"></i>Diptongos e Hiatos</h2>
+                    <p class="mb-4 text-gray-700">Para entender esto, divide las vocales por su fuerza:</p>
+                    <div class="flex space-x-4 mb-6">
+                        <div class="flex-1 bg-orange-100 p-3 rounded-xl text-center">
+                            <span class="block font-bold text-orange-700">Fuertes</span>
+                            <div class="flex justify-center gap-2 mt-2">
+                                <span class="vowel-box vowel-strong">A</span>
+                                <span class="vowel-box vowel-strong">E</span>
+                                <span class="vowel-box vowel-strong">O</span>
+                            </div>
+                        </div>
+                        <div class="flex-1 bg-blue-100 p-3 rounded-xl text-center">
+                            <span class="block font-bold text-blue-700">Débiles</span>
+                            <div class="flex justify-center gap-2 mt-2">
+                                <span class="vowel-box vowel-weak">I</span>
+                                <span class="vowel-box vowel-weak">U</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="p-3 bg-green-50 rounded-xl border-l-4 border-green-500">
+                            <h3 class="font-bold text-green-700">DIPTONGO: ¡Mejores Amigas!</h3>
+                            <p class="text-sm">Vocal débil + fuerte (sin tilde) se quedan <b>juntas</b>. <br> Ej: F<b>ue</b>-go, C<b>iu</b>-dad, P<b>ai</b>-saje.</p>
+                        </div>
+                        <div class="p-3 bg-red-50 rounded-xl border-l-4 border-red-500">
+                            <h3 class="font-bold text-red-700">HIATO: ¡Se separan!</h3>
+                            <p class="text-sm">Dos fuertes juntas o una débil con tilde se <b>separan</b>. <br> Ej: T<b>e</b>-<b>a</b>-tro, R<b>í</b>-<b>o</b>, Po-<b>e</b>-t<b>a</b>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Classification Card (Full width) -->
+                <div class="md:col-span-2 bg-white rounded-3xl p-8 card-shadow border-t-8 border-purple-500">
+                    <h2 class="text-purple-600 text-2xl mb-6 text-center"><i class="fas fa-music mr-2"></i>La Sílaba Tónica: El Ritmo</h2>
+                    <p class="text-center mb-8 text-gray-600">Es la sílaba que suena más fuerte. Según dónde esté, clasificamos la palabra:</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="p-4 bg-yellow-50 rounded-2xl border-b-4 border-yellow-400">
+                            <span class="bg-yellow-400 text-white px-3 py-1 rounded-full text-xs font-bold uppercase mb-2 inline-block">Última</span>
+                            <h3 class="text-xl text-yellow-700 mb-1">Agudas</h3>
+                            <p class="text-xs text-gray-600 mb-2">Tilde si termina en <b>N, S o Vocal</b>.</p>
+                            <p class="font-bold text-yellow-800">Ej: Ca-m<span class="underline decoration-yellow-400">ión</span>, Re-loj.</p>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-2xl border-b-4 border-green-400">
+                            <span class="bg-green-400 text-white px-3 py-1 rounded-full text-xs font-bold uppercase mb-2 inline-block">Penúltima</span>
+                            <h3 class="text-xl text-green-700 mb-1">Graves</h3>
+                            <p class="text-xs text-gray-600 mb-2">Tilde si <b>NO</b> termina en N, S o Vocal.</p>
+                            <p class="font-bold text-green-800">Ej: L<span class="underline decoration-green-400">á</span>-piz, Si-lla.</p>
+                        </div>
+                        <div class="p-4 bg-blue-50 rounded-2xl border-b-4 border-blue-400">
+                            <span class="bg-blue-400 text-white px-3 py-1 rounded-full text-xs font-bold uppercase mb-2 inline-block">Antepenúltima</span>
+                            <h3 class="text-xl text-blue-700 mb-1">Esdrújulas</h3>
+                            <p class="text-xs text-gray-600 mb-2"><b>¡Todas llevan tilde!</b></p>
+                            <p class="font-bold text-blue-800">Ej: M<span class="underline decoration-blue-400">ú</span>-si-ca, Br<span class="underline decoration-blue-400">ú</span>-ju-la.</p>
+                        </div>
+                        <div class="p-4 bg-pink-50 rounded-2xl border-b-4 border-pink-400">
+                            <span class="bg-pink-400 text-white px-3 py-1 rounded-full text-xs font-bold uppercase mb-2 inline-block">Anterior</span>
+                            <h3 class="text-xl text-pink-700 mb-1">Sobresdrújulas</h3>
+                            <p class="text-xs text-gray-600 mb-2"><b>¡Todas llevan tilde!</b></p>
+                            <p class="font-bold text-pink-800">Ej: C<span class="underline decoration-pink-400">ó</span>-me-te-lo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: GAMES -->
+        <section id="section-games" class="hidden animate-pop">
+            
+            <!-- Game Selector -->
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <button onclick="loadGame('slicer')" class="game-btn bg-white p-4 rounded-2xl shadow-md border-b-4 border-blue-500 hover:bg-blue-50 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">🔪</span>
+                    <span class="font-bold">Separador</span>
+                </button>
+                <button onclick="loadGame('classifier')" class="game-btn bg-white p-4 rounded-2xl shadow-md border-b-4 border-purple-500 hover:bg-purple-50 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">🧪</span>
+                    <span class="font-bold">Clasificador</span>
+                </button>
+                <button onclick="loadGame('vowels')" class="game-btn bg-white p-4 rounded-2xl shadow-md border-b-4 border-orange-500 hover:bg-orange-50 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">💥</span>
+                    <span class="font-bold">Diptongo/Hiato</span>
+                </button>
+            </div>
+
+            <!-- Game Container -->
+            <div id="game-display" class="game-canvas card-shadow p-8 flex flex-col items-center justify-center text-center">
+                <div id="game-welcome">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=GrammarBot&backgroundColor=b6e3f4" alt="Robot" class="w-32 h-32 mx-auto mb-4">
+                    <h2 class="text-2xl text-indigo-800 mb-2 uppercase">¡Zona de Pruebas!</h2>
+                    <p class="text-gray-600">Selecciona un experimento arriba para iniciar.</p>
+                </div>
+                
+                <div id="game-content" class="w-full hidden">
+                    <!-- Dinámicamente cargado por JS -->
+                </div>
+            </div>
+
+            <!-- Score Area -->
+            <div id="score-container" class="mt-6 flex justify-between items-center hidden bg-white p-4 rounded-2xl shadow-inner">
+                <div class="text-indigo-600 font-bold">
+                    <i class="fas fa-star mr-2"></i>Puntos: <span id="current-score">0</span>
+                </div>
+                <div id="game-progress" class="text-xs text-gray-400 font-bold uppercase tracking-widest">
+                    Palabra <span id="word-count">0</span> de <span id="total-count">0</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para mensajes -->
+    <div id="msg-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center animate-pop border-4 border-indigo-200 shadow-2xl">
+            <div id="msg-icon" class="text-6xl mb-4 drop-shadow-md"></div>
+            <h2 id="msg-title" class="text-2xl mb-2 font-bold uppercase"></h2>
+            <p id="msg-text" class="text-gray-600 mb-6 font-medium"></p>
+            <button onclick="closeModal()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold w-full hover:bg-indigo-700 shadow-lg active:scale-95 transition-all">
+                ¡ENTENDIDO!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        const words = [
+            // AGUDAS
+            { word: "CAFÉ", syllables: "CA-FÉ", type: "aguda", group: "none" },
+            { word: "RELOJ", syllables: "RE-LOJ", type: "aguda", group: "none" },
+            { word: "CORAZÓN", syllables: "CO-RA-ZÓN", type: "aguda", group: "none" },
+            { word: "CAMIÓN", syllables: "CA-MIÓN", type: "aguda", group: "diptongo" },
+            { word: "SOFÁ", syllables: "SO-FÁ", type: "aguda", group: "none" },
+            { word: "COMPÁS", syllables: "COM-PÁS", type: "aguda", group: "none" },
+            { word: "BAÚL", syllables: "BA-ÚL", type: "aguda", group: "hiato" },
+            { word: "CIUDAD", syllables: "CIU-DAD", type: "aguda", group: "diptongo" },
+            
+            // GRAVES
+            { word: "CASA", syllables: "CA-SA", type: "grave", group: "none" },
+            { word: "ÁRBOL", syllables: "ÁR-BOL", type: "grave", group: "none" },
+            { word: "RÍO", syllables: "RÍ-O", type: "grave", group: "hiato" },
+            { word: "LÁPIZ", syllables: "LÁ-PIZ", type: "grave", group: "none" },
+            { word: "MESA", syllables: "ME-SA", type: "grave", group: "none" },
+            { word: "FÚTBOL", syllables: "FÚT-BOL", type: "grave", group: "none" },
+            { word: "AIRE", syllables: "AI-RE", type: "grave", group: "diptongo" },
+            { word: "JOVEN", syllables: "JO-VEN", type: "grave", group: "none" },
+            { word: "CUIDADO", syllables: "CUI-DA-DO", type: "grave", group: "diptongo" },
+            { word: "TEATRO", syllables: "TE-A-TRO", type: "grave", group: "hiato" },
+            { word: "SUAVE", syllables: "SUA-VE", type: "grave", group: "diptongo" },
+
+            // ESDRÚJULAS
+            { word: "PÁJARO", syllables: "PÁ-JA-RO", type: "esdrújula", group: "none" },
+            { word: "MÚSICA", syllables: "MÚ-SI-CA", type: "esdrújula", group: "none" },
+            { word: "BRÚJULA", syllables: "BRÚ-JU-LA", type: "esdrújula", group: "none" },
+            { word: "PLÁTANO", syllables: "PLÁ-TA-NO", type: "esdrújula", group: "none" },
+            { word: "HÉROE", syllables: "HÉ-RO-E", type: "esdrújula", group: "hiato" },
+            { word: "SÁBADO", syllables: "SÁ-BA-DO", type: "esdrújula", group: "none" },
+            { word: "TELÉFONO", syllables: "TE-LÉ-FO-NO", type: "esdrújula", group: "none" },
+            { word: "GRAMÁTICA", syllables: "GRA-MÁ-TI-CA", type: "esdrújula", group: "none" },
+            { word: "QUÍMICA", syllables: "QUÍ-MI-CA", type: "esdrújula", group: "none" },
+
+            // SOBRESDRÚJULAS
+            { word: "DÍGAMELO", syllables: "DÍ-GA-ME-LO", type: "sobresdrújula", group: "none" },
+            { word: "CÓMPRASELO", syllables: "CÓM-PRA-SE-LO", type: "sobresdrújula", group: "none" },
+            { word: "LÉESELO", syllables: "LÉ-E-SE-LO", type: "sobresdrújula", group: "hiato" },
+            { word: "GUÁRDAMELO", syllables: "GUÁR-DA-ME-LO", type: "sobresdrújula", group: "none" },
+            { word: "RECIBELES", syllables: "RE-CÍ-BE-LES", type: "esdrújula", group: "none" } // Extra esdrújula para balance
+        ];
+
+        // System to prevent repetitions per session/game
+        const pools = {
+            slicer: [],
+            classifier: [],
+            vowels: []
+        };
+
+        let currentTab = 'learn';
+        let currentScore = 0;
+        let currentGame = '';
+        let currentWord = null;
+
+        // --- NAVIGATION ---
+        function switchTab(tab) {
+            document.getElementById(`section-learn`).classList.add('hidden');
+            document.getElementById(`section-games`).classList.add('hidden');
+            document.getElementById(`btn-learn`).classList.remove('active');
+            document.getElementById(`btn-games`).classList.remove('active');
+
+            document.getElementById(`section-${tab}`).classList.remove('hidden');
+            document.getElementById(`btn-${tab}`).classList.add('active');
+            currentTab = tab;
+
+            if(tab === 'games') {
+                document.getElementById('score-container').classList.remove('hidden');
+            } else {
+                document.getElementById('score-container').classList.add('hidden');
+            }
+        }
+
+        // --- CORE GAME ENGINE ---
+        function loadGame(game) {
+            currentGame = game;
+            document.getElementById('game-welcome').classList.add('hidden');
+            const content = document.getElementById('game-content');
+            content.classList.remove('hidden');
+            
+            // Highlight active game button
+            document.querySelectorAll('.game-btn').forEach(btn => btn.classList.remove('ring-4', 'ring-indigo-300'));
+            const activeBtn = Array.from(document.querySelectorAll('.game-btn')).find(b => b.onclick.toString().includes(game));
+            if(activeBtn) activeBtn.classList.add('ring-4', 'ring-indigo-300');
+
+            nextWord();
+            renderGame();
+        }
+
+        function getPool(game) {
+            if (game === 'vowels') {
+                // Only words with diphthong or hiatus
+                return words.filter(w => w.group !== 'none');
+            }
+            return words;
+        }
+
+        function nextWord() {
+            let pool = pools[currentGame];
+            let availableWords = getPool(currentGame);
+
+            // If pool is empty or finished, refill it
+            if (pool.length === 0 || pool.length >= availableWords.length) {
+                pools[currentGame] = [];
+                pool = pools[currentGame];
+            }
+
+            // Find words not yet played in this cycle
+            const playedIds = pool.map(w => w.word);
+            const remaining = availableWords.filter(w => !playedIds.includes(w.word));
+            
+            // Pick random from remaining
+            const randomIndex = Math.floor(Math.random() * remaining.length);
+            currentWord = remaining[randomIndex];
+            
+            // Add to played pool
+            pools[currentGame].push(currentWord);
+
+            // Update UI Counters
+            document.getElementById('word-count').innerText = pools[currentGame].length;
+            document.getElementById('total-count').innerText = availableWords.length;
+        }
+
+        function renderGame() {
+            const content = document.getElementById('game-content');
+            if (!currentWord) return;
+
+            content.classList.remove('animate-pop');
+            void content.offsetWidth; // Trigger reflow
+            content.classList.add('animate-pop');
+            
+            if (currentGame === 'slicer') {
+                content.innerHTML = `
+                    <h3 class="text-blue-600 text-xl mb-4 italic font-bold">"Usa guiones (-) para separar"</h3>
+                    <div class="bg-blue-50 py-8 px-4 rounded-3xl mb-6 shadow-inner">
+                        <span class="text-5xl font-bold tracking-widest text-blue-900 drop-shadow-sm">${currentWord.word}</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <input type="text" id="syllable-input" placeholder="Escribe aquí..." autocomplete="off"
+                               class="text-2xl p-4 rounded-2xl border-4 border-blue-200 focus:border-blue-500 outline-none text-center w-full max-w-xs uppercase font-bold shadow-sm">
+                        <button onclick="checkSlicer()" class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all text-xl shadow-lg active:scale-95">
+                            ¡SEPARAR!
+                        </button>
+                    </div>
+                `;
+                const input = document.getElementById('syllable-input');
+                input.focus();
+                input.addEventListener('keypress', e => { if(e.key === 'Enter') checkSlicer(); });
+            } 
+            else if (currentGame === 'classifier') {
+                content.innerHTML = `
+                    <h3 class="text-purple-600 text-xl mb-4 italic font-bold">"¿Qué tipo de palabra es?"</h3>
+                    <div class="bg-purple-50 py-8 px-4 rounded-3xl mb-6 shadow-inner">
+                        <span class="text-5xl font-bold tracking-widest text-purple-900 drop-shadow-sm">${currentWord.word}</span>
+                        <p class="text-sm text-purple-400 mt-2 font-bold bg-white/50 inline-block px-3 py-1 rounded-full">Pista: ${currentWord.syllables}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                        <button onclick="checkClassifier('aguda')" class="bg-white border-b-4 border-yellow-400 p-4 rounded-2xl font-bold hover:bg-yellow-400 hover:text-white transition-all shadow-md active:scale-95 uppercase">AGUDA</button>
+                        <button onclick="checkClassifier('grave')" class="bg-white border-b-4 border-green-400 p-4 rounded-2xl font-bold hover:bg-green-400 hover:text-white transition-all shadow-md active:scale-95 uppercase">GRAVE</button>
+                        <button onclick="checkClassifier('esdrújula')" class="bg-white border-b-4 border-blue-400 p-4 rounded-2xl font-bold hover:bg-blue-400 hover:text-white transition-all shadow-md active:scale-95 uppercase">ESDRÚJULA</button>
+                        <button onclick="checkClassifier('sobresdrújula')" class="bg-white border-b-4 border-pink-400 p-4 rounded-2xl font-bold hover:bg-pink-400 hover:text-white transition-all shadow-md active:scale-95 uppercase">SOBRESDRÚJULA</button>
+                    </div>
+                `;
+            }
+            else if (currentGame === 'vowels') {
+                content.innerHTML = `
+                    <h3 class="text-orange-600 text-xl mb-4 italic font-bold">"¿Diptongo o Hiato?"</h3>
+                    <div class="bg-orange-50 py-8 px-4 rounded-3xl mb-6 shadow-inner">
+                        <span class="text-5xl font-bold tracking-widest text-orange-900 drop-shadow-sm">${currentWord.word}</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="checkVowels('diptongo')" class="bg-green-500 text-white px-10 py-6 rounded-3xl font-bold text-2xl hover:bg-green-600 hover:scale-105 transition-all shadow-lg active:scale-95 uppercase">DIPTONGO</button>
+                        <button onclick="checkVowels('hiato')" class="bg-red-500 text-white px-10 py-6 rounded-3xl font-bold text-2xl hover:bg-red-600 hover:scale-105 transition-all shadow-lg active:scale-95 uppercase">HIATO</button>
+                    </div>
+                `;
+            }
+        }
+
+        // --- CHECKERS ---
+        function checkSlicer() {
+            const input = document.getElementById('syllable-input').value.toUpperCase().trim();
+            const correct = currentWord.syllables;
+            
+            if (input === correct) {
+                showModal('¡Laboratorio Éxito!', `Has separado "${currentWord.word}" perfectamente.`, '🎉');
+                updateScore(10);
+            } else {
+                showModal('¡Reacción Errónea!', `El ADN de esta palabra es: ${correct}`, '🧐');
+                updateScore(-2);
+            }
+        }
+
+        function checkClassifier(type) {
+            const correct = currentWord.type;
+            if (type === correct) {
+                showModal('¡Análisis Perfecto!', `¡Efectivamente! "${currentWord.word}" es ${type}.`, '🧪');
+                updateScore(10);
+            } else {
+                showModal('¡Cuidado!', `En el microscopio se ve que es ${correct}.`, '🔬');
+                updateScore(-2);
+            }
+        }
+
+        function checkVowels(choice) {
+            const correct = currentWord.group;
+            if (choice === correct) {
+                const msg = choice === 'diptongo' ? '¡Esas vocales son inseparables!' : '¡Esas vocales necesitan su propio espacio!';
+                showModal('¡Combinación Exitosa!', msg, '💥');
+                updateScore(10);
+            } else {
+                showModal('¡Inestabilidad!', `Esta palabra contiene un ${correct}.`, '⚠️');
+                updateScore(-2);
+            }
+        }
+
+        function updateScore(points) {
+            currentScore += points;
+            if (currentScore < 0) currentScore = 0;
+            document.getElementById('current-score').innerText = currentScore;
+        }
+
+        // --- UI HELPERS ---
+        function showModal(title, text, icon) {
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-text').innerText = text;
+            document.getElementById('msg-icon').innerText = icon;
+            document.getElementById('msg-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('msg-modal').classList.add('hidden');
+            nextWord();
+            renderGame();
+        }
+
+        // Initialize Background
+        function createBubbles() {
+            const colors = ['var(--lab-blue)', 'var(--lab-pink)', 'var(--lab-yellow)', 'var(--lab-green)'];
+            for(let i = 0; i < 15; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = Math.random() * 60 + 20 + 'px';
+                bubble.style.width = size;
+                bubble.style.height = size;
+                bubble.style.left = Math.random() * 100 + 'vw';
+                bubble.style.animationDuration = Math.random() * 4 + 3 + 's';
+                bubble.style.animationDelay = Math.random() * 5 + 's';
+                bubble.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                bubble.style.opacity = "0.08";
+                document.body.appendChild(bubble);
+            }
+        }
+
+        window.onload = () => {
+            createBubbles();
+        };
+
+    </script>
+</body>
+</html>
