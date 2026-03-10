@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio del Punto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0fdf4; /* Light green background */
+        }
+
+        /* Custom Animations */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bounce-slight:hover {
+            transform: translateY(-3px);
+            transition: transform 0.2s ease;
+        }
+
+        /* Flashcard styles */
+        .flashcard-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            backface-visibility: hidden;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Interactive Text */
+        .punto-interactivo {
+            display: inline-block;
+            background-color: #fef08a;
+            color: #b45309;
+            font-weight: bold;
+            padding: 0 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .punto-interactivo:hover {
+            background-color: #fde047;
+            transform: scale(1.2);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #22c55e; 
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #16a34a; 
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-green-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flask-conical"><path d="M10 2v7.31"/><path d="M14 9.3V2"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>
+                <h1 class="text-2xl font-bold tracking-wide">Lab del Punto</h1>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex gap-2 bg-green-700 p-1 rounded-full">
+                <button onclick="switchTab('aprender')" id="btn-aprender" class="px-5 py-2 rounded-full font-semibold transition-colors bg-white text-green-700 shadow">Aprender</button>
+                <button onclick="switchTab('estudiar')" id="btn-estudiar" class="px-5 py-2 rounded-full font-semibold transition-colors text-white hover:bg-green-500">Estudiar</button>
+                <button onclick="switchTab('jugar')" id="btn-jugar" class="px-5 py-2 rounded-full font-semibold transition-colors text-white hover:bg-green-500">Jugar</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 py-8">
+        
+        <!-- SECCIÓN 1: APRENDER -->
+        <section id="sec-aprender" class="fade-in block">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl font-extrabold text-green-700 mb-4">Conoce el Punto</h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">El punto (.) es un signo de puntuación fundamental. Nos indica una pausa larga y marca el final de una oración, un párrafo o un texto. ¡Descubre sus tipos!</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Tarjeta 1 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 border-t-4 border-blue-500 bounce-slight">
+                    <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center text-blue-600 font-black text-2xl mb-4">.</div>
+                    <h3 class="text-xl font-bold mb-2">Punto y seguido</h3>
+                    <p class="text-slate-600 mb-4 text-sm">Separa oraciones que tratan sobre el mismo tema dentro de un mismo párrafo. Después de este punto, se sigue escribiendo en la misma línea.</p>
+                    <div class="bg-slate-50 p-3 rounded text-sm italic border-l-2 border-blue-400">
+                        "El sol brillaba con fuerza<strong class="text-blue-600 font-black text-lg">.</strong> Los pájaros cantaban."
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 border-t-4 border-purple-500 bounce-slight">
+                    <div class="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center text-purple-600 font-black text-2xl mb-4">.</div>
+                    <h3 class="text-xl font-bold mb-2">Punto y aparte</h3>
+                    <p class="text-slate-600 mb-4 text-sm">Separa dos párrafos distintos, que desarrollan ideas o contenidos diferentes. Después de este punto, se debe cambiar de línea.</p>
+                    <div class="bg-slate-50 p-3 rounded text-sm italic border-l-2 border-purple-400">
+                        "...fin de la primera idea<strong class="text-purple-600 font-black text-lg">.</strong><br><br>En el siguiente párrafo..."
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 border-t-4 border-red-500 bounce-slight">
+                    <div class="bg-red-100 w-12 h-12 rounded-full flex items-center justify-center text-red-600 font-black text-2xl mb-4">.</div>
+                    <h3 class="text-xl font-bold mb-2">Punto final</h3>
+                    <p class="text-slate-600 mb-4 text-sm">Es el que cierra definitivamente un texto o una parte importante de él (como un capítulo). No se escribe nada después de él.</p>
+                    <div class="bg-slate-50 p-3 rounded text-sm italic border-l-2 border-red-400">
+                        "...y vivieron felices para siempre<strong class="text-red-600 font-black text-lg">.</strong>"
+                    </div>
+                </div>
+
+                <!-- Tarjeta 4 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 border-t-4 border-orange-500 bounce-slight">
+                    <div class="bg-orange-100 w-12 h-12 rounded-full flex items-center justify-center text-orange-600 font-black text-2xl mb-4">.</div>
+                    <h3 class="text-xl font-bold mb-2">Abreviaturas</h3>
+                    <p class="text-slate-600 mb-4 text-sm">El punto también se utiliza para indicar que una palabra ha sido abreviada. Hay algunas excepciones como los símbolos (km, kg).</p>
+                    <div class="bg-slate-50 p-3 rounded text-sm italic border-l-2 border-orange-400">
+                        "El <strong class="text-orange-600">Sr.</strong> García visitó a la <strong class="text-orange-600">Dra.</strong> López."
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regla de oro -->
+            <div class="mt-12 bg-yellow-100 border border-yellow-300 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6 shadow-sm">
+                <div class="text-yellow-600 bg-yellow-200 p-4 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold text-yellow-800 mb-2">¡Regla de Oro!</h4>
+                    <p class="text-yellow-900">Después de un punto y seguido, o un punto y aparte, la palabra que sigue <strong>SIEMPRE</strong> debe comenzar con letra <strong>Mayúscula</strong>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: ESTUDIAR -->
+        <section id="sec-estudiar" class="fade-in hidden">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-extrabold text-green-700 mb-4">Análisis de Textos</h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">Haz clic en los puntos resaltados en el texto para descubrir qué tipo de punto son y por qué se usan ahí.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 md:p-10 max-w-4xl mx-auto flex flex-col md:flex-row gap-8">
+                
+                <!-- Texto -->
+                <div class="md:w-2/3 text-lg leading-relaxed text-slate-700 font-serif">
+                    <p class="mb-4">
+                        Era una mañana de primavera, y el <span class="font-bold text-slate-900">Sr<span class="punto-interactivo" onclick="mostrarInfoPunto('abreviatura')">.</span></span> Martínez decidió dar un paseo por el parque central<span class="punto-interactivo" onclick="mostrarInfoPunto('seguido')">.</span> El aire fresco lo llenaba de energía mientras observaba a los niños jugar en los columpios<span class="punto-interactivo" onclick="mostrarInfoPunto('aparte')">.</span>
+                    </p>
+                    <p class="mb-4">
+                        De repente, recordó que tenía una reunión importante a las 10:00 a<span class="punto-interactivo" onclick="mostrarInfoPunto('abreviatura2')">.</span>m<span class="punto-interactivo" onclick="mostrarInfoPunto('abreviatura2')">.</span> con sus socios<span class="punto-interactivo" onclick="mostrarInfoPunto('seguido2')">.</span> Apresuró el paso y se dirigió hacia su oficina ubicada en la avenida principal<span class="punto-interactivo" onclick="mostrarInfoPunto('aparte2')">.</span>
+                    </p>
+                    <p>
+                        Al llegar, saludó a la recepcionista y entró a la sala de juntas, listo para presentar su nuevo proyecto<span class="punto-interactivo" onclick="mostrarInfoPunto('final')">.</span>
+                    </p>
+                </div>
+
+                <!-- Panel de información -->
+                <div class="md:w-1/3 bg-slate-50 rounded-xl p-6 border-2 border-dashed border-slate-300 flex flex-col justify-center items-center text-center min-h-[250px]" id="info-panel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 lucide lucide-mouse-pointer-click"><path d="M14 4.1 12 6"/><path d="M5.1 8l-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg>
+                    <h3 class="text-xl font-bold text-slate-400 mb-2">Selecciona un punto</h3>
+                    <p class="text-slate-500 text-sm">Haz clic en los puntos de color amarillo del texto para ver su explicación.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: JUGAR -->
+        <section id="sec-jugar" class="fade-in hidden">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-extrabold text-green-700 mb-4">Zona de Pruebas</h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">Pon a prueba lo que has aprendido con estos divertidos minijuegos.</p>
+            </div>
+
+            <!-- Menú de Juegos -->
+            <div id="juegos-menu" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Juego 1 Card -->
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-8 flex flex-col items-center text-center hover:shadow-xl transition-shadow cursor-pointer bounce-slight group" onclick="iniciarJuego1()">
+                    <div class="bg-indigo-100 p-5 rounded-full mb-6 group-hover:bg-indigo-200 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-microscope"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-3">Clasificador Rápido</h3>
+                    <p class="text-slate-600 mb-6 flex-grow">Aparecerá una oración con un punto resaltado. Tienes que identificar de qué tipo de punto se trata lo más rápido posible.</p>
+                    <button class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 w-full">¡Jugar ahora!</button>
+                </div>
+
+                <!-- Juego 2 Card -->
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-100 p-8 flex flex-col items-center text-center hover:shadow-xl transition-shadow cursor-pointer bounce-slight group" onclick="iniciarJuego2()">
+                    <div class="bg-teal-100 p-5 rounded-full mb-6 group-hover:bg-teal-200 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-3">Reparador de Textos</h3>
+                    <p class="text-slate-600 mb-6 flex-grow">El texto ha perdido sus puntos. Haz clic en las cajas vacías para colocar el punto donde corresponda de manera lógica.</p>
+                    <button class="bg-teal-600 text-white font-bold py-3 px-8 rounded-full hover:bg-teal-700 w-full">¡Jugar ahora!</button>
+                </div>
+            </div>
+
+            <!-- Interfaz Juego 1: Clasificador Rápido -->
+            <div id="juego1-container" class="hidden max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+                <div class="bg-indigo-600 p-4 text-white flex justify-between items-center">
+                    <h3 class="font-bold text-xl">Clasificador Rápido</h3>
+                    <div class="flex gap-4">
+                        <span class="font-semibold bg-indigo-800 px-3 py-1 rounded-full">Puntos: <span id="j1-score">0</span></span>
+                        <span class="font-semibold bg-indigo-800 px-3 py-1 rounded-full text-yellow-300">Ronda: <span id="j1-round">1</span>/5</span>
+                    </div>
+                </div>
+                <div class="p-8 text-center min-h-[300px] flex flex-col justify-center items-center">
+                    
+                    <div id="j1-game-area">
+                        <p class="text-slate-500 mb-6 text-sm font-semibold uppercase tracking-wider">Identifica el tipo del punto marcado en amarillo:</p>
+                        <div id="j1-text" class="text-2xl text-slate-800 font-serif mb-10 leading-relaxed border-l-4 border-indigo-500 bg-slate-50 p-6 rounded text-left shadow-inner">
+                            Cargando...
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 w-full max-w-lg mx-auto">
+                            <button onclick="verificarRespuestaJ1('seguido')" class="bg-white border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all">Punto y seguido</button>
+                            <button onclick="verificarRespuestaJ1('aparte')" class="bg-white border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all">Punto y aparte</button>
+                            <button onclick="verificarRespuestaJ1('final')" class="bg-white border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all">Punto final</button>
+                            <button onclick="verificarRespuestaJ1('abreviatura')" class="bg-white border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all">Abreviatura</button>
+                        </div>
+                    </div>
+
+                    <div id="j1-result-area" class="hidden flex flex-col items-center">
+                        <div id="j1-icon" class="mb-4"></div>
+                        <h4 id="j1-feedback-title" class="text-3xl font-bold mb-2"></h4>
+                        <p id="j1-feedback-text" class="text-slate-600 mb-8 max-w-md"></p>
+                        <div class="flex gap-4">
+                            <button id="j1-next-btn" onclick="siguienteRondaJ1()" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700">Siguiente</button>
+                            <button onclick="volverMenuJuegos()" class="bg-slate-200 text-slate-700 font-bold py-3 px-8 rounded-full hover:bg-slate-300">Salir</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Interfaz Juego 2: Reparador de Textos -->
+            <div id="juego2-container" class="hidden max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+                <div class="bg-teal-600 p-4 text-white flex justify-between items-center">
+                    <h3 class="font-bold text-xl">Reparador de Textos</h3>
+                    <button onclick="volverMenuJuegos()" class="bg-teal-800 hover:bg-teal-900 px-4 py-1 rounded-full text-sm font-bold transition">Volver</button>
+                </div>
+                <div class="p-8 min-h-[300px]">
+                    <p class="text-slate-500 mb-6 text-center text-sm font-semibold uppercase tracking-wider">Haz clic en los cuadros <span class="inline-block w-4 h-4 bg-slate-200 border-2 border-dashed border-slate-400 mx-1 align-middle rounded"></span> que creas que DEBEN llevar un punto.</p>
+                    
+                    <div id="j2-game-area" class="text-xl text-slate-800 font-serif leading-loose bg-slate-50 p-8 rounded-xl border border-slate-200 shadow-inner">
+                        <!-- Generado por JS -->
+                    </div>
+
+                    <div class="mt-8 flex justify-center">
+                        <button onclick="verificarReparacion()" class="bg-teal-600 text-white font-bold py-3 px-10 rounded-full hover:bg-teal-700 shadow-lg bounce-slight text-lg">Revisar Texto</button>
+                    </div>
+
+                    <div id="j2-feedback" class="mt-6 hidden p-4 rounded-xl text-center font-bold">
+                        <!-- Mensaje dinámico -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 py-6 text-center mt-auto">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            <p class="text-sm">Diseñado para aprender jugando. Gramática en HTML, CSS y JS puro.</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- NAVEGACIÓN DE PESTAÑAS ---
+        function switchTab(tabId) {
+            // Ocultar todas las secciones
+            document.getElementById('sec-aprender').classList.add('hidden');
+            document.getElementById('sec-estudiar').classList.add('hidden');
+            document.getElementById('sec-jugar').classList.add('hidden');
+
+            // Resetear estilos de botones
+            const btnClasses = "px-5 py-2 rounded-full font-semibold transition-colors";
+            const btnInactive = `${btnClasses} text-white hover:bg-green-500`;
+            const btnActive = `${btnClasses} bg-white text-green-700 shadow`;
+
+            document.getElementById('btn-aprender').className = btnInactive;
+            document.getElementById('btn-estudiar').className = btnInactive;
+            document.getElementById('btn-jugar').className = btnInactive;
+
+            // Mostrar sección activa y aplicar estilo
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+            document.getElementById(`btn-${tabId}`).className = btnActive;
+
+            // Resetear juegos si se sale de la pestaña
+            if(tabId !== 'jugar'){
+                volverMenuJuegos();
+            }
+        }
+
+        // --- LÓGICA SECCIÓN: ESTUDIAR ---
+        const explicacionesPuntos = {
+            'abreviatura': {
+                titulo: 'Punto en Abreviatura',
+                color: 'text-orange-600',
+                icono: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 text-orange-500"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+                texto: 'Se utiliza después de la palabra "Señor" abreviada (Sr.). Nos indica que la palabra ha sido acortada.'
+            },
+            'seguido': {
+                titulo: 'Punto y seguido',
+                color: 'text-blue-600',
+                icono: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 text-blue-500"><path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/></svg>',
+                texto: 'Separa la primera acción (el paseo) de la siguiente descripción (el aire y los niños) dentro del mismo párrafo.'
+            },
+            'aparte': {
+                titulo: 'Punto y aparte',
+                color: 'text-purple-600',
+                icono: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 text-purple-500"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+                texto: 'Termina el párrafo que habla sobre el parque, para dar paso a un nuevo párrafo que habla sobre sus reuniones de trabajo.'
+            },
+            'abreviatura2': {
+                titulo: 'Punto en Abreviatura',
+                color: 'text-orange-600',
+                icono: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 text-orange-500"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>',
+                texto: 'Pertenece a la abreviatura de "ante meridiem" (antes del mediodía).'
+            },
+            'seguido2': {
+                titulo: 'Punto y seguido',
+                color: 'text-blue-600',
+                icono: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 text-blue-500"><path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/></svg>',
+                texto: 'Separa la oración del recordatorio, de la acción inmediata que toma en consecuencia (apresurar el paso).'
+            },
+            'aparte2': {
+                titulo: 'Punto y aparte',
+                color: 'text-purple-600',
+                icono: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 text-purple-500"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+                texto: 'Marca el fin de la escena de camino a la oficina y da paso a la escena final ya dentro del edificio.'
+            },
+            'final': {
+                titulo: 'Punto final',
+                color: 'text-red-600',
+                icono: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 text-red-500"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m9 12 2 2 4-4"/></svg>',
+                texto: 'Cierra completamente el texto. No hay nada más que contar en esta historia.'
+            }
+        };
+
+        function mostrarInfoPunto(id) {
+            const panel = document.getElementById('info-panel');
+            const info = explicacionesPuntos[id];
+            
+            // Animación simple de actualización
+            panel.classList.remove('fade-in');
+            void panel.offsetWidth; // trigger reflow
+            panel.classList.add('fade-in');
+            panel.classList.replace('border-slate-300', 'border-yellow-400');
+            panel.classList.replace('border-dashed', 'border-solid');
+            panel.classList.remove('bg-slate-50');
+            panel.classList.add('bg-white');
+
+            panel.innerHTML = `
+                ${info.icono}
+                <h3 class="text-2xl font-black ${info.color} mb-3">${info.titulo}</h3>
+                <p class="text-slate-700 leading-relaxed font-medium">${info.texto}</p>
+            `;
+        }
+
+        // --- LÓGICA SECCIÓN: JUGAR ---
+        function volverMenuJuegos() {
+            document.getElementById('juegos-menu').classList.remove('hidden');
+            document.getElementById('juego1-container').classList.add('hidden');
+            document.getElementById('juego2-container').classList.add('hidden');
+        }
+
+        // --- JUEGO 1: CLASIFICADOR RÁPIDO ---
+        const j1Preguntas = [
+            { text: "Me encanta ir a la playa en verano<span class='bg-yellow-300 text-yellow-900 px-1 font-bold rounded'>.</span> El sonido del mar me relaja.", ans: "seguido" },
+            { text: "Al final del día, todos volvieron a casa exhaustos<span class='bg-yellow-300 text-yellow-900 px-1 font-bold rounded'>.</span><br><br>Al día siguiente, el sol salió muy temprano...", ans: "aparte" },
+            { text: "...y ese fue el último viaje que hicimos juntos<span class='bg-yellow-300 text-yellow-900 px-1 font-bold rounded'>.</span>", ans: "final" },
+            { text: "La <span class='font-bold'>Dra<span class='bg-yellow-300 text-yellow-900 px-1 font-bold rounded'>.</span></span> Gómez me atendió hoy.", ans: "abreviatura" },
+            { text: "Compró manzanas, peras y uvas<span class='bg-yellow-300 text-yellow-900 px-1 font-bold rounded'>.</span> Luego se fue directo a su casa.", ans: "seguido" }
+        ];
+
+        let j1Estado = {
+            score: 0,
+            round: 0,
+            currentQ: null
+        };
+
+        function iniciarJuego1() {
+            document.getElementById('juegos-menu').classList.add('hidden');
+            document.getElementById('juego1-container').classList.remove('hidden');
+            
+            // Mezclar preguntas
+            j1Preguntas.sort(() => Math.random() - 0.5);
+            j1Estado.score = 0;
+            j1Estado.round = 0;
+            
+            actualizarUIJuego1();
+            cargarPreguntaJ1();
+        }
+
+        function actualizarUIJuego1() {
+            document.getElementById('j1-score').innerText = j1Estado.score;
+            document.getElementById('j1-round').innerText = Math.min(j1Estado.round + 1, 5);
+        }
+
+        function cargarPreguntaJ1() {
+            document.getElementById('j1-game-area').classList.remove('hidden');
+            document.getElementById('j1-result-area').classList.add('hidden');
+            
+            j1Estado.currentQ = j1Preguntas[j1Estado.round];
+            document.getElementById('j1-text').innerHTML = j1Estado.currentQ.text;
+        }
+
+        function verificarRespuestaJ1(respuesta) {
+            document.getElementById('j1-game-area').classList.add('hidden');
+            document.getElementById('j1-result-area').classList.remove('hidden');
+            
+            const title = document.getElementById('j1-feedback-title');
+            const text = document.getElementById('j1-feedback-text');
+            const icon = document.getElementById('j1-icon');
+            const isCorrect = respuesta === j1Estado.currentQ.ans;
+
+            if (isCorrect) {
+                j1Estado.score += 100;
+                title.innerText = "¡Correcto!";
+                title.className = "text-3xl font-bold mb-2 text-green-600";
+                icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+                text.innerText = "¡Muy bien! Has identificado el tipo de punto correctamente.";
+            } else {
+                title.innerText = "¡Ups! Incorrecto";
+                title.className = "text-3xl font-bold mb-2 text-red-600";
+                icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+                
+                let correctAnswerText = "";
+                switch(j1Estado.currentQ.ans) {
+                    case 'seguido': correctAnswerText = "Punto y seguido"; break;
+                    case 'aparte': correctAnswerText = "Punto y aparte"; break;
+                    case 'final': correctAnswerText = "Punto final"; break;
+                    case 'abreviatura': correctAnswerText = "Abreviatura"; break;
+                }
+                text.innerHTML = `La respuesta correcta era: <strong>${correctAnswerText}</strong>`;
+            }
+
+            actualizarUIJuego1();
+            j1Estado.round++;
+
+            if (j1Estado.round >= 5) {
+                document.getElementById('j1-next-btn').innerText = "Ver Resultados";
+                document.getElementById('j1-next-btn').onclick = mostrarResultadosFinalesJ1;
+            } else {
+                document.getElementById('j1-next-btn').innerText = "Siguiente";
+                document.getElementById('j1-next-btn').onclick = siguienteRondaJ1;
+            }
+        }
+
+        function siguienteRondaJ1() {
+            cargarPreguntaJ1();
+        }
+
+        function mostrarResultadosFinalesJ1() {
+            document.getElementById('j1-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>';
+            document.getElementById('j1-feedback-title').innerText = "¡Juego Terminado!";
+            document.getElementById('j1-feedback-title').className = "text-3xl font-bold mb-2 text-yellow-500";
+            document.getElementById('j1-feedback-text').innerHTML = `Has conseguido <strong>${j1Estado.score}</strong> puntos de 500 posibles.`;
+            
+            document.getElementById('j1-next-btn').innerText = "Jugar de nuevo";
+            document.getElementById('j1-next-btn').onclick = iniciarJuego1;
+        }
+
+        // --- JUEGO 2: REPARADOR DE TEXTOS ---
+        // Estructura: Texto normal intercalado con 'cajas'. true significa que SI debe llevar punto, false que NO.
+        const j2Texto = [
+            { text: "Había una vez un pequeño perro llamado Max", point: true },
+            { text: " Él era muy travieso", point: false },
+            { text: " y le encantaba correr", point: true },
+            { text: " Un día soleado", point: false },
+            { text: " decidió explorar más allá del jardín", point: true },
+            { text: " Se encontró con un gato", point: false },
+            { text: " que era muy amigable", point: true },
+            { text: " Ambos jugaron hasta el anochecer", point: true }
+        ];
+
+        let j2EstadoCajas = []; // Guarda el estado true/false de cada caja interactiva
+
+        function iniciarJuego2() {
+            document.getElementById('juegos-menu').classList.add('hidden');
+            document.getElementById('juego2-container').classList.remove('hidden');
+            
+            document.getElementById('j2-feedback').classList.add('hidden');
+            generarTextoJuego2();
+        }
+
+        function generarTextoJuego2() {
+            const area = document.getElementById('j2-game-area');
+            let html = "";
+            j2EstadoCajas = [];
+
+            j2Texto.forEach((fragment, index) => {
+                html += `<span>${fragment.text}</span>`;
+                
+                // No ponemos caja al final del último fragmento al iniciar
+                if (index < j2Texto.length) {
+                    j2EstadoCajas.push(false); // Inicialmente sin punto
+                    html += `<span id="j2-caja-${index}" class="inline-block w-6 h-6 mx-1 align-middle border-2 border-dashed border-slate-400 bg-white rounded cursor-pointer hover:bg-slate-100 transition-colors text-center leading-none font-bold text-teal-600 text-lg select-none" onclick="toggleCajaJ2(${index})"></span>`;
+                }
+            });
+
+            area.innerHTML = html;
+        }
+
+        function toggleCajaJ2(index) {
+            const caja = document.getElementById(`j2-caja-${index}`);
+            j2EstadoCajas[index] = !j2EstadoCajas[index]; // Cambiar estado
+
+            if (j2EstadoCajas[index]) {
+                caja.innerText = ".";
+                caja.classList.replace('border-slate-400', 'border-teal-500');
+                caja.classList.replace('border-dashed', 'border-solid');
+                caja.classList.replace('bg-white', 'bg-teal-50');
+            } else {
+                caja.innerText = "";
+                caja.classList.replace('border-teal-500', 'border-slate-400');
+                caja.classList.replace('border-solid', 'border-dashed');
+                caja.classList.replace('bg-teal-50', 'bg-white');
+            }
+        }
+
+        function verificarReparacion() {
+            let correctas = 0;
+            const total = j2Texto.length;
+
+            for (let i = 0; i < total; i++) {
+                const caja = document.getElementById(`j2-caja-${i}`);
+                const debeLlevarPunto = j2Texto[i].point;
+                const tienePunto = j2EstadoCajas[i];
+
+                if (tienePunto === debeLlevarPunto) {
+                    correctas++;
+                    caja.classList.remove('border-red-500', 'bg-red-100', 'text-red-600');
+                    caja.classList.add('border-green-500', 'bg-green-100', 'text-green-700', 'border-solid');
+                } else {
+                    caja.classList.remove('border-teal-500', 'bg-teal-50', 'border-slate-400', 'border-dashed');
+                    caja.classList.add('border-red-500', 'bg-red-100', 'text-red-600', 'border-solid');
+                }
+            }
+
+            const feedback = document.getElementById('j2-feedback');
+            feedback.classList.remove('hidden');
+            
+            if (correctas === total) {
+                feedback.className = "mt-6 p-4 rounded-xl text-center font-bold bg-green-100 text-green-800 border border-green-300 fade-in";
+                feedback.innerHTML = "¡Excelente! Has reparado el texto a la perfección.";
+            } else {
+                feedback.className = "mt-6 p-4 rounded-xl text-center font-bold bg-red-100 text-red-800 border border-red-300 fade-in";
+                feedback.innerHTML = `Tienes ${total - correctas} errores. Fíjate bien en las mayúsculas para saber dónde debe ir un punto.`;
+            }
+        }
+
+    </script>
+</body>
+</html>
