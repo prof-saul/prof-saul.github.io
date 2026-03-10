@@ -26,19 +26,19 @@ body {
 }
 
 /* Encabezado */
-header {
+main-header {
    text-align: center;
    margin-bottom: 40px;
 }
 
-header h1 {
+main-header h1 {
    color: var(--primary-color);
    font-size: 2.8rem;
    margin-bottom: 10px;
    letter-spacing: -0.5px;
 }
 
-header p {
+main-header p {
    color: var(--text-muted);
    font-size: 1.1rem;
 }
@@ -112,4 +112,84 @@ footer {
    padding-bottom: 20px;
    color: var(--text-muted);
    font-size: 0.9rem;
+}
+
+/* Paginas individuales */
+
+/* Estilo del botón de regresar */
+.btn-regresar {
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+   background-color: #e2e8f0;
+   color: var(--text-main);
+   padding: 8px 16px;
+   border-radius: 8px;
+   text-decoration: none;
+   font-weight: 500;
+   font-size: 0.95rem;
+   margin-bottom: 24px;
+   transition: background-color 0.2s;
+}
+
+.btn-regresar:hover {
+   background-color: #cbd5e1;
+   text-decoration: none;
+}
+
+/* Encabezado de la materia */
+header {
+   margin-bottom: 40px;
+}
+
+header h1 {
+   color: var(--primary-color);
+   font-size: 2.5rem;
+   margin: 0 0 10px 0;
+   letter-spacing: -0.5px;
+}
+
+header p {
+   color: var(--text-muted);
+   font-size: 1.1rem;
+   margin: 0;
+}
+
+
+/* Lista de recursos interactiva */
+ul.recursos-lista {
+   list-style: none;
+   padding: 0;
+   margin: 0;
+}
+
+ul.recursos-lista li {
+   margin-bottom: 10px;
+}
+
+/* Hacemos que toda el área del enlace sea clickeable */
+ul.recursos-lista a {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   padding: 16px;
+   background: #f8fafc;
+   border: 1px solid #e2e8f0;
+   border-radius: 8px;
+   color: var(--text-main);
+   text-decoration: none;
+   font-weight: 500;
+   transition: all 0.2s ease;
+}
+
+ul.recursos-lista a:hover {
+   background: #eff6ff;
+   border-color: #bfdbfe;
+   color: var(--primary-color);
+   transform: translateX(5px); /* Pequeña animación hacia la derecha */
+}
+
+/* Ícono para los documentos */
+.icono-doc {
+   font-size: 1.2rem;
 }
