@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matemáticas - Recursos Educativos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Mantenemos tu misma paleta de colores para consistencia */
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Estilo del botón de regresar */
+        .btn-regresar {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #e2e8f0;
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-bottom: 24px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-regresar:hover {
+            background-color: #cbd5e1;
+            text-decoration: none;
+        }
+
+        /* Encabezado de la materia */
+        header {
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        /* Tarjeta principal */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        h2 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 12px;
+            color: #0f172a;
+        }
+
+        /* Lista de recursos interactiva */
+        ul.recursos-lista {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        ul.recursos-lista li {
+            margin-bottom: 10px;
+        }
+
+        /* Hacemos que toda el área del enlace sea clickeable */
+        ul.recursos-lista a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        ul.recursos-lista a:hover {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: var(--primary-color);
+            transform: translateX(5px); /* Pequeña animación hacia la derecha */
+        }
+
+        /* Ícono para los documentos */
+        .icono-doc {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <a href="index.html" class="btn-regresar">
+            <span>←</span> Volver al inicio
+        </a>
+
+        <header>
+            <h1>Matemáticas</h1>
+            <p>Guías de estudio, ejercicios prácticos y material de apoyo.</p>
+        </header>
+
+        <div class="card">
+            <h2>📄 Listado de Recursos</h2>
+            
+            <ul class="recursos-lista">
+                <li>
+                    <a href="#">
+                        <span class="icono-doc">📝</span>
+                        Unidad 1: Ecuaciones de Primer Grado - Guía Teórica
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="icono-doc">📊</span>
+                        Unidad 1: Hoja de ejercicios prácticos
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="icono-doc">📐</span>
+                        Unidad 2: Introducción a la Geometría
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="icono-doc">🎥</span>
+                        Video explicativo: Fracciones y proporciones
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+</body>
+</html>
