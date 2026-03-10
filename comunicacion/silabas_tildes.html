@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventura de Sílabas y Tildes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f0f9ff;
+        }
+        h1, h2, h3 {
+            font-family: 'Fredoka One', cursive;
+        }
+        .game-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .syllable-box {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background: white;
+            border: 3px solid #3b82f6;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+        .syllable-box.selected {
+            background: #3b82f6;
+            color: white;
+        }
+        .syllable-box.correct {
+            background: #22c55e;
+            border-color: #166534;
+            color: white;
+        }
+        .syllable-box.wrong {
+            background: #ef4444;
+            border-color: #991b1b;
+            color: white;
+        }
+        .progress-bar {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        #feedback {
+            animation: bounce 0.5s ease;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .rule-card {
+            border-left: 8px solid;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl text-blue-600 mb-2">Aventura Gramatical</h1>
+            <p class="text-gray-600 text-lg">Domina las sílabas, la tilde y la sílaba tónica</p>
+        </header>
+
+        <!-- Menu Principal -->
+        <div id="main-menu" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
+            <div onclick="startGame('separation')" class="game-card bg-white p-6 rounded-3xl border-4 border-yellow-400 cursor-pointer text-center">
+                <div class="text-4xl mb-3">✂️</div>
+                <h2 class="text-lg text-yellow-600 mb-1">Corta-Palabras</h2>
+                <p class="text-xs text-gray-500">Separa en sílabas.</p>
+            </div>
+            <div onclick="startGame('tonic')" class="game-card bg-white p-6 rounded-3xl border-4 border-blue-400 cursor-pointer text-center">
+                <div class="text-4xl mb-3">🔔</div>
+                <h2 class="text-lg text-blue-600 mb-1">Buscador</h2>
+                <p class="text-xs text-gray-500">Halla la fuerza.</p>
+            </div>
+            <div onclick="startGame('classification')" class="game-card bg-white p-6 rounded-3xl border-4 border-purple-400 cursor-pointer text-center">
+                <div class="text-4xl mb-3">🏷️</div>
+                <h2 class="text-lg text-purple-600 mb-1">El Clasificador</h2>
+                <p class="text-xs text-gray-500">¿Aguda, Grave...?</p>
+            </div>
+            <div onclick="startGame('position')" class="game-card bg-white p-6 rounded-3xl border-4 border-pink-400 cursor-pointer text-center">
+                <div class="text-4xl mb-3">🎯</div>
+                <h2 class="text-lg text-pink-600 mb-1">El Ubicador</h2>
+                <p class="text-xs text-gray-500">¿En qué posición?</p>
+            </div>
+            <div onclick="startGame('accent')" class="game-card bg-white p-6 rounded-3xl border-4 border-green-400 cursor-pointer text-center">
+                <div class="text-4xl mb-3">✍️</div>
+                <h2 class="text-lg text-green-600 mb-1">El Tildador</h2>
+                <p class="text-xs text-gray-500">¿Lleva tilde?</p>
+            </div>
+        </div>
+
+        <!-- Zona de Juego -->
+        <div id="game-zone" class="hidden bg-white p-8 rounded-3xl shadow-xl mt-6 border-2 border-gray-100 relative">
+            <button onclick="showMenu()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold transition hover:scale-110">✖ Cerrar</button>
+            
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="game-title" class="text-2xl text-blue-700 font-bold">Título</span>
+                    <span class="text-gray-500 font-bold">Puntos: <span id="score">0</span></span>
+                </div>
+                <div class="progress-bar"><div id="progress" class="progress-fill" style="width: 0%"></div></div>
+            </div>
+
+            <div id="game-content" class="text-center min-h-[300px] flex flex-col justify-center items-center w-full">
+                <!-- Aquí se inyecta el contenido dinámicamente -->
+            </div>
+
+            <div id="feedback" class="mt-6 text-xl font-bold text-center h-8"></div>
+        </div>
+
+        <!-- Sección de Reglas de Tildado -->
+        <div id="rules-section" class="mt-16">
+            <h2 class="text-3xl text-gray-800 mb-8 text-center">📚 Repasa las Reglas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Agudas -->
+                <div class="bg-white p-6 rounded-2xl shadow-md rule-card border-orange-400">
+                    <h3 class="text-xl text-orange-600 mb-3">Palabras Agudas</h3>
+                    <p class="text-sm text-gray-600 mb-2">La fuerza de voz está en la <b>última</b> sílaba.</p>
+                    <p class="text-sm font-bold text-orange-700">Llevan tilde si terminan en:</p>
+                    <ul class="text-sm text-gray-600 list-disc list-inside">
+                        <li>Vocal (a, e, i, o, u)</li>
+                        <li>Letra N</li>
+                        <li>Letra S</li>
+                    </ul>
+                    <p class="mt-2 text-xs italic text-gray-400">Ejemplos: Café, Balón, Compás.</p>
+                </div>
+                <!-- Graves -->
+                <div class="bg-white p-6 rounded-2xl shadow-md rule-card border-blue-400">
+                    <h3 class="text-xl text-blue-600 mb-3">Palabras Graves</h3>
+                    <p class="text-sm text-gray-600 mb-2">La fuerza de voz está en la <b>penúltima</b> sílaba.</p>
+                    <p class="text-sm font-bold text-blue-700">Llevan tilde si:</p>
+                    <ul class="text-sm text-gray-600 list-disc list-inside">
+                        <li>NO terminan en N, S o Vocal.</li>
+                    </ul>
+                    <p class="mt-2 text-xs italic text-gray-400">Ejemplos: Árbol, Lápiz, Azúcar.</p>
+                </div>
+                <!-- Esdrújulas -->
+                <div class="bg-white p-6 rounded-2xl shadow-md rule-card border-purple-400">
+                    <h3 class="text-xl text-purple-600 mb-3">Palabras Esdrújulas</h3>
+                    <p class="text-sm text-gray-600 mb-2">La fuerza de voz está en la <b>antepenúltima</b> sílaba.</p>
+                    <p class="text-sm font-bold text-purple-700">Llevan tilde:</p>
+                    <ul class="text-sm text-gray-600 list-disc list-inside">
+                        <li>¡SIEMPRE llevan tilde!</li>
+                    </ul>
+                    <p class="mt-2 text-xs italic text-gray-400">Ejemplos: Cámara, Pájaro, Música.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const masterWordList = [
+            { word: 'CÁMARA', syllables: ['CÁ', 'MA', 'RA'], tonic: 0, type: 'esdrújula', needsAccent: true, plain: 'camara' },
+            { word: 'TELÉFONO', syllables: ['TE', 'LÉ', 'FO', 'NO'], tonic: 1, type: 'esdrújula', needsAccent: true, plain: 'telefono' },
+            { word: 'BALÓN', syllables: ['BA', 'LÓN'], tonic: 1, type: 'aguda', needsAccent: true, plain: 'balon' },
+            { word: 'MESA', syllables: ['ME', 'SA'], tonic: 0, type: 'grave', needsAccent: false, plain: 'mesa' },
+            { word: 'ÁRBOL', syllables: ['ÁR', 'BOL'], tonic: 0, type: 'grave', needsAccent: true, plain: 'arbol' },
+            { word: 'PÁJARO', syllables: ['PÁ', 'JA', 'RO'], tonic: 0, type: 'esdrújula', needsAccent: true, plain: 'pajaro' },
+            { word: 'COCHE', syllables: ['CO', 'CHE'], tonic: 0, type: 'grave', needsAccent: false, plain: 'coche' },
+            { word: 'CAFÉ', syllables: ['CA', 'FÉ'], tonic: 1, type: 'aguda', needsAccent: true, plain: 'cafe' },
+            { word: 'LÁPIZ', syllables: ['LÁ', 'PIZ'], tonic: 0, type: 'grave', needsAccent: true, plain: 'lapiz' },
+            { word: 'CORAZÓN', syllables: ['CO', 'RA', 'ZÓN'], tonic: 2, type: 'aguda', needsAccent: true, plain: 'corazon' },
+            { word: 'MÚSICA', syllables: ['MÚ', 'SI', 'CA'], tonic: 0, type: 'esdrújula', needsAccent: true, plain: 'musica' },
+            { word: 'COMPÁS', syllables: ['COM', 'PÁS'], tonic: 1, type: 'aguda', needsAccent: true, plain: 'compas' },
+            { word: 'AZÚCAR', syllables: ['A', 'ZÚ', 'CAR'], tonic: 1, type: 'grave', needsAccent: true, plain: 'azucar' },
+            { word: 'DIFÍCIL', syllables: ['DI', 'FÍ', 'CIL'], tonic: 1, type: 'grave', needsAccent: true, plain: 'dificil' },
+            { word: 'JARDÍN', syllables: ['JAR', 'DÍN'], tonic: 1, type: 'aguda', needsAccent: true, plain: 'jardin' },
+            { word: 'RATÓN', syllables: ['RA', 'TÓN'], tonic: 1, type: 'aguda', needsAccent: true, plain: 'raton' },
+            { word: 'LÓGICA', syllables: ['LÓ', 'GI', 'CA'], tonic: 0, type: 'esdrújula', needsAccent: true, plain: 'logica' },
+            { word: 'VENTANA', syllables: ['VEN', 'TA', 'NA'], tonic: 1, type: 'grave', needsAccent: false, plain: 'ventana' },
+            { word: 'SÁBADO', syllables: ['SÁ', 'BA', 'DO'], tonic: 0, type: 'esdrújula', needsAccent: true, plain: 'sabado' },
+            { word: 'AMISTAD', syllables: ['A', 'MIS', 'TAD'], tonic: 2, type: 'aguda', needsAccent: false, plain: 'amistad' }
+        ];
+
+        let currentGame = '';
+        let currentSessionList = [];
+        let currentIndex = 0;
+        let score = 0;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showMenu() {
+            document.getElementById('main-menu').classList.remove('hidden');
+            document.getElementById('game-zone').classList.add('hidden');
+            document.getElementById('rules-section').classList.remove('hidden');
+            resetGame();
+        }
+
+        function resetGame() {
+            currentIndex = 0;
+            score = 0;
+            updateUI();
+        }
+
+        function startGame(type) {
+            currentGame = type;
+            const shuffled = shuffleArray([...masterWordList]);
+            currentSessionList = shuffled.slice(0, 6); 
+            
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('rules-section').classList.add('hidden');
+            document.getElementById('game-zone').classList.remove('hidden');
+            
+            const titles = {
+                'separation': '✂️ Corta la palabra en sílabas',
+                'tonic': '🔔 Toca la sílaba tónica',
+                'classification': '🏷️ Clasifica la palabra',
+                'position': '🎯 Ubica la sílaba tónica',
+                'accent': '✍️ ¿Lleva tilde esta palabra?'
+            };
+            document.getElementById('game-title').innerText = titles[type];
+            resetGame();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const content = document.getElementById('game-content');
+            const feedback = document.getElementById('feedback');
+            feedback.innerText = '';
+            content.innerHTML = '';
+            
+            if (currentIndex >= currentSessionList.length) {
+                renderVictory();
+                return;
+            }
+
+            const current = currentSessionList[currentIndex];
+
+            if (currentGame === 'separation') {
+                renderSeparation(current);
+            } else if (currentGame === 'tonic') {
+                renderTonic(current);
+            } else if (currentGame === 'classification') {
+                renderClassification(current);
+            } else if (currentGame === 'position') {
+                renderPosition(current);
+            } else if (currentGame === 'accent') {
+                renderAccent(current);
+            }
+            updateUI();
+        }
+
+        // --- JUEGO 1: SEPARACIÓN ---
+        function renderSeparation(item) {
+            const content = document.getElementById('game-content');
+            content.innerHTML = `
+                <p class="text-3xl mb-6 tracking-widest font-bold text-gray-700">${item.word.toUpperCase()}</p>
+                <input type="text" id="sep-input" placeholder="Ej: CA-MA-RA" 
+                    class="border-4 border-blue-200 p-4 rounded-xl text-2xl text-center w-72 focus:border-blue-500 outline-none transition-all">
+                <button onclick="checkSeparation()" class="mt-6 bg-blue-500 text-white px-10 py-3 rounded-full font-bold hover:bg-blue-600 shadow-lg active:scale-95 transition-all">Comprobar</button>
+            `;
+            const input = document.getElementById('sep-input');
+            input.focus();
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkSeparation();
+            });
+        }
+
+        function checkSeparation() {
+            const val = document.getElementById('sep-input').value.toUpperCase().trim();
+            const correct = currentSessionList[currentIndex].syllables.join('-');
+            
+            if (val === correct) {
+                handleSuccess('¡Correcto! ' + correct);
+            } else {
+                handleError('Casi... Asegúrate de separar bien con guiones (-)');
+            }
+        }
+
+        // --- JUEGO 2: TÓNICA ---
+        function renderTonic(item) {
+            const content = document.getElementById('game-content');
+            const container = document.createElement('div');
+            container.className = 'flex flex-wrap justify-center mt-4';
+            
+            item.syllables.forEach((syl, index) => {
+                const box = document.createElement('div');
+                box.className = 'syllable-box shadow-sm';
+                box.innerText = syl;
+                box.onclick = () => checkTonic(index, box);
+                container.appendChild(box);
+            });
+            
+            content.innerHTML = '<p class="text-xl text-gray-500 mb-4 font-semibold">Toca la sílaba que suena más fuerte:</p>';
+            content.appendChild(container);
+        }
+
+        function checkTonic(index, element) {
+            if (index === currentSessionList[currentIndex].tonic) {
+                element.className = 'syllable-box correct shadow-lg';
+                handleSuccess('¡Excelente! Es una palabra ' + currentSessionList[currentIndex].type);
+            } else {
+                element.className = 'syllable-box wrong';
+                handleError('¡Ajusta el oído! Esa es una sílaba átona.');
+            }
+        }
+
+        // --- JUEGO 3: CLASIFICACIÓN ---
+        function renderClassification(item) {
+            const content = document.getElementById('game-content');
+            content.innerHTML = `
+                <p class="text-4xl mb-8 font-bold text-purple-700">${item.word.toUpperCase()}</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-lg">
+                    <button onclick="checkClass('aguda')" class="bg-orange-400 text-white p-4 rounded-2xl font-bold text-xl hover:bg-orange-500 transition shadow-md active:scale-95">Aguda</button>
+                    <button onclick="checkClass('grave')" class="bg-blue-400 text-white p-4 rounded-2xl font-bold text-xl hover:bg-blue-500 transition shadow-md active:scale-95">Grave</button>
+                    <button onclick="checkClass('esdrújula')" class="bg-purple-400 text-white p-4 rounded-2xl font-bold text-xl hover:bg-purple-500 transition shadow-md active:scale-95">Esdrújula</button>
+                </div>
+            `;
+        }
+
+        function checkClass(choice) {
+            const correct = currentSessionList[currentIndex].type;
+            if (choice === correct) {
+                handleSuccess(`¡Exacto! Es una palabra ${correct}.`);
+            } else {
+                handleError(`No, es ${correct}. ¡Revisa las reglas abajo!`);
+            }
+        }
+
+        // --- JUEGO 4: POSICIÓN (NUEVO) ---
+        function renderPosition(item) {
+            const content = document.getElementById('game-content');
+            content.innerHTML = `
+                <p class="text-4xl mb-8 font-bold text-pink-600">${item.word.toUpperCase()}</p>
+                <p class="text-lg text-gray-500 mb-6">¿Dónde lleva la fuerza de voz?</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-2xl">
+                    <button onclick="checkPos('antepenúltima')" class="bg-purple-500 text-white p-4 rounded-2xl font-bold text-lg hover:bg-purple-600 shadow-md active:scale-95">Antepenúltima</button>
+                    <button onclick="checkPos('penúltima')" class="bg-blue-500 text-white p-4 rounded-2xl font-bold text-lg hover:bg-blue-600 shadow-md active:scale-95">Penúltima</button>
+                    <button onclick="checkPos('última')" class="bg-orange-500 text-white p-4 rounded-2xl font-bold text-lg hover:bg-orange-600 shadow-md active:scale-95">Última</button>
+                </div>
+            `;
+        }
+
+        function checkPos(choice) {
+            const item = currentSessionList[currentIndex];
+            const total = item.syllables.length;
+            const tonicIdx = item.tonic;
+            
+            let correctPos = '';
+            if (tonicIdx === total - 1) correctPos = 'última';
+            else if (tonicIdx === total - 2) correctPos = 'penúltima';
+            else if (tonicIdx === total - 3) correctPos = 'antepenúltima';
+
+            if (choice === correctPos) {
+                handleSuccess(`¡Bien! La fuerza está en la ${correctPos} sílaba.`);
+            } else {
+                handleError(`No, la fuerza está en la ${correctPos} sílaba.`);
+            }
+        }
+
+        // --- JUEGO 5: ACENTUACIÓN ---
+        function renderAccent(item) {
+            const content = document.getElementById('game-content');
+            content.innerHTML = `
+                <p class="text-4xl mb-8 font-bold text-green-700">${item.plain.toUpperCase()}</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="checkAccent(true)" class="bg-green-500 text-white px-10 py-4 rounded-2xl font-bold text-xl hover:bg-green-600 shadow-md active:scale-95">SÍ lleva tilde</button>
+                    <button onclick="checkAccent(false)" class="bg-red-500 text-white px-10 py-4 rounded-2xl font-bold text-xl hover:bg-red-600 shadow-md active:scale-95">NO lleva tilde</button>
+                </div>
+            `;
+        }
+
+        function checkAccent(userChoice) {
+            const item = currentSessionList[currentIndex];
+            if (userChoice === item.needsAccent) {
+                handleSuccess(`¡Bien hecho! Se escribe ${item.word}`);
+            } else {
+                handleError(item.needsAccent ? '¡Incorrecto! Esta palabra sí lleva tilde.' : '¡Vaya! Esta palabra no lleva tilde.');
+            }
+        }
+
+        // --- UTILIDADES ---
+        function handleSuccess(msg) {
+            score += 10;
+            const feedback = document.getElementById('feedback');
+            feedback.innerText = "🌟 " + msg;
+            feedback.className = "mt-6 text-xl font-bold text-center text-green-600";
+            
+            setTimeout(() => {
+                currentIndex++;
+                loadQuestion();
+            }, 1800);
+        }
+
+        function handleError(msg) {
+            const feedback = document.getElementById('feedback');
+            feedback.innerText = "💡 " + msg;
+            feedback.className = "mt-6 text-xl font-bold text-center text-red-500";
+        }
+
+        function updateUI() {
+            document.getElementById('score').innerText = score;
+            const progress = (currentIndex / currentSessionList.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function renderVictory() {
+            const content = document.getElementById('game-content');
+            content.innerHTML = `
+                <div class="text-center p-6">
+                    <div class="text-7xl mb-4">🎖️</div>
+                    <h2 class="text-3xl font-bold text-blue-600 mb-2">¡Nivel Completado!</h2>
+                    <p class="text-lg text-gray-600 mb-8">Has demostrado gran dominio. Puntos obtenidos: <b>${score}</b></p>
+                    <button onclick="showMenu()" class="bg-blue-600 text-white px-12 py-4 rounded-full font-bold text-xl hover:bg-blue-700 shadow-xl transition-all hover:scale-105">Volver al Menú</button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
