@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Conversión de Unidades</title>
+    <!-- Tailwind CSS para los estilos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados y animaciones */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdfa; /* Un tono cyan muy suave */
+        }
+        
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background-color: #0d9488; /* teal-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .section-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .section-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pop-animation {
+            animation: pop 0.3s ease-in-out;
+        }
+
+        /* Colores para feedback */
+        .bg-correct { background-color: #dcfce7 !important; border-color: #22c55e !important; }
+        .bg-incorrect { background-color: #fee2e2 !important; border-color: #ef4444 !important; }
+
+        /* Scrollbar estilizado */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Encabezado -->
+    <header class="bg-teal-700 text-white p-6 shadow-md text-center">
+        <h1 class="text-3xl md:text-4xl font-bold flex justify-center items-center gap-3">
+            <span>🔬</span> Laboratorio de Unidades <span>📐</span>
+        </h1>
+        <p class="mt-2 text-teal-100">Aprende y domina la conversión de longitud, masa y volumen</p>
+    </header>
+
+    <!-- Navegación por pestañas -->
+    <nav class="flex flex-wrap justify-center gap-2 p-4 bg-white shadow-sm sticky top-0 z-10">
+        <button onclick="switchTab('teoria')" id="tab-teoria" class="tab-btn active px-6 py-2 rounded-full font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 flex items-center gap-2">
+            📖 Teoría
+        </button>
+        <button onclick="switchTab('aprender')" id="tab-aprender" class="tab-btn px-6 py-2 rounded-full font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 flex items-center gap-2">
+            💡 Aprender
+        </button>
+        <button onclick="switchTab('practica')" id="tab-practica" class="tab-btn px-6 py-2 rounded-full font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 flex items-center gap-2">
+            ✍️ Práctica
+        </button>
+        <button onclick="switchTab('minijuegos')" id="tab-minijuegos" class="tab-btn px-6 py-2 rounded-full font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 flex items-center gap-2">
+            🎮 Minijuego
+        </button>
+    </nav>
+
+    <!-- Contenedor Principal -->
+    <main class="flex-grow max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8">
+
+        <!-- ==================== SECCIÓN: TEORÍA ==================== -->
+        <section id="section-teoria" class="section-content active">
+            <h2 class="text-2xl font-bold mb-6 text-teal-800 border-b-2 border-teal-200 pb-2">Conceptos Básicos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Tarjeta Longitud -->
+                <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-blue-500 hover:shadow-lg transition">
+                    <div class="text-4xl text-center mb-4">📏</div>
+                    <h3 class="text-xl font-bold text-center text-blue-700 mb-2">Longitud</h3>
+                    <p class="text-sm text-gray-600 mb-4">Mide la distancia entre dos puntos. Su unidad base en el Sistema Internacional es el <strong>Metro (m)</strong>.</p>
+                    <ul class="text-sm space-y-2 bg-blue-50 p-3 rounded-lg">
+                        <li><strong>1 Kilómetro (km)</strong> = 1000 m</li>
+                        <li><strong>1 Metro (m)</strong> = 100 cm</li>
+                        <li><strong>1 Centímetro (cm)</strong> = 10 mm</li>
+                    </ul>
+                </div>
+
+                <!-- Tarjeta Masa -->
+                <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-orange-500 hover:shadow-lg transition">
+                    <div class="text-4xl text-center mb-4">⚖️</div>
+                    <h3 class="text-xl font-bold text-center text-orange-700 mb-2">Masa</h3>
+                    <p class="text-sm text-gray-600 mb-4">Es la cantidad de materia en un objeto. Usamos gramos o kilogramos, pero también libras (lb).</p>
+                    <ul class="text-sm space-y-2 bg-orange-50 p-3 rounded-lg">
+                        <li><strong>1 Kilogramo (kg)</strong> = 1000 g</li>
+                        <li><strong>1 Kilogramo (kg)</strong> ≈ 2.2046 lb</li>
+                        <li><strong>1 Libra (lb)</strong> ≈ 453.6 g</li>
+                    </ul>
+                </div>
+
+                <!-- Tarjeta Volumen -->
+                <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-purple-500 hover:shadow-lg transition">
+                    <div class="text-4xl text-center mb-4">🧪</div>
+                    <h3 class="text-xl font-bold text-center text-purple-700 mb-2">Volumen</h3>
+                    <p class="text-sm text-gray-600 mb-4">Es el espacio que ocupa un cuerpo. Usamos principalmente el <strong>Litro (L)</strong>.</p>
+                    <ul class="text-sm space-y-2 bg-purple-50 p-3 rounded-lg">
+                        <li><strong>1 Litro (L)</strong> = 1000 mL</li>
+                        <li><strong>1 Litro (L)</strong> = 1000 cm³</li>
+                        <li><strong>1 Galón (gal)</strong> ≈ 3.785 L</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== SECCIÓN: APRENDER ==================== -->
+        <section id="section-aprender" class="section-content">
+            <h2 class="text-2xl font-bold mb-6 text-teal-800 border-b-2 border-teal-200 pb-2">Calculadora y Explicación</h2>
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 max-w-3xl mx-auto">
+                <p class="text-gray-600 mb-6 text-center">Selecciona la magnitud, ingresa un valor y observa cómo se realiza la conversión paso a paso.</p>
+                
+                <!-- Controles -->
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-center mb-8">
+                    <select id="learn-category" onchange="updateLearnUnits()" class="p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full md:w-auto">
+                        <option value="longitud">Longitud</option>
+                        <option value="masa">Masa</option>
+                        <option value="volumen">Volumen</option>
+                    </select>
+
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <input type="number" id="learn-input" value="1" oninput="calculateLearn()" class="p-3 border rounded-lg w-full md:w-24 text-center focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <select id="learn-from" onchange="calculateLearn()" class="p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"></select>
+                    </div>
+
+                    <span class="text-2xl font-bold text-gray-400">➔</span>
+
+                    <select id="learn-to" onchange="calculateLearn()" class="p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full md:w-auto"></select>
+                </div>
+
+                <!-- Resultado y Paso a Paso -->
+                <div class="bg-teal-50 rounded-xl p-6 text-center border border-teal-100">
+                    <h3 class="text-lg text-teal-800 font-semibold mb-2">Resultado:</h3>
+                    <div id="learn-result" class="text-4xl font-black text-teal-600 mb-4 break-words">...</div>
+                    <div class="border-t border-teal-200 pt-4 mt-4">
+                        <h4 class="text-sm uppercase tracking-wide text-teal-700 font-bold mb-2">¿Cómo se calcula?</h4>
+                        <p id="learn-explanation" class="text-gray-700 text-lg bg-white inline-block px-4 py-2 rounded-lg shadow-sm">
+                            <!-- La explicación se inserta con JS -->
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== SECCIÓN: PRÁCTICA ==================== -->
+        <section id="section-practica" class="section-content">
+            <h2 class="text-2xl font-bold mb-6 text-teal-800 border-b-2 border-teal-200 pb-2">Ponte a Prueba</h2>
+            
+            <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-gray-500 font-semibold">Puntuación: <span id="practice-score" class="text-teal-600 text-xl">0</span></span>
+                    <button onclick="generatePracticeQuestion()" class="text-sm text-teal-600 hover:text-teal-800 underline">Saltar pregunta</button>
+                </div>
+
+                <div id="practice-container" class="text-center transition-colors duration-300 p-6 rounded-xl border-2 border-transparent">
+                    <h3 class="text-xl md:text-2xl text-gray-700 mb-4">Convierte:</h3>
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-4 text-2xl font-bold mb-6">
+                        <span id="practice-q-val" class="text-teal-600 bg-teal-50 px-4 py-2 rounded-lg">--</span>
+                        <span id="practice-q-from" class="text-gray-600">--</span>
+                        <span class="text-gray-400">a</span>
+                        <span id="practice-q-to" class="text-gray-600 border-b-2 border-dashed border-gray-400 px-2">--</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-3">
+                        <input type="number" id="practice-input" placeholder="Tu respuesta..." class="p-3 border-2 border-gray-300 rounded-lg w-full sm:w-48 text-center text-xl focus:outline-none focus:border-teal-500 transition">
+                        <button onclick="checkPracticeAnswer()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg w-full sm:w-auto transition transform hover:scale-105 shadow-md">
+                            Verificar
+                        </button>
+                    </div>
+                    
+                    <p id="practice-feedback" class="mt-4 font-bold text-lg min-h-[28px]"></p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== SECCIÓN: MINIJUEGOS ==================== -->
+        <section id="section-minijuegos" class="section-content">
+            <h2 class="text-2xl font-bold mb-6 text-teal-800 border-b-2 border-teal-200 pb-2">Desafío Contrarreloj ⏱️</h2>
+            
+            <div class="max-w-3xl mx-auto bg-gradient-to-br from-indigo-900 to-purple-900 rounded-2xl shadow-2xl p-6 md:p-10 text-white relative overflow-hidden">
+                
+                <!-- Pantalla de Inicio del Juego -->
+                <div id="game-start-screen" class="text-center">
+                    <div class="text-6xl mb-4">🚀</div>
+                    <h3 class="text-3xl font-bold mb-4">Responde rápido</h3>
+                    <p class="mb-8 text-indigo-200 max-w-md mx-auto">Tienes 60 segundos para resolver tantas conversiones como puedas. Selecciona la opción correcta. <br><br> ¡+10 puntos por acierto, -5 por error!</p>
+                    <button onclick="startGame()" class="bg-green-500 hover:bg-green-400 text-white text-xl font-bold py-4 px-10 rounded-full shadow-lg transform hover:scale-105 transition">
+                        ¡Empezar a Jugar!
+                    </button>
+                </div>
+
+                <!-- Pantalla de Juego Activo -->
+                <div id="game-play-screen" class="hidden text-center">
+                    <div class="flex justify-between items-center mb-6 bg-indigo-950 bg-opacity-50 p-4 rounded-xl">
+                        <div class="text-xl font-bold text-indigo-200">Tiempo: <span id="game-time" class="text-white text-2xl">60</span>s</div>
+                        <div class="text-xl font-bold text-indigo-200">Puntos: <span id="game-score" class="text-white text-2xl">0</span></div>
+                    </div>
+
+                    <div class="text-2xl md:text-4xl font-black mb-8 py-6 bg-white bg-opacity-10 rounded-xl border border-indigo-400 border-opacity-30">
+                        <span id="game-question">10 cm = ? m</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4" id="game-options">
+                        <!-- Botones generados por JS -->
+                    </div>
+                </div>
+
+                <!-- Pantalla de Fin de Juego -->
+                <div id="game-end-screen" class="hidden text-center">
+                    <div class="text-6xl mb-4">🏆</div>
+                    <h3 class="text-4xl font-bold mb-2">¡Tiempo agotado!</h3>
+                    <p class="text-xl text-indigo-200 mb-6">Puntuación Final</p>
+                    <div class="text-6xl font-black text-yellow-400 mb-8" id="game-final-score">0</div>
+                    <button onclick="resetGameScreen()" class="bg-indigo-500 hover:bg-indigo-400 text-white text-xl font-bold py-3 px-8 rounded-full shadow-lg transition">
+                        Volver a intentar
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="bg-gray-800 text-gray-400 text-center p-4 text-sm mt-auto">
+        <p>Laboratorio Virtual Creado en HTML, CSS y JS Puro. Para fines educativos.</p>
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT -->
+    <script>
+        // ==========================================
+        // DICCIONARIO DE DATOS Y UNIDADES
+        // ==========================================
+        
+        // Estructura: base (unidad central), factors (multiplicador respecto a la base)
+        const unitsData = {
+            longitud: {
+                name: "Longitud",
+                base: "m",
+                items: {
+                    "km": { name: "Kilómetros", factor: 1000 },
+                    "m":  { name: "Metros", factor: 1 },
+                    "cm": { name: "Centímetros", factor: 0.01 },
+                    "mm": { name: "Milímetros", factor: 0.001 }
+                }
+            },
+            masa: {
+                name: "Masa",
+                base: "kg",
+                items: {
+                    "kg": { name: "Kilogramos", factor: 1 },
+                    "g":  { name: "Gramos", factor: 0.001 },
+                    "lb": { name: "Libras", factor: 0.453592 },
+                    "oz": { name: "Onzas", factor: 0.0283495 }
+                }
+            },
+            volumen: {
+                name: "Volumen",
+                base: "L",
+                items: {
+                    "L":   { name: "Litros", factor: 1 },
+                    "mL":  { name: "Mililitros", factor: 0.001 },
+                    "gal": { name: "Galones", factor: 3.78541 }
+                }
+            }
+        };
+
+        // Función central para convertir
+        function convertValue(value, fromUnit, toUnit, category) {
+            const catData = unitsData[category].items;
+            const factorFrom = catData[fromUnit].factor;
+            const factorTo = catData[toUnit].factor;
+            
+            // Convertimos al valor base y luego a la unidad de destino
+            let result = (value * factorFrom) / factorTo;
+            
+            // Redondeamos para evitar errores de coma flotante largos (ej. 0.300000000004)
+            // Para la educación, 4 decimales son suficientes
+            return parseFloat(result.toFixed(4));
+        }
+
+        // ==========================================
+        // CONTROL DE NAVEGACIÓN (PESTAÑAS)
+        // ==========================================
+        function switchTab(tabId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
+            // Desactivar botones
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Mostrar sección activa y activar botón
+            document.getElementById(`section-${tabId}`).classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            // Acciones específicas al entrar a una pestaña
+            if(tabId === 'aprender') updateLearnUnits();
+            if(tabId === 'practica' && !currentPractice) generatePracticeQuestion();
+        }
+
+        // ==========================================
+        // LÓGICA DE LA SECCIÓN "APRENDER"
+        // ==========================================
+        function updateLearnUnits() {
+            const category = document.getElementById('learn-category').value;
+            const selectFrom = document.getElementById('learn-from');
+            const selectTo = document.getElementById('learn-to');
+            
+            selectFrom.innerHTML = '';
+            selectTo.innerHTML = '';
+
+            const units = unitsData[category].items;
+            for (let unit in units) {
+                let opt1 = new Option(`${units[unit].name} (${unit})`, unit);
+                let opt2 = new Option(`${units[unit].name} (${unit})`, unit);
+                selectFrom.add(opt1);
+                selectTo.add(opt2);
+            }
+            
+            // Seleccionar algo por defecto para que no sean iguales si es posible
+            if(selectFrom.options.length > 1) {
+                selectTo.selectedIndex = 1;
+            }
+            
+            calculateLearn();
+        }
+
+        function calculateLearn() {
+            const category = document.getElementById('learn-category').value;
+            const val = parseFloat(document.getElementById('learn-input').value) || 0;
+            const from = document.getElementById('learn-from').value;
+            const to = document.getElementById('learn-to').value;
+
+            const result = convertValue(val, from, to, category);
+            document.getElementById('learn-result').innerText = `${result} ${to}`;
+
+            // Generar explicación
+            const factorFrom = unitsData[category].items[from].factor;
+            const factorTo = unitsData[category].items[to].factor;
+            const explanationEl = document.getElementById('learn-explanation');
+
+            if (from === to) {
+                explanationEl.innerText = "Las unidades son iguales, el valor no cambia.";
+            } else {
+                let multiplier = factorFrom / factorTo;
+                // Explicación sencilla para el estudiante
+                if (multiplier > 1) {
+                    // Limpiamos número de decimales para mostrar en la explicación
+                    let displayMult = parseFloat(multiplier.toFixed(4));
+                    explanationEl.innerHTML = `Multiplica el valor por <strong>${displayMult}</strong>`;
+                } else {
+                    let divider = factorTo / factorFrom;
+                    let displayDiv = parseFloat(divider.toFixed(4));
+                    explanationEl.innerHTML = `Divide el valor entre <strong>${displayDiv}</strong>`;
+                }
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DE LA SECCIÓN "PRÁCTICA"
+        // ==========================================
+        let currentPractice = null;
+        let practiceScore = 0;
+
+        function getRandomProperty(obj) {
+            const keys = Object.keys(obj);
+            return keys[keys.length * Math.random() << 0];
+        }
+
+        function generatePracticeQuestion() {
+            // Limpiar UI
+            const container = document.getElementById('practice-container');
+            container.className = "text-center transition-colors duration-300 p-6 rounded-xl border-2 border-transparent";
+            document.getElementById('practice-input').value = '';
+            document.getElementById('practice-feedback').innerText = '';
+
+            // Elegir categoría aleatoria y unidades
+            const categoryKeys = Object.keys(unitsData);
+            const randomCategory = categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
+            const items = unitsData[randomCategory].items;
+            
+            let fromUnit = getRandomProperty(items);
+            let toUnit = getRandomProperty(items);
+            
+            // Asegurar que sean diferentes
+            while(fromUnit === toUnit) {
+                toUnit = getRandomProperty(items);
+            }
+
+            // Generar un número razonable para preguntar (ej. 1, 10, 50, 100, 2.5)
+            const baseNumbers = [1, 2, 5, 10, 20, 50, 100, 500, 1.5, 2.5];
+            const randomVal = baseNumbers[Math.floor(Math.random() * baseNumbers.length)];
+
+            // Guardar estado
+            currentPractice = {
+                category: randomCategory,
+                val: randomVal,
+                from: fromUnit,
+                to: toUnit,
+                correctAnswer: convertValue(randomVal, fromUnit, toUnit, randomCategory)
+            };
+
+            // Mostrar en UI
+            document.getElementById('practice-q-val').innerText = randomVal;
+            document.getElementById('practice-q-from').innerText = fromUnit;
+            document.getElementById('practice-q-to').innerText = toUnit;
+        }
+
+        function checkPracticeAnswer() {
+            if(!currentPractice) return;
+            
+            const userInput = parseFloat(document.getElementById('practice-input').value);
+            const feedbackEl = document.getElementById('practice-feedback');
+            const container = document.getElementById('practice-container');
+            
+            if(isNaN(userInput)) {
+                feedbackEl.innerText = "Por favor, ingresa un número.";
+                feedbackEl.className = "mt-4 font-bold text-lg min-h-[28px] text-gray-500";
+                return;
+            }
+
+            // Aceptamos un margen de error pequeño por el redondeo de decimales
+            const diff = Math.abs(userInput - currentPractice.correctAnswer);
+            // El margen de error dinámico basado en el tamaño de la respuesta
+            const allowedError = currentPractice.correctAnswer === 0 ? 0.001 : Math.max(0.01, currentPractice.correctAnswer * 0.01);
+
+            if(diff <= allowedError) {
+                // CORRECTO
+                practiceScore += 10;
+                document.getElementById('practice-score').innerText = practiceScore;
+                
+                feedbackEl.innerText = "¡Correcto! Excelente trabajo. 🎉";
+                feedbackEl.className = "mt-4 font-bold text-lg min-h-[28px] text-green-600";
+                container.classList.add('bg-correct');
+                
+                // Animación pop
+                container.classList.add('pop-animation');
+                setTimeout(() => container.classList.remove('pop-animation'), 300);
+
+                setTimeout(() => {
+                    container.classList.remove('bg-correct');
+                    generatePracticeQuestion();
+                }, 1500);
+            } else {
+                // INCORRECTO
+                feedbackEl.innerText = `Incorrecto. La respuesta era aproximadamente ${currentPractice.correctAnswer}. Intenta de nuevo.`;
+                feedbackEl.className = "mt-4 font-bold text-lg min-h-[28px] text-red-600";
+                container.classList.add('bg-incorrect');
+                setTimeout(() => container.classList.remove('bg-incorrect'), 1000);
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DE LA SECCIÓN "MINIJUEGO"
+        // ==========================================
+        let gameTimer;
+        let timeLeft = 60;
+        let gameScore = 0;
+        let currentGameAnswer = 0;
+
+        function resetGameScreen() {
+            document.getElementById('game-start-screen').classList.remove('hidden');
+            document.getElementById('game-play-screen').classList.add('hidden');
+            document.getElementById('game-end-screen').classList.add('hidden');
+        }
+
+        function startGame() {
+            timeLeft = 60;
+            gameScore = 0;
+            document.getElementById('game-time').innerText = timeLeft;
+            document.getElementById('game-score').innerText = gameScore;
+            
+            document.getElementById('game-start-screen').classList.add('hidden');
+            document.getElementById('game-end-screen').classList.add('hidden');
+            document.getElementById('game-play-screen').classList.remove('hidden');
+            
+            nextGameQuestion();
+            
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('game-time').innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(gameTimer);
+            document.getElementById('game-play-screen').classList.add('hidden');
+            document.getElementById('game-end-screen').classList.remove('hidden');
+            document.getElementById('game-final-score').innerText = gameScore;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function nextGameQuestion() {
+            // Lógica similar a la práctica, pero generamos opciones
+            const categoryKeys = Object.keys(unitsData);
+            // Hacerlo un poco más fácil en el juego, enfocarse en Longitud y Masa comunes
+            const randomCategory = categoryKeys[Math.floor(Math.random() * 2)]; 
+            const items = unitsData[randomCategory].items;
+            
+            let fromUnit = getRandomProperty(items);
+            let toUnit = getRandomProperty(items);
+            while(fromUnit === toUnit) toUnit = getRandomProperty(items);
+
+            const baseNumbers = [1, 10, 100, 1000, 5, 50];
+            const randomVal = baseNumbers[Math.floor(Math.random() * baseNumbers.length)];
+
+            currentGameAnswer = convertValue(randomVal, fromUnit, toUnit, randomCategory);
+
+            document.getElementById('game-question').innerText = `${randomVal} ${fromUnit} = ? ${toUnit}`;
+
+            // Generar opciones falsas lógicas (desplazando el punto decimal)
+            let options = new Set([currentGameAnswer]);
+            while(options.size < 4) {
+                // Multiplicamos o dividimos por 10, 100 al azar, o multiplicador loco
+                let r = Math.random();
+                let fakeVal = 0;
+                if(r < 0.3) fakeVal = currentGameAnswer * 10;
+                else if(r < 0.6) fakeVal = currentGameAnswer / 10;
+                else if(r < 0.8) fakeVal = currentGameAnswer * 100;
+                else fakeVal = parseFloat((currentGameAnswer * (Math.random() * 3)).toFixed(4));
+                
+                // Evitar ceros o repeticiones si la respuesta es 0
+                if(fakeVal !== currentGameAnswer && !isNaN(fakeVal)) {
+                    options.add(parseFloat(fakeVal.toFixed(4)));
+                }
+            }
+
+            let optionsArray = Array.from(options);
+            shuffleArray(optionsArray);
+
+            const btnContainer = document.getElementById('game-options');
+            btnContainer.innerHTML = '';
+            
+            optionsArray.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = "bg-indigo-700 hover:bg-indigo-600 border border-indigo-500 text-white font-bold py-4 px-4 rounded-xl text-xl transition transform hover:scale-105 active:scale-95";
+                btn.innerText = opt;
+                btn.onclick = () => checkGameAnswer(opt, btn);
+                btnContainer.appendChild(btn);
+            });
+        }
+
+        function checkGameAnswer(selectedOption, buttonElement) {
+            // Aceptamos pequeño margen
+            const isCorrect = Math.abs(selectedOption - currentGameAnswer) < 0.0001;
+            
+            if(isCorrect) {
+                gameScore += 10;
+                buttonElement.classList.replace('bg-indigo-700', 'bg-green-500');
+                buttonElement.classList.replace('hover:bg-indigo-600', 'bg-green-500');
+            } else {
+                gameScore = Math.max(0, gameScore - 5);
+                buttonElement.classList.replace('bg-indigo-700', 'bg-red-500');
+                buttonElement.classList.replace('hover:bg-indigo-600', 'bg-red-500');
+            }
+            
+            document.getElementById('game-score').innerText = gameScore;
+            
+            // Retraso breve para ver el color, y luego siguiente
+            setTimeout(() => {
+                nextGameQuestion();
+            }, 300);
+        }
+
+        // Inicializar
+        window.onload = () => {
+            updateLearnUnits();
+        };
+    </script>
+</body>
+</html>
