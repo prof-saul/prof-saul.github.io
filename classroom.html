@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprendamos a usar Google Classroom</title>
+    <!-- Tailwind CSS para los estilos rápidos y modernos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Librería para el confeti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Librería para generar el PDF del certificado -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0fdf4; /* Un verde muy suave, alusivo a pizarrones o Classroom */
+            background-image: radial-gradient(#dcfce7 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .checkbox-custom {
+            appearance: none;
+            background-color: #fff;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.5em;
+            height: 1.5em;
+            border: 2px solid #22c55e;
+            border-radius: 0.3em;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .checkbox-custom::before {
+            content: "";
+            width: 0.8em;
+            height: 0.8em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white;
+            background-color: white;
+            transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+
+        .checkbox-custom:checked {
+            background-color: #22c55e;
+            border-color: #22c55e;
+            transform: scale(1.1);
+        }
+
+        .checkbox-custom:checked::before {
+            transform: scale(1);
+        }
+
+        .task-item {
+            transition: all 0.3s ease;
+        }
+
+        .task-item.completed span {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+            background-color: #f8fafc;
+        }
+
+        .celebration-text {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+            display: none;
+        }
+
+        .celebration-text.show {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-3xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden relative border-t-8 border-green-500">
+        
+        <!-- Etiqueta del Canal (Ahora clickeable) -->
+        <a href="https://www.youtube.com/@elprofesaul" target="_blank" class="absolute top-4 right-4 bg-red-600 text-white px-4 py-1 rounded-full text-sm font-bold flex items-center gap-2 shadow-md hover:bg-red-700 transition">
+            <i class="fa-brands fa-youtube"></i>
+            @elprofesaul
+        </a>
+
+        <div class="p-8 md:p-12">
+            <!-- Encabezado -->
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 text-green-600 rounded-full mb-4">
+                    <i class="fa-solid fa-chalkboard-user text-4xl"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-2">Aprendamos a usar Google Classroom</h1>
+                <h2 class="text-xl md:text-2xl text-green-600 font-semibold">Para profesores en El Salvador 🇸🇻</h2>
+            </div>
+
+            <!-- Barra de progreso -->
+            <div class="mb-8">
+                <div class="flex justify-between text-sm font-semibold text-gray-600 mb-2">
+                    <span>Progreso del tutorial</span>
+                    <span id="progress-text">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progress-bar" class="bg-green-500 h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Lista de Tareas -->
+            <div id="checklist" class="space-y-3 mb-8">
+                <!-- Los items se generarán con JS -->
+            </div>
+
+            <!-- Mensaje de Celebración (Oculto inicialmente) -->
+            <div id="celebration" class="celebration-text text-center p-6 bg-green-50 border border-green-200 rounded-2xl">
+                <i class="fa-solid fa-graduation-cap text-5xl text-green-500 mb-3"></i>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">¡Misión Cumplida, Profe!</h3>
+                <p class="text-gray-600">Ya estás listo para sacarle el máximo provecho a Google Classroom con tus estudiantes.</p>
+                
+                <!-- Sección para generar certificado -->
+                <div class="mt-6 bg-white p-5 rounded-xl shadow-sm text-left border border-gray-100">
+                    <label for="teacher-name" class="block text-sm font-bold text-gray-700 mb-2">Obtén tu certificado de participación:</label>
+                    <input type="text" id="teacher-name" placeholder="Escribe tu nombre completo aquí..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition" oninput="document.getElementById('name-error').classList.add('hidden')">
+                    <p id="name-error" class="text-red-500 text-xs mt-1 hidden font-semibold">Por favor, escribe tu nombre para generar el certificado.</p>
+                    
+                    <button id="btn-cert" onclick="generateCertificate()" class="w-full mt-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-bold shadow-md flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i> Generar y Descargar Certificado
+                    </button>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-green-200">
+                    <p class="text-sm text-gray-500 mb-4">Un tutorial creado con mucho cariño en <a href="https://www.youtube.com/@elprofesaul" target="_blank" class="text-red-600 font-bold hover:underline"><i class="fa-brands fa-youtube"></i> @elprofesaul</a></p>
+                    <button onclick="resetChecklist()" class="px-6 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700 transition font-semibold text-sm">
+                        <i class="fa-solid fa-rotate-right mr-2"></i>Reiniciar checklist
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor del Certificado (Fijo y transparente para evitar errores de renderizado al hacer scroll) -->
+    <div id="certificate-container" style="position: fixed; left: 0; top: 0; z-index: -9999; opacity: 0; pointer-events: none; width: 1122px; height: 793px;">
+        <div id="certificate" style="width: 1122px; height: 793px; background-color: white; padding: 40px; box-sizing: border-box; color: #1f2937;">
+            <!-- Borde exterior -->
+            <div style="width: 100%; height: 100%; border: 15px solid #16a34a; padding: 10px; box-sizing: border-box;">
+                <!-- Borde interior con patrón de fondo -->
+                <div style="width: 100%; height: 100%; border: 2px solid #16a34a; position: relative; display: flex; flex-direction: column; background-image: radial-gradient(#dcfce7 1px, transparent 1px); background-size: 30px 30px; padding: 40px; box-sizing: border-box;">
+                    
+                    <!-- Iconos decorativos -->
+                    <i class="fa-solid fa-award" style="position: absolute; top: 40px; left: 40px; font-size: 4rem; color: #dcfce7; z-index: 0;"></i>
+                    <i class="fa-solid fa-graduation-cap" style="position: absolute; bottom: 40px; right: 40px; font-size: 4rem; color: #dcfce7; z-index: 0;"></i>
+
+                    <!-- Contenido Central (Se ajusta dinámicamente) -->
+                    <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1;">
+                        <h1 style="font-family: 'Poppins', sans-serif; font-size: 3.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 0.5rem 0;">Certificado</h1>
+                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 300; text-transform: uppercase; letter-spacing: 0.2em; color: #4b5563; margin: 0 0 2rem 0;">de Finalización</h2>
+                        
+                        <p style="font-family: 'Poppins', sans-serif; font-size: 1.5rem; color: #4b5563; margin: 0 0 1rem 0;">Este certificado se otorga a:</p>
+                        
+                        <!-- Nombre del profesor (Ajustado el tamaño y el line-height) -->
+                        <h3 id="cert-name" style="font-family: 'Playfair Display', serif; font-size: 3.2rem; font-weight: 700; color: #15803d; margin: 1rem 0 2rem 0; border-bottom: 3px solid #d1d5db; padding: 0 2rem 0.5rem 2rem; text-align: center; max-width: 90%; line-height: 1.2;">Nombre</h3>
+                        
+                        <p style="font-family: 'Poppins', sans-serif; font-size: 1.25rem; color: #374151; margin: 0 0 1rem 0;">Por haber completado con éxito el entrenamiento virtual:</p>
+                        <h4 style="font-family: 'Poppins', sans-serif; font-size: 2.2rem; font-weight: 700; color: #1f2937; margin: 0; background-color: white; padding: 0.5rem 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); text-align: center;">"Aprendamos a usar Google Classroom"</h4>
+                    </div>
+                    
+                    <!-- Pie de firma (Ya no tiene position absolute, respeta el flujo de la página) -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; padding: 0 4rem; box-sizing: border-box; z-index: 1;">
+                        <div style="text-align: center;">
+                            <p id="cert-date" style="font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 600; border-bottom: 2px solid #9ca3af; padding: 0 1rem 0.2rem 1rem; margin: 0; min-width: 250px;"></p>
+                            <p style="font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: #6b7280; margin: 0.5rem 0 0 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Fecha</p>
+                        </div>
+                        
+                        <div style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                            <div style="color: #dc2626; font-size: 1.8rem; margin-bottom: 0.2rem;"><i class="fa-brands fa-youtube"></i></div>
+                            <p style="font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid #9ca3af; padding: 0 1rem 0.2rem 1rem; margin: 0; min-width: 250px;">@elprofesaul</p>
+                            <p style="font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: #6b7280; margin: 0.5rem 0 0 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Instructor</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tasks = [
+            "Entrar a Google Classroom",
+            "Crear una clase nueva",
+            "Configurar la clase (Puntuación, trimestres, etc.)",
+            "Invitar estudiantes (Por correo o código)",
+            "Publicar anuncios en el Tablón (Novedades)",
+            "Organizar el Trabajo de Clase por Temas",
+            "Explorar tipos de actividades (Material, Preguntas...)",
+            "Crear y asignar una tarea",
+            "Calificar y devolver una tarea",
+            "Ver estadísticas y calificaciones"
+        ];
+
+        const checklistContainer = document.getElementById('checklist');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const celebrationDiv = document.getElementById('celebration');
+        
+        let completedTasks = 0;
+
+        function initChecklist() {
+            checklistContainer.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const item = document.createElement('label');
+                item.className = 'task-item flex items-center p-4 border border-gray-100 rounded-xl cursor-pointer bg-white shadow-sm';
+                
+                item.innerHTML = `
+                    <input type="checkbox" class="checkbox-custom mr-4" onchange="toggleTask(${index}, this)">
+                    <span class="text-lg text-gray-700 font-medium select-none flex-1">${task}</span>
+                `;
+                checklistContainer.appendChild(item);
+            });
+            updateProgress();
+        }
+
+        function toggleTask(index, checkbox) {
+            const listItem = checkbox.closest('.task-item');
+            
+            if (checkbox.checked) {
+                listItem.classList.add('completed');
+                completedTasks++;
+                // Pequeña animación al marcar uno
+                confetti({
+                    particleCount: 30,
+                    spread: 40,
+                    origin: { y: 0.8 },
+                    colors: ['#22c55e', '#3b82f6']
+                });
+            } else {
+                listItem.classList.remove('completed');
+                completedTasks--;
+            }
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const percentage = Math.round((completedTasks / tasks.length) * 100);
+            progressBar.style.width = `${percentage}%`;
+            progressText.innerText = `${percentage}%`;
+
+            if (percentage === 100) {
+                showCelebration();
+            } else {
+                hideCelebration();
+            }
+        }
+
+        function showCelebration() {
+            celebrationDiv.classList.add('show');
+            checklistContainer.style.display = 'none';
+            
+            // Animación grande de confeti
+            const duration = 3 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        function hideCelebration() {
+            celebrationDiv.classList.remove('show');
+            checklistContainer.style.display = 'block';
+        }
+
+        function resetChecklist() {
+            completedTasks = 0;
+            hideCelebration();
+            document.getElementById('teacher-name').value = '';
+            document.getElementById('name-error').classList.add('hidden');
+            initChecklist();
+        }
+
+        function generateCertificate() {
+            const nameInput = document.getElementById('teacher-name').value.trim();
+            const errorMsg = document.getElementById('name-error');
+            
+            if (!nameInput) {
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // Llenar datos en el certificado
+            document.getElementById('cert-name').innerText = nameInput;
+            
+            // Obtener fecha actual en formato El Salvador
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const dateString = today.toLocaleDateString('es-SV', options);
+            document.getElementById('cert-date').innerText = dateString;
+
+            // Mostrar estado de carga en el botón
+            const btn = document.getElementById('btn-cert');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando PDF...';
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            // Configurar opciones de html2pdf
+            const element = document.getElementById('certificate');
+            const opt = {
+                margin:       0,
+                filename:     `Certificado_Classroom_${nameInput.replace(/\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true,
+                    scrollY: 0, // <-- Esto soluciona el problema del espacio en blanco
+                    scrollX: 0
+                }, 
+                jsPDF:        { unit: 'px', format: [1122, 793], orientation: 'landscape' }
+            };
+
+            // Generar PDF
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restaurar botón
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                
+                // Lluvia extra de confeti para celebrar la descarga
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#22c55e', '#ef4444', '#eab308']
+                });
+            }).catch(err => {
+                console.error("Error al generar el PDF:", err);
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Error al generar';
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                }, 3000);
+            });
+        }
+
+        // Inicializar al cargar
+        initChecklist();
+    </script>
+</body>
+</html>
