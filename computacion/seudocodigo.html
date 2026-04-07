@@ -143,7 +143,7 @@
         <!-- 2. SECCIÓN APRENDIZAJE -->
         <section id="aprendizaje" class="tab-content hidden animate-pop">
             <h1 class="text-3xl font-bold text-blue-800 mb-6 border-b-4 border-yellow-400 inline-block pb-2">Aprendizaje Guiado</h1>
-            <p class="text-gray-600 mb-8">Veamos cómo la lógica de la vida real se convierte en pseudocódigo.</p>
+            <p class="text-gray-600 mb-8">Veamos cómo la lógica de la vida real se convierte en pseudocódigo. Haz clic en cada ejemplo para expandirlo.</p>
 
             <div class="space-y-6">
                 <!-- Ejemplo 1 -->
@@ -203,6 +203,67 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Ejemplo 3 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                    <div class="bg-blue-100 px-6 py-4 flex justify-between items-center cursor-pointer" onclick="toggleAccordion('ej3')">
+                        <h3 class="font-bold text-lg text-blue-800">Ejemplo 3: Contar del 1 al 5 (Bucle/Repetición)</h3>
+                        <i class="fa-solid fa-chevron-down text-blue-600 transition-transform" id="icon-ej3"></i>
+                    </div>
+                    <div id="ej3" class="hidden px-6 py-4 bg-white grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-bold text-gray-700 mb-2">Paso a paso lógico:</h4>
+                            <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                                <li>Definir un contador empezando en 1.</li>
+                                <li>Mientras el contador sea menor o igual a 5, repetir:</li>
+                                <li>Mostrar el número del contador.</li>
+                                <li>Sumarle 1 al contador (para que eventualmente termine).</li>
+                            </ol>
+                        </div>
+                        <div class="bg-gray-800 text-green-400 p-4 rounded font-mono text-sm">
+                            <span class="text-blue-400">Algoritmo</span> ContarNumeros<br>
+                            &nbsp;&nbsp;contador = 1<br>
+                            &nbsp;&nbsp;<span class="text-pink-400">Mientras</span> contador <= 5 <span class="text-pink-400">Hacer</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> contador<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;contador = contador + 1<br>
+                            &nbsp;&nbsp;<span class="text-pink-400">FinMientras</span><br>
+                            <span class="text-blue-400">FinAlgoritmo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ejemplo 4 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                    <div class="bg-blue-100 px-6 py-4 flex justify-between items-center cursor-pointer" onclick="toggleAccordion('ej4')">
+                        <h3 class="font-bold text-lg text-blue-800">Ejemplo 4: El vuelto de las pupusas (Matemáticas)</h3>
+                        <i class="fa-solid fa-chevron-down text-blue-600 transition-transform" id="icon-ej4"></i>
+                    </div>
+                    <div id="ej4" class="hidden px-6 py-4 bg-white grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-bold text-gray-700 mb-2">Paso a paso lógico:</h4>
+                            <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                                <li>Preguntar cuántas pupusas de a dólar vas a llevar.</li>
+                                <li>Calcular el total a pagar (cantidad * precio).</li>
+                                <li>Preguntar con qué billete va a pagar.</li>
+                                <li>Restar el total al billete para sacar el vuelto.</li>
+                                <li>Mostrar el vuelto en pantalla.</li>
+                            </ol>
+                        </div>
+                        <div class="bg-gray-800 text-green-400 p-4 rounded font-mono text-sm">
+                            <span class="text-blue-400">Algoritmo</span> VueltoPupusas<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> "¿Cuántas pupusas ($1.00) querés?"<br>
+                            &nbsp;&nbsp;<span class="text-purple-400">Leer</span> cantidad<br>
+                            &nbsp;&nbsp;total = cantidad * 1.00<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> "El total es: $", total<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> "¿Con qué billete vas a pagar?"<br>
+                            &nbsp;&nbsp;<span class="text-purple-400">Leer</span> billete<br>
+                            &nbsp;&nbsp;vuelto = billete - total<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> "Tu vuelto es: $", vuelto<br>
+                            <span class="text-blue-400">FinAlgoritmo</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -252,7 +313,7 @@ Escribir edad</textarea>
 
             <div id="quiz-container" class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 border border-gray-200">
                 <div class="mb-4 flex justify-between items-center text-sm font-bold text-gray-500">
-                    <span id="quiz-progress">Pregunta 1 de 3</span>
+                    <span id="quiz-progress">Pregunta 1 de 5</span>
                     <span id="quiz-score" class="text-blue-600">Puntaje: 0</span>
                 </div>
                 
@@ -271,7 +332,7 @@ Escribir edad</textarea>
             <div id="quiz-results" class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8 border border-gray-200 text-center hidden">
                 <i class="fa-solid fa-trophy text-6xl text-yellow-400 mb-4"></i>
                 <h2 class="text-3xl font-bold text-blue-800 mb-2">¡Completado!</h2>
-                <p class="text-xl text-gray-700 mb-6">Obtuviste <span id="final-score" class="font-bold text-blue-600">0</span> de 3 correctas.</p>
+                <p id="quiz-results-text" class="text-xl text-gray-700 mb-6">Obtuviste <span id="final-score" class="font-bold text-blue-600">0</span> correctas.</p>
                 <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition"><i class="fa-solid fa-rotate-right mr-2"></i>Jugar de nuevo</button>
             </div>
         </section>
@@ -463,6 +524,18 @@ dale recto"></textarea>
                 code: null,
                 options: ["Para que la computadora lea un libro.", "Para guardar un texto en la memoria interna.", "Para mostrar un mensaje en la pantalla.", "Para solicitar al usuario que ingrese un dato."],
                 correct: 3
+            },
+            {
+                question: "¿Qué tipo de instrucción usamos para tomar una decisión en base a una condición (ej: saber si alguien es mayor de edad)?",
+                code: "Si (x > 0) Entonces\n  Escribir \"Es positivo\"\nFinSi",
+                options: ["Un bucle o repetición", "Una condicional (Si... Entonces)", "Una asignación de variable", "Una salida de texto"],
+                correct: 1
+            },
+            {
+                question: "Si a = 4 y b = 3, ¿Qué valor numérico tendrá la variable 'c' al final?",
+                code: "a = 4\nb = 3\nc = a * b\nc = c + 2",
+                options: ["12", "7", "14", "Error"],
+                correct: 2
             }
         ];
 
@@ -547,7 +620,7 @@ dale recto"></textarea>
         function showQuizResults() {
             document.getElementById('quiz-container').classList.add('hidden');
             document.getElementById('quiz-results').classList.remove('hidden');
-            document.getElementById('final-score').innerText = quizScore;
+            document.getElementById('quiz-results-text').innerHTML = `Obtuviste <span id="final-score" class="font-bold text-blue-600">${quizScore}</span> de ${quizData.length} correctas.`;
         }
 
         /* ================= A LO GUANACO (LÓGICA DEL JUEGO) ================= */
