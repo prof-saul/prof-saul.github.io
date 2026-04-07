@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Pseudocódigo a lo Guanaco</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Styles for the Grid Game */
+        .grid-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 4px;
+            background-color: #e2e8f0;
+            padding: 4px;
+            border-radius: 0.5rem;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+        }
+        .grid-cell {
+            background-color: #ffffff;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+        }
+        .player-sprite {
+            transition: transform 0.3s ease;
+        }
+        .dir-n { transform: rotate(-90deg); }
+        .dir-e { transform: rotate(0deg); }
+        .dir-s { transform: rotate(90deg); }
+        .dir-w { transform: scaleX(-1); } /* Flip for left */
+
+        /* Animations */
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .animate-pop {
+            animation: pop 0.3s ease-in-out;
+        }
+        
+        /* Terminal styling */
+        .terminal {
+            background-color: #1e1e1e;
+            color: #4af626;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 font-sans">
+
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-code text-2xl text-yellow-400"></i>
+                    <span class="text-xl font-bold">Code<span class="text-yellow-400">Guanaco</span></span>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMenu()" class="text-white hover:text-yellow-200 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-1" id="nav-menu">
+                    <button onclick="switchTab('teoria')" class="nav-btn px-4 py-2 rounded hover:bg-blue-700 transition active-tab font-medium" data-tab="teoria"><i class="fa-solid fa-book mr-2"></i>Teoría</button>
+                    <button onclick="switchTab('aprendizaje')" class="nav-btn px-4 py-2 rounded hover:bg-blue-700 transition font-medium" data-tab="aprendizaje"><i class="fa-solid fa-lightbulb mr-2"></i>Aprendizaje</button>
+                    <button onclick="switchTab('practica')" class="nav-btn px-4 py-2 rounded hover:bg-blue-700 transition font-medium" data-tab="practica"><i class="fa-solid fa-laptop-code mr-2"></i>Práctica</button>
+                    <button onclick="switchTab('minijuegos')" class="nav-btn px-4 py-2 rounded hover:bg-blue-700 transition font-medium" data-tab="minijuegos"><i class="fa-solid fa-gamepad mr-2"></i>Minijuegos</button>
+                    <button onclick="switchTab('guanaco')" class="nav-btn px-4 py-2 bg-yellow-500 text-blue-900 rounded hover:bg-yellow-400 transition font-bold" data-tab="guanaco"><i class="fa-solid fa-earth-americas mr-2"></i>A lo Guanaco</button>
+                </div>
+            </div>
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="hidden md:hidden pb-4 flex flex-col space-y-2">
+                <button onclick="switchTab('teoria'); toggleMenu()" class="text-left px-4 py-2 hover:bg-blue-700 rounded"><i class="fa-solid fa-book mr-2"></i>Teoría</button>
+                <button onclick="switchTab('aprendizaje'); toggleMenu()" class="text-left px-4 py-2 hover:bg-blue-700 rounded"><i class="fa-solid fa-lightbulb mr-2"></i>Aprendizaje</button>
+                <button onclick="switchTab('practica'); toggleMenu()" class="text-left px-4 py-2 hover:bg-blue-700 rounded"><i class="fa-solid fa-laptop-code mr-2"></i>Práctica</button>
+                <button onclick="switchTab('minijuegos'); toggleMenu()" class="text-left px-4 py-2 hover:bg-blue-700 rounded"><i class="fa-solid fa-gamepad mr-2"></i>Minijuegos</button>
+                <button onclick="switchTab('guanaco'); toggleMenu()" class="text-left px-4 py-2 bg-yellow-500 text-blue-900 font-bold rounded"><i class="fa-solid fa-earth-americas mr-2"></i>A lo Guanaco</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- 1. SECCIÓN TEORÍA -->
+        <section id="teoria" class="tab-content animate-pop">
+            <h1 class="text-3xl font-bold text-blue-800 mb-6 border-b-4 border-yellow-400 inline-block pb-2">Fundamentos del Pseudocódigo</h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                    <h2 class="text-xl font-bold mb-3 text-blue-600">¿Qué es un Algoritmo?</h2>
+                    <p class="text-gray-700 mb-4">Es una serie de pasos lógicos, ordenados y finitos que nos permiten resolver un problema. Piensa en una receta para hacer pupusas: tienes ingredientes (datos de entrada), sigues pasos (proceso) y obtienes pupusas (salida).</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
+                    <h2 class="text-xl font-bold mb-3 text-blue-600">¿Qué es el Pseudocódigo?</h2>
+                    <p class="text-gray-700 mb-4">Es una forma de escribir algoritmos usando lenguaje natural (como el español) estructurado, antes de traducirlo a un lenguaje de programación real como JavaScript o Python. Es un "código falso" que ayuda a pensar la lógica.</p>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-bold mt-10 mb-6 text-blue-800">Comandos Básicos</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-blue-50 p-5 rounded-lg border border-blue-100 shadow-sm">
+                    <span class="bg-blue-600 text-white px-3 py-1 rounded text-sm font-bold mb-3 inline-block">Entrada/Salida</span>
+                    <ul class="space-y-2 mt-2 font-mono text-sm">
+                        <li><strong class="text-blue-700">Escribir</strong> "Hola": Muestra un mensaje en pantalla.</li>
+                        <li><strong class="text-blue-700">Leer</strong> variable: Pide un dato al usuario.</li>
+                    </ul>
+                </div>
+                <div class="bg-green-50 p-5 rounded-lg border border-green-100 shadow-sm">
+                    <span class="bg-green-600 text-white px-3 py-1 rounded text-sm font-bold mb-3 inline-block">Asignación</span>
+                    <ul class="space-y-2 mt-2 font-mono text-sm">
+                        <li><strong class="text-green-700">x = 5</strong>: Guarda el valor 5 en x.</li>
+                        <li><strong class="text-green-700">suma = a + b</strong>: Suma y guarda el resultado.</li>
+                    </ul>
+                </div>
+                <div class="bg-purple-50 p-5 rounded-lg border border-purple-100 shadow-sm">
+                    <span class="bg-purple-600 text-white px-3 py-1 rounded text-sm font-bold mb-3 inline-block">Condiciones</span>
+                    <ul class="space-y-2 mt-2 font-mono text-sm">
+                        <li><strong class="text-purple-700">Si</strong> (x > 5) <strong class="text-purple-700">Entonces</strong></li>
+                        <li class="ml-4">Escribir "Es mayor"</li>
+                        <li><strong class="text-purple-700">Sino</strong></li>
+                        <li class="ml-4">Escribir "Es menor"</li>
+                        <li><strong class="text-purple-700">Fin Si</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. SECCIÓN APRENDIZAJE -->
+        <section id="aprendizaje" class="tab-content hidden animate-pop">
+            <h1 class="text-3xl font-bold text-blue-800 mb-6 border-b-4 border-yellow-400 inline-block pb-2">Aprendizaje Guiado</h1>
+            <p class="text-gray-600 mb-8">Veamos cómo la lógica de la vida real se convierte en pseudocódigo.</p>
+
+            <div class="space-y-6">
+                <!-- Ejemplo 1 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                    <div class="bg-blue-100 px-6 py-4 flex justify-between items-center cursor-pointer" onclick="toggleAccordion('ej1')">
+                        <h3 class="font-bold text-lg text-blue-800">Ejemplo 1: Calcular la edad de una persona</h3>
+                        <i class="fa-solid fa-chevron-down text-blue-600 transition-transform" id="icon-ej1"></i>
+                    </div>
+                    <div id="ej1" class="hidden px-6 py-4 bg-white grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-bold text-gray-700 mb-2">Paso a paso lógico:</h4>
+                            <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                                <li>Preguntar el año actual.</li>
+                                <li>Preguntar el año de nacimiento.</li>
+                                <li>Restar el año de nacimiento al año actual.</li>
+                                <li>Mostrar el resultado.</li>
+                            </ol>
+                        </div>
+                        <div class="bg-gray-800 text-green-400 p-4 rounded font-mono text-sm">
+                            <span class="text-blue-400">Algoritmo</span> CalcularEdad<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> "Ingresa el año actual:"<br>
+                            &nbsp;&nbsp;<span class="text-purple-400">Leer</span> año_actual<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> "Ingresa tu año de nacimiento:"<br>
+                            &nbsp;&nbsp;<span class="text-purple-400">Leer</span> año_nacimiento<br>
+                            &nbsp;&nbsp;edad = año_actual - año_nacimiento<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> "Tu edad es: ", edad<br>
+                            <span class="text-blue-400">FinAlgoritmo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ejemplo 2 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                    <div class="bg-blue-100 px-6 py-4 flex justify-between items-center cursor-pointer" onclick="toggleAccordion('ej2')">
+                        <h3 class="font-bold text-lg text-blue-800">Ejemplo 2: ¿Es mayor de edad? (Condicional)</h3>
+                        <i class="fa-solid fa-chevron-down text-blue-600 transition-transform" id="icon-ej2"></i>
+                    </div>
+                    <div id="ej2" class="hidden px-6 py-4 bg-white grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-bold text-gray-700 mb-2">Paso a paso lógico:</h4>
+                            <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                                <li>Preguntar la edad.</li>
+                                <li>Si la edad es 18 o más, decir "Es mayor".</li>
+                                <li>De lo contrario, decir "Es menor".</li>
+                            </ol>
+                        </div>
+                        <div class="bg-gray-800 text-green-400 p-4 rounded font-mono text-sm">
+                            <span class="text-blue-400">Algoritmo</span> MayorEdad<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> "Dime tu edad:"<br>
+                            &nbsp;&nbsp;<span class="text-purple-400">Leer</span> edad<br>
+                            &nbsp;&nbsp;<span class="text-pink-400">Si</span> edad >= 18 <span class="text-pink-400">Entonces</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> "Puedes sacar el DUI."<br>
+                            &nbsp;&nbsp;<span class="text-pink-400">Sino</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-yellow-300">Escribir</span> "Aún eres menor de edad."<br>
+                            &nbsp;&nbsp;<span class="text-pink-400">FinSi</span><br>
+                            <span class="text-blue-400">FinAlgoritmo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. SECCIÓN PRÁCTICA -->
+        <section id="practica" class="tab-content hidden animate-pop">
+            <h1 class="text-3xl font-bold text-blue-800 mb-6 border-b-4 border-yellow-400 inline-block pb-2">Entorno de Práctica</h1>
+            <p class="text-gray-600 mb-4">Escribe tu propio pseudocódigo básico. Comandos soportados: <code class="bg-gray-200 px-1 rounded text-red-600">Escribir "texto"</code>, <code class="bg-gray-200 px-1 rounded text-red-600">Leer variable</code>, <code class="bg-gray-200 px-1 rounded text-red-600">variable = expresion</code>.</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Editor -->
+                <div class="flex flex-col h-[400px]">
+                    <div class="bg-gray-800 text-gray-200 px-4 py-2 rounded-t-lg flex justify-between items-center border-b border-gray-700">
+                        <span class="font-mono text-sm"><i class="fa-solid fa-code text-blue-400 mr-2"></i>Editor</span>
+                        <button onclick="ejecutarPseudocodigo()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded text-sm font-bold transition">
+                            <i class="fa-solid fa-play mr-1"></i> Ejecutar
+                        </button>
+                    </div>
+                    <textarea id="pseudo-editor" class="w-full flex-grow bg-[#1e1e1e] text-white p-4 font-mono text-sm resize-none focus:outline-none rounded-b-lg border border-gray-700" spellcheck="false">
+Escribir "¡Hola! ¿Cómo te llamas?"
+Leer nombre
+Escribir "Ingresa tu año de nacimiento:"
+Leer anio
+edad = 2026 - anio
+Escribir "Hola "
+Escribir nombre
+Escribir "Tu edad aproximada es:"
+Escribir edad</textarea>
+                </div>
+
+                <!-- Consola -->
+                <div class="flex flex-col h-[400px]">
+                    <div class="bg-gray-800 text-gray-200 px-4 py-2 rounded-t-lg border-b border-gray-700">
+                        <span class="font-mono text-sm"><i class="fa-solid fa-terminal text-green-400 mr-2"></i>Consola de Salida</span>
+                    </div>
+                    <div id="pseudo-consola" class="w-full flex-grow terminal p-4 overflow-y-auto rounded-b-lg border border-gray-700 text-sm">
+                        > Presiona "Ejecutar" para ver el resultado aquí...
+                    </div>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">*Nota: Las funciones `Leer` mostrarán una ventana emergente en tu navegador solicitando el dato.</p>
+        </section>
+
+        <!-- 4. SECCIÓN MINIJUEGOS -->
+        <section id="minijuegos" class="tab-content hidden animate-pop">
+            <h1 class="text-3xl font-bold text-blue-800 mb-6 border-b-4 border-yellow-400 inline-block pb-2">Retos Lógicos</h1>
+            <p class="text-gray-600 mb-8">Pon a prueba lo que has aprendido. Selecciona la respuesta correcta.</p>
+
+            <div id="quiz-container" class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+                <div class="mb-4 flex justify-between items-center text-sm font-bold text-gray-500">
+                    <span id="quiz-progress">Pregunta 1 de 3</span>
+                    <span id="quiz-score" class="text-blue-600">Puntaje: 0</span>
+                </div>
+                
+                <div id="quiz-question" class="text-xl font-bold text-gray-800 mb-6"></div>
+                <div id="quiz-code-block" class="bg-gray-800 text-green-400 p-4 rounded font-mono text-sm mb-6 hidden"></div>
+                
+                <div id="quiz-options" class="space-y-3">
+                    <!-- Opciones generadas por JS -->
+                </div>
+
+                <div id="quiz-feedback" class="mt-4 hidden p-4 rounded-lg font-bold text-center"></div>
+                
+                <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg hidden transition">Siguiente Pregunta <i class="fa-solid fa-arrow-right ml-2"></i></button>
+            </div>
+            
+            <div id="quiz-results" class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8 border border-gray-200 text-center hidden">
+                <i class="fa-solid fa-trophy text-6xl text-yellow-400 mb-4"></i>
+                <h2 class="text-3xl font-bold text-blue-800 mb-2">¡Completado!</h2>
+                <p class="text-xl text-gray-700 mb-6">Obtuviste <span id="final-score" class="font-bold text-blue-600">0</span> de 3 correctas.</p>
+                <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition"><i class="fa-solid fa-rotate-right mr-2"></i>Jugar de nuevo</button>
+            </div>
+        </section>
+
+        <!-- 5. SECCIÓN SALVADOREÑA (A LO GUANACO) -->
+        <section id="guanaco" class="tab-content hidden animate-pop">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-black text-blue-800 mb-2"><span class="text-yellow-500">Programando</span> a lo Guanaco</h1>
+                <p class="text-gray-600 text-lg">Ayuda al Cipitío (👦🏽) a comerse la pupusa (🫓) sin que lo asuste el Cadejo (🐺).</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto">
+                
+                <!-- Diccionario y Controles -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="bg-white p-5 rounded-lg shadow border-l-4 border-yellow-500">
+                        <h3 class="font-bold text-lg text-blue-800 mb-3"><i class="fa-solid fa-book-open mr-2"></i>Diccionario Guanaco</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-center"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-mono mr-3">dale recto</span> Avanzar 1 cuadro.</li>
+                            <li class="flex items-center"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-mono mr-3">vuelta derecha</span> Girar a la derecha.</li>
+                            <li class="flex items-center"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-mono mr-3">vuelta izquierda</span> Girar a la izquierda.</li>
+                        </ul>
+                        <p class="text-xs text-gray-500 mt-4">*Escribe una orden por línea o separadas por coma.</p>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg border border-gray-700">
+                        <div class="bg-gray-900 text-gray-300 px-4 py-2 border-b border-gray-700 text-sm font-mono flex justify-between">
+                            <span>comandos.sv</span>
+                            <button onclick="resetGuanacoBoard()" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-rotate-left"></i> Limpiar</button>
+                        </div>
+                        <textarea id="guanaco-editor" class="w-full bg-[#1e1e1e] text-green-400 p-4 font-mono text-sm resize-none focus:outline-none h-40" spellcheck="false" placeholder="Ejemplo:
+dale recto
+vuelta derecha
+dale recto"></textarea>
+                        <div class="bg-gray-900 p-2 text-right">
+                            <button onclick="ejecutarGuanaco()" id="btn-guanaco-play" class="bg-yellow-500 hover:bg-yellow-400 text-blue-900 font-bold px-6 py-2 rounded transition">
+                                ¡Púyalo! <i class="fa-solid fa-rocket ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="guanaco-mensaje" class="hidden p-4 rounded-lg font-bold text-center text-lg border-2"></div>
+                </div>
+
+                <!-- Tablero -->
+                <div class="lg:col-span-7 flex justify-center bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <div class="relative">
+                        <!-- El Tablero (5x5 Grid) -->
+                        <div id="guanaco-board" class="grid-board">
+                            <!-- Celdas generadas por JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 text-center py-6 mt-12">
+        <p>Hecho con ❤️ en El Salvador | Laboratorio Interactivo de Lógica</p>
+    </footer>
+
+    <!-- LÓGICA DE JAVASCRIPT -->
+    <script>
+        /* ================= TAB NAVIGATION ================= */
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('animate-pop');
+            });
+            const selected = document.getElementById(tabId);
+            selected.classList.remove('hidden');
+            // Trigger reflow to restart animation
+            void selected.offsetWidth; 
+            selected.classList.add('animate-pop');
+
+            // Update active state in desktop menu
+            document.querySelectorAll('#nav-menu .nav-btn').forEach(btn => {
+                if(btn.dataset.tab === tabId && tabId !== 'guanaco') {
+                    btn.classList.add('bg-blue-700');
+                } else {
+                    btn.classList.remove('bg-blue-700');
+                }
+            });
+            
+            // Especial init for specific tabs
+            if(tabId === 'minijuegos' && quizCurrentQuestion === 0) startQuiz();
+            if(tabId === 'guanaco' && !guanacoBoardInitialized) initGuanacoBoard();
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            content.classList.toggle('hidden');
+            if(content.classList.contains('hidden')){
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        /* ================= PRÁCTICA (PSEUDOCÓDIGO PARSER) ================= */
+        function ejecutarPseudocodigo() {
+            const code = document.getElementById('pseudo-editor').value.split('\n');
+            const output = document.getElementById('pseudo-consola');
+            output.innerHTML = ''; // Limpiar consola
+            
+            let variables = {};
+            
+            const log = (msg) => {
+                output.innerHTML += `> ${msg}<br>`;
+                output.scrollTop = output.scrollHeight;
+            };
+
+            for (let i = 0; i < code.length; i++) {
+                let line = code[i].trim();
+                if (line === '') continue;
+
+                // Comando: Leer
+                if (line.toLowerCase().startsWith('leer ')) {
+                    let varName = line.substring(5).trim();
+                    let valor = prompt(`Ejecución en línea ${i+1}\nPor favor ingresa un valor para '${varName}':`);
+                    if(valor === null) { log(`<i>Ejecución cancelada por el usuario.</i>`); return; }
+                    // Guardar como número si es posible
+                    variables[varName] = isNaN(valor) ? valor : parseFloat(valor);
+                }
+                // Comando: Escribir
+                else if (line.toLowerCase().startsWith('escribir ')) {
+                    let expresion = line.substring(9).trim();
+                    // Si es un string entre comillas
+                    if ((expresion.startsWith('"') && expresion.endsWith('"')) || (expresion.startsWith("'") && expresion.endsWith("'"))) {
+                        log(expresion.slice(1, -1));
+                    } else {
+                        // Si es una variable
+                        log(variables[expresion] !== undefined ? variables[expresion] : `<span class="text-red-500">Error: Variable '${expresion}' no definida.</span>`);
+                    }
+                }
+                // Asignación matemática básica: var = expresion
+                else if (line.includes('=')) {
+                    let partes = line.split('=');
+                    let varName = partes[0].trim();
+                    let expresion = partes[1].trim();
+                    
+                    // Reemplazar variables en la expresión con sus valores
+                    let expresionEvaluable = expresion;
+                    for (let key in variables) {
+                        // Regex simple para reemplazar variables completas
+                        let regex = new RegExp(`\\b${key}\\b`, 'g');
+                        let val = typeof variables[key] === 'string' ? `"${variables[key]}"` : variables[key];
+                        expresionEvaluable = expresionEvaluable.replace(regex, val);
+                    }
+                    
+                    try {
+                        // Evaluar matemáticamente (usando Function de forma controlada)
+                        let result = new Function('return ' + expresionEvaluable)();
+                        variables[varName] = result;
+                    } catch (e) {
+                        log(`<span class="text-red-500">Error en línea ${i+1}: No se pudo evaluar '${expresion}'</span>`);
+                    }
+                } else {
+                    log(`<span class="text-yellow-500">Aviso línea ${i+1}: Comando no reconocido '${line}'</span>`);
+                }
+            }
+            log('<br><span class="text-gray-500">-- Fin de la ejecución --</span>');
+        }
+
+        /* ================= MINIJUEGOS (QUIZ) ================= */
+        const quizData = [
+            {
+                question: "¿Cuál será la salida del siguiente pseudocódigo?",
+                code: "x = 10\ny = 5\nsuma = x + y\nEscribir suma",
+                options: ["x + y", "105", "15", "Error"],
+                correct: 2
+            },
+            {
+                question: "Si la variable 'edad' es 15, ¿Qué mensaje se mostrará?",
+                code: "Si edad >= 18 Entonces\n  Escribir \"Pase adelante\"\nSino\n  Escribir \"No puede entrar\"\nFinSi",
+                options: ["Pase adelante", "No puede entrar", "Error de sintaxis", "Nada"],
+                correct: 1
+            },
+            {
+                question: "¿Para qué sirve el comando 'Leer'?",
+                code: null,
+                options: ["Para que la computadora lea un libro.", "Para guardar un texto en la memoria interna.", "Para mostrar un mensaje en la pantalla.", "Para solicitar al usuario que ingrese un dato."],
+                correct: 3
+            }
+        ];
+
+        let quizCurrentQuestion = 0;
+        let quizScore = 0;
+
+        function startQuiz() {
+            quizCurrentQuestion = 0;
+            quizScore = 0;
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+            loadQuizQuestion();
+        }
+
+        function loadQuizQuestion() {
+            const q = quizData[quizCurrentQuestion];
+            document.getElementById('quiz-progress').innerText = `Pregunta ${quizCurrentQuestion + 1} de ${quizData.length}`;
+            document.getElementById('quiz-score').innerText = `Puntaje: ${quizScore}`;
+            document.getElementById('quiz-question').innerText = q.question;
+            
+            const codeBlock = document.getElementById('quiz-code-block');
+            if(q.code) {
+                codeBlock.innerText = q.code;
+                codeBlock.classList.remove('hidden');
+            } else {
+                codeBlock.classList.add('hidden');
+            }
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-lg transition font-medium text-gray-700 focus:outline-none';
+                btn.innerText = opt;
+                btn.onclick = () => selectQuizAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+        }
+
+        function selectQuizAnswer(selectedIndex, btnElement) {
+            // Disable all buttons
+            const buttons = document.getElementById('quiz-options').children;
+            for(let btn of buttons) {
+                btn.onclick = null;
+                btn.classList.remove('hover:bg-blue-50');
+                btn.style.cursor = 'default';
+            }
+
+            const correctIndex = quizData[quizCurrentQuestion].correct;
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('bg-green-500', 'text-white', 'border-green-600');
+                feedback.classList.add('bg-green-100', 'text-green-800');
+                feedback.innerHTML = '<i class="fa-solid fa-check-circle mr-2"></i>¡Correcto!';
+                quizScore++;
+                document.getElementById('quiz-score').innerText = `Puntaje: ${quizScore}`;
+            } else {
+                btnElement.classList.add('bg-red-500', 'text-white', 'border-red-600');
+                buttons[correctIndex].classList.add('bg-green-200', 'border-green-400'); // Show correct
+                feedback.classList.add('bg-red-100', 'text-red-800');
+                feedback.innerHTML = '<i class="fa-solid fa-xmark-circle mr-2"></i>Incorrecto. Revisa bien la lógica.';
+            }
+
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            quizCurrentQuestion++;
+            if(quizCurrentQuestion < quizData.length) {
+                loadQuizQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-results').classList.remove('hidden');
+            document.getElementById('final-score').innerText = quizScore;
+        }
+
+        /* ================= A LO GUANACO (LÓGICA DEL JUEGO) ================= */
+        const BOARD_SIZE = 5;
+        let guanacoBoardInitialized = false;
+        
+        // Estado del juego
+        let playerState = { x: 0, y: 0, dir: 'e' }; // dir: n, e, s, w
+        let items = {
+            pupusa: { x: 4, y: 4 },
+            cadejo1: { x: 2, y: 2 },
+            cadejo2: { x: 1, y: 4 }
+        };
+        let isPlaying = false;
+
+        function initGuanacoBoard() {
+            renderGuanacoBoard();
+            guanacoBoardInitialized = true;
+        }
+
+        function renderGuanacoBoard() {
+            const board = document.getElementById('guanaco-board');
+            board.innerHTML = '';
+
+            for (let y = 0; y < BOARD_SIZE; y++) {
+                for (let x = 0; x < BOARD_SIZE; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell shadow-sm';
+                    cell.id = `cell-${x}-${y}`;
+
+                    // Fondo estilo grama/suelo
+                    if((x+y)%2===0) cell.classList.add('bg-green-50');
+                    else cell.classList.add('bg-green-100');
+
+                    board.appendChild(cell);
+                }
+            }
+            updateEntities();
+        }
+
+        function updateEntities() {
+            // Limpiar todas las celdas
+            for (let y = 0; y < BOARD_SIZE; y++) {
+                for (let x = 0; x < BOARD_SIZE; x++) {
+                    const cell = document.getElementById(`cell-${x}-${y}`);
+                    if(cell) cell.innerHTML = '';
+                }
+            }
+
+            // Dibujar Pupusa
+            const pCell = document.getElementById(`cell-${items.pupusa.x}-${items.pupusa.y}`);
+            if(pCell) pCell.innerHTML = '🫓';
+
+            // Dibujar Cadejos
+            const c1Cell = document.getElementById(`cell-${items.cadejo1.x}-${items.cadejo1.y}`);
+            if(c1Cell) c1Cell.innerHTML = '🐺';
+            const c2Cell = document.getElementById(`cell-${items.cadejo2.x}-${items.cadejo2.y}`);
+            if(c2Cell) c2Cell.innerHTML = '🐺';
+
+            // Dibujar Jugador (Cipitío)
+            const playerCell = document.getElementById(`cell-${playerState.x}-${playerState.y}`);
+            if(playerCell) {
+                const sprite = document.createElement('div');
+                sprite.innerHTML = '👦🏽';
+                sprite.className = `player-sprite dir-${playerState.dir}`;
+                playerCell.appendChild(sprite);
+            }
+        }
+
+        function resetGuanacoBoard() {
+            if(isPlaying) return;
+            playerState = { x: 0, y: 0, dir: 'e' };
+            document.getElementById('guanaco-editor').value = '';
+            document.getElementById('guanaco-mensaje').classList.add('hidden');
+            updateEntities();
+        }
+
+        const DIR_MAP = ['n', 'e', 's', 'w']; // Indice para rotar (0:Arriba, 1:Der, 2:Abajo, 3:Izq)
+
+        async function ejecutarGuanaco() {
+            if(isPlaying) return;
+            
+            // Reiniciar estado antes de correr código nuevo
+            playerState = { x: 0, y: 0, dir: 'e' };
+            updateEntities();
+            
+            const msgBox = document.getElementById('guanaco-mensaje');
+            msgBox.classList.add('hidden');
+            
+            let rawCode = document.getElementById('guanaco-editor').value;
+            // Permitir separador por coma o salto de linea
+            let commands = rawCode.replace(/,/g, '\n').split('\n').map(c => c.trim().toLowerCase()).filter(c => c !== '');
+            
+            if(commands.length === 0) {
+                showGuanacoMsg("¡Púchica! Escribí algo de código primero.", 'error');
+                return;
+            }
+
+            isPlaying = true;
+            document.getElementById('btn-guanaco-play').classList.add('opacity-50', 'cursor-not-allowed');
+
+            for(let cmd of commands) {
+                await new Promise(r => setTimeout(r, 600)); // Pausa de animación
+                
+                // Analizador de comandos salvadoreños
+                if(cmd === 'dale recto' || cmd === 'avanzá' || cmd === 'dale con todo' || cmd === 'camina') {
+                    movePlayerForward();
+                } 
+                else if (cmd === 'vuelta derecha' || cmd === 'girá derecha' || cmd === 'pa la derecha') {
+                    let idx = DIR_MAP.indexOf(playerState.dir);
+                    playerState.dir = DIR_MAP[(idx + 1) % 4];
+                }
+                else if (cmd === 'vuelta izquierda' || cmd === 'girá izquierda' || cmd === 'pa la izquierda') {
+                    let idx = DIR_MAP.indexOf(playerState.dir);
+                    playerState.dir = DIR_MAP[(idx + 3) % 4]; // +3 es lo mismo que -1 en mod 4
+                }
+                else {
+                    showGuanacoMsg(`Comando desconocido: "${cmd}". Revisa el diccionario.`, 'error');
+                    break;
+                }
+
+                updateEntities();
+
+                // Checar colisiones
+                let status = checkGuanacoStatus();
+                if(status === 'win') {
+                    showGuanacoMsg("¡Qué chivo! ¡Te comiste la pupusa!", 'success');
+                    break;
+                } else if(status === 'lose') {
+                    showGuanacoMsg("¡Ay Dios! Te asustó el Cadejo. Intenta de nuevo.", 'error');
+                    break;
+                } else if(status === 'out') {
+                    showGuanacoMsg("¡Te saliste del huerto! Tené cuidado.", 'error');
+                    break;
+                }
+            }
+
+            // Si terminó de ejecutar comandos y no ganó/perdió
+            let finalStatus = checkGuanacoStatus();
+            if(finalStatus === 'playing') {
+                showGuanacoMsg("Te quedaste a medio camino. Agregá más comandos.", 'warning');
+            }
+
+            isPlaying = false;
+            document.getElementById('btn-guanaco-play').classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function movePlayerForward() {
+            let nextX = playerState.x;
+            let nextY = playerState.y;
+
+            if(playerState.dir === 'n') nextY--;
+            if(playerState.dir === 'e') nextX++;
+            if(playerState.dir === 's') nextY++;
+            if(playerState.dir === 'w') nextX--;
+
+            playerState.x = nextX;
+            playerState.y = nextY;
+        }
+
+        function checkGuanacoStatus() {
+            // Fuera del mapa
+            if(playerState.x < 0 || playerState.x >= BOARD_SIZE || playerState.y < 0 || playerState.y >= BOARD_SIZE) {
+                return 'out';
+            }
+            // Toca pupusa
+            if(playerState.x === items.pupusa.x && playerState.y === items.pupusa.y) {
+                return 'win';
+            }
+            // Toca cadejo
+            if((playerState.x === items.cadejo1.x && playerState.y === items.cadejo1.y) || 
+               (playerState.x === items.cadejo2.x && playerState.y === items.cadejo2.y)) {
+                return 'lose';
+            }
+            return 'playing';
+        }
+
+        function showGuanacoMsg(text, type) {
+            const msgBox = document.getElementById('guanaco-mensaje');
+            msgBox.classList.remove('hidden', 'bg-green-100', 'border-green-500', 'text-green-800', 
+                                    'bg-red-100', 'border-red-500', 'text-red-800', 
+                                    'bg-yellow-100', 'border-yellow-500', 'text-yellow-800');
+            
+            if(type === 'success') {
+                msgBox.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+            } else if(type === 'error') {
+                msgBox.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+            } else {
+                msgBox.classList.add('bg-yellow-100', 'border-yellow-500', 'text-yellow-800');
+            }
+            msgBox.innerHTML = text;
+        }
+
+    </script>
+</body>
+</html>
