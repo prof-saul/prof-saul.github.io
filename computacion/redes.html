@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberEdu - Academia de Ciberseguridad</title>
+    <!-- Tailwind CSS para estilos rápidos y modernos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CryptoJS para demostraciones de encriptación real -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            dark: '#0f172a',
+                            light: '#1e293b',
+                            accent: '#10b981', // Verde esmeralda tipo terminal
+                            accentHover: '#059669',
+                            danger: '#ef4444',
+                            warning: '#f59e0b'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                        sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos personalizados adicionales */
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .nav-btn.active {
+            border-bottom: 2px solid #10b981;
+            color: #10b981;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- Navegación -->
+    <header class="bg-cyber-light shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-shield-halved text-cyber-accent text-2xl mr-2"></i>
+                    <span class="font-bold text-xl tracking-wider text-white font-mono">CyberEdu</span>
+                </div>
+                <nav class="hidden md:block">
+                    <ul class="flex space-x-8">
+                        <li><button onclick="showSection('inicio')" class="nav-btn active text-gray-300 hover:text-cyber-accent px-1 py-2 text-sm font-medium transition-colors" data-target="inicio">Inicio</button></li>
+                        <li><button onclick="showSection('criptografia')" class="nav-btn text-gray-300 hover:text-cyber-accent px-1 py-2 text-sm font-medium transition-colors" data-target="criptografia">Criptografía</button></li>
+                        <li><button onclick="showSection('redes')" class="nav-btn text-gray-300 hover:text-cyber-accent px-1 py-2 text-sm font-medium transition-colors" data-target="redes">Redes</button></li>
+                        <li><button onclick="showSection('seguridad')" class="nav-btn text-gray-300 hover:text-cyber-accent px-1 py-2 text-sm font-medium transition-colors" data-target="seguridad">Seguridad</button></li>
+                        <li><button onclick="showSection('minijuegos')" class="nav-btn text-gray-300 hover:text-cyber-accent px-1 py-2 text-sm font-medium transition-colors" data-target="minijuegos">Minijuegos</button></li>
+                        <li><button onclick="showSection('quiz')" class="nav-btn text-gray-300 hover:text-cyber-accent px-1 py-2 text-sm font-medium transition-colors" data-target="quiz">Quiz</button></li>
+                    </ul>
+                </nav>
+                <!-- Menú móvil (simplificado) -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-300 hover:text-white focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Menú desplegable móvil -->
+        <div id="mobile-menu" class="hidden md:hidden bg-cyber-light pb-3">
+            <button onclick="showSection('inicio'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-gray-300 hover:bg-slate-700">Inicio</button>
+            <button onclick="showSection('criptografia'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-gray-300 hover:bg-slate-700">Criptografía</button>
+            <button onclick="showSection('redes'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-gray-300 hover:bg-slate-700">Redes</button>
+            <button onclick="showSection('seguridad'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-gray-300 hover:bg-slate-700">Seguridad</button>
+            <button onclick="showSection('minijuegos'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-gray-300 hover:bg-slate-700">Minijuegos</button>
+            <button onclick="showSection('quiz'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-gray-300 hover:bg-slate-700">Quiz</button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- ======================= SECCIÓN: INICIO ======================= -->
+        <section id="inicio" class="content-section fade-in">
+            <div class="text-center py-12">
+                <i class="fa-solid fa-laptop-code text-6xl text-cyber-accent mb-6"></i>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Bienvenido a <span class="text-cyber-accent font-mono">CyberEdu</span></h1>
+                <p class="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
+                    Tu viaje interactivo desde los conceptos básicos hasta las profundidades de la Criptografía, Redes y Seguridad Informática.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 text-left">
+                    <div class="bg-cyber-light p-6 rounded-lg border border-slate-700 hover:border-cyber-accent transition cursor-pointer" onclick="showSection('criptografia')">
+                        <i class="fa-solid fa-key text-3xl text-cyber-accent mb-4"></i>
+                        <h3 class="text-xl font-bold text-white mb-2">Criptografía</h3>
+                        <p class="text-gray-400 text-sm">Aprende cómo ocultar información, desde el Cifrado César hasta los estándares modernos como AES y SHA-256.</p>
+                    </div>
+                    <div class="bg-cyber-light p-6 rounded-lg border border-slate-700 hover:border-cyber-accent transition cursor-pointer" onclick="showSection('redes')">
+                        <i class="fa-solid fa-network-wired text-3xl text-cyber-accent mb-4"></i>
+                        <h3 class="text-xl font-bold text-white mb-2">Redes</h3>
+                        <p class="text-gray-400 text-sm">Descubre cómo viajan los datos por el mundo. Modelo OSI, direcciones IP, DNS y cómo se interceptan los paquetes.</p>
+                    </div>
+                    <div class="bg-cyber-light p-6 rounded-lg border border-slate-700 hover:border-cyber-accent transition cursor-pointer" onclick="showSection('seguridad')">
+                        <i class="fa-solid fa-user-secret text-3xl text-cyber-accent mb-4"></i>
+                        <h3 class="text-xl font-bold text-white mb-2">Seguridad</h3>
+                        <p class="text-gray-400 text-sm">Defiéndete de las amenazas. Analiza ataques de Phishing, inyecciones SQL, contraseñas seguras y más.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= SECCIÓN: CRIPTOGRAFÍA ======================= -->
+        <section id="criptografia" class="content-section hidden fade-in">
+            <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-key text-cyber-accent mr-3"></i>Módulo de Criptografía</h2>
+            
+            <!-- Nivel Principiante -->
+            <div class="mb-10 bg-cyber-light rounded-lg p-6 border border-slate-700">
+                <h3 class="text-2xl font-semibold text-cyber-accent mb-3">Nivel Principiante: El Cifrado César</h3>
+                <p class="text-gray-300 mb-4 text-justify">
+                    La criptografía es el arte de escribir mensajes secretos. El <strong>Cifrado César</strong> es una de las técnicas más antiguas y simples, usada por Julio César. Es un cifrado por sustitución en el que cada letra del texto original es reemplazada por otra letra que se encuentra un número fijo de posiciones más adelante en el alfabeto.
+                </p>
+                <div class="bg-slate-800 p-4 rounded-md border border-slate-600 mt-4">
+                    <h4 class="font-bold text-white mb-2">Demo: Máquina Enigma César</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">Texto Original:</label>
+                            <input type="text" id="caesar-input" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white focus:border-cyber-accent outline-none" placeholder="Escribe un secreto..." oninput="updateCaesar()">
+                            <label class="block text-sm text-gray-400 mb-1 mt-3">Desplazamiento (Shift): <span id="caesar-shift-val">3</span></label>
+                            <input type="range" id="caesar-shift" min="1" max="25" value="3" class="w-full" oninput="updateCaesar()">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">Texto Cifrado:</label>
+                            <div id="caesar-output" class="w-full h-10 bg-slate-900 border border-slate-600 rounded p-2 text-cyber-accent font-mono break-all flex items-center"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nivel Intermedio -->
+            <div class="mb-10 bg-cyber-light rounded-lg p-6 border border-slate-700">
+                <h3 class="text-2xl font-semibold text-yellow-400 mb-3">Nivel Intermedio: Criptografía Moderna (Simétrica vs Asimétrica)</h3>
+                <p class="text-gray-300 mb-4 text-justify">
+                    El Cifrado César es fácil de romper. Hoy usamos algoritmos matemáticos complejos.
+                    <ul class="list-disc list-inside text-gray-300 mb-4 space-y-2">
+                        <li><strong>Simétrica (Ej. AES):</strong> Usa la <em>misma llave</em> para cifrar y descifrar. Es como cerrar una caja con una llave y darle una copia exacta a tu amigo. Es muy rápido.</li>
+                        <li><strong>Asimétrica (Ej. RSA):</strong> Usa <em>dos llaves</em> matemáticas ligadas: una Pública (que compartes con todos para que te envíen mensajes) y una Privada (que solo tú tienes para descifrarlos).</li>
+                    </ul>
+                </p>
+                <div class="bg-slate-800 p-4 rounded-md border border-slate-600 mt-4">
+                    <h4 class="font-bold text-white mb-2">Demo: Cifrado AES (Advanced Encryption Standard)</h4>
+                    <p class="text-xs text-gray-400 mb-3">Este es el estándar utilizado por gobiernos y bancos actualmente.</p>
+                    <div class="space-y-3">
+                        <input type="text" id="aes-text" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white" placeholder="Mensaje a proteger">
+                        <input type="text" id="aes-key" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white" placeholder="Contraseña secreta (Llave)">
+                        <div class="flex space-x-2">
+                            <button onclick="encryptAES()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">Cifrar</button>
+                            <button onclick="decryptAES()" class="bg-cyber-accent hover:bg-cyber-accentHover text-white px-4 py-2 rounded transition">Descifrar</button>
+                        </div>
+                        <label class="block text-sm text-gray-400">Resultado:</label>
+                        <textarea id="aes-result" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-yellow-400 font-mono text-sm h-20" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nivel Avanzado -->
+            <div class="mb-10 bg-cyber-light rounded-lg p-6 border border-slate-700">
+                <h3 class="text-2xl font-semibold text-red-400 mb-3">Nivel Avanzado: Funciones Hash y Firmas Digitales</h3>
+                <p class="text-gray-300 mb-4 text-justify">
+                    A diferencia del cifrado, un <strong>Hash</strong> es <em>unidireccional</em>. No se puede "descifrar". Convierte cualquier cantidad de datos en una cadena de texto de longitud fija. Si cambias una sola letra del archivo original, el Hash cambia por completo (Efecto Avalancha). Sirve para verificar la integridad de los archivos y guardar contraseñas de forma segura en bases de datos.
+                </p>
+                <div class="bg-slate-800 p-4 rounded-md border border-slate-600 mt-4">
+                    <h4 class="font-bold text-white mb-2">Demo: Generador SHA-256</h4>
+                    <input type="text" id="hash-input" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mb-2" placeholder="Escribe algo para ver cómo cambia el hash en tiempo real..." oninput="generateHash()">
+                    <div class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-red-400 font-mono text-sm break-all" id="hash-output">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= SECCIÓN: REDES ======================= -->
+        <section id="redes" class="content-section hidden fade-in">
+            <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-network-wired text-cyber-accent mr-3"></i>Módulo de Redes</h2>
+            
+            <!-- Nivel Principiante -->
+            <div class="mb-10 bg-cyber-light rounded-lg p-6 border border-slate-700">
+                <h3 class="text-2xl font-semibold text-cyber-accent mb-3">Nivel Principiante: ¿Cómo hablan las computadoras?</h3>
+                <p class="text-gray-300 mb-4 text-justify">
+                    Para que dos computadoras se comuniquen, necesitan una dirección, igual que las casas postales. Esto es la <strong>Dirección IP</strong> (Ej. 192.168.1.5). 
+                    Además, existen dos tipos principales de redes:
+                    <ul class="list-disc list-inside text-gray-300 space-y-1">
+                        <li><strong>LAN (Local Area Network):</strong> La red de tu casa u oficina. Los dispositivos se conectan a un Router.</li>
+                        <li><strong>WAN (Wide Area Network):</strong> Una red inmensa. Internet es la WAN más grande del mundo.</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Nivel Intermedio -->
+            <div class="mb-10 bg-cyber-light rounded-lg p-6 border border-slate-700">
+                <h3 class="text-2xl font-semibold text-yellow-400 mb-3">Nivel Intermedio: El Modelo OSI y Protocolos</h3>
+                <p class="text-gray-300 mb-4 text-justify">
+                    Los datos no viajan de golpe, se dividen en <strong>paquetes</strong>. El <strong>Modelo OSI</strong> describe 7 capas por las que pasa un dato antes de salir por el cable o WiFi.
+                    <br><br>
+                    Los protocolos más importantes de transporte son:
+                    <ul class="list-disc list-inside text-gray-300 space-y-1">
+                        <li><strong>TCP (Transmission Control Protocol):</strong> Garantiza que el paquete llegue. Es seguro y ordenado (usado en la web, correos). Es como una llamada telefónica.</li>
+                        <li><strong>UDP (User Datagram Protocol):</strong> Es rápido pero no garantiza la entrega (usado en streaming de video, juegos online). Es como gritar un mensaje.</li>
+                    </ul>
+                </p>
+                <div class="flex items-center justify-center space-x-4 text-sm mt-4 bg-slate-800 p-4 rounded">
+                    <div class="text-center"><i class="fa-solid fa-desktop text-2xl text-gray-400 block mb-2"></i>Aplicación<br>(HTTP, FTP)</div>
+                    <i class="fa-solid fa-arrow-right-arrow-left text-cyber-accent"></i>
+                    <div class="text-center"><i class="fa-solid fa-truck-fast text-2xl text-blue-400 block mb-2"></i>Transporte<br>(TCP/UDP)</div>
+                    <i class="fa-solid fa-arrow-right-arrow-left text-cyber-accent"></i>
+                    <div class="text-center"><i class="fa-solid fa-globe text-2xl text-green-400 block mb-2"></i>Red<br>(IP)</div>
+                </div>
+            </div>
+
+            <!-- Nivel Avanzado -->
+            <div class="mb-10 bg-cyber-light rounded-lg p-6 border border-slate-700">
+                <h3 class="text-2xl font-semibold text-red-400 mb-3">Nivel Avanzado: DNS, Routing y Sniffing</h3>
+                <p class="text-gray-300 mb-4 text-justify">
+                    <strong>DNS (Domain Name System):</strong> Es la agenda telefónica de internet. Traduce nombres humanos (www.google.com) a direcciones IP (142.250.190.46) para que las máquinas lo entiendan. Si un atacante envenena el DNS (DNS Spoofing), puede redirigirte a una página falsa aunque escribas la URL correcta.
+                    <br><br>
+                    <strong>Packet Sniffing:</strong> Dado que la información viaja en paquetes, si estás en una red Wi-Fi pública sin cifrar (sin HTTPS/VPN), un atacante puede usar herramientas (como Wireshark) para "escuchar" el aire y capturar tus contraseñas en texto plano.
+                </p>
+                <div class="bg-red-900/30 border border-red-500/50 p-4 rounded-md">
+                    <p class="text-red-300 text-sm"><i class="fa-solid fa-triangle-exclamation mr-2"></i><strong>Regla de oro:</strong> Nunca realices transacciones bancarias ni ingreses contraseñas críticas en redes Wi-Fi públicas abiertas sin usar una VPN.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= SECCIÓN: SEGURIDAD ======================= -->
+        <section id="seguridad" class="content-section hidden fade-in">
+            <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-user-secret text-cyber-accent mr-3"></i>Módulo de Seguridad</h2>
+            
+            <!-- Nivel Principiante -->
+            <div class="mb-10 bg-cyber-light rounded-lg p-6 border border-slate-700">
+                <h3 class="text-2xl font-semibold text-cyber-accent mb-3">Nivel Principiante: El Eslabón más débil (El Humano)</h3>
+                <p class="text-gray-300 mb-4 text-justify">
+                    El 90% de los ciberataques comienzan por errores humanos.
+                    <br>
+                    <strong>Ingeniería Social y Phishing:</strong> Los hackers envían correos o mensajes que parecen legítimos (de tu banco, de Netflix) para engañarte y que entregues tus credenciales. 
+                    <br><br>
+                    <strong>Contraseñas:</strong> Una contraseña como "123456" o "maria1990" se crackea en milisegundos.
+                </p>
+                
+                <div class="bg-slate-800 p-4 rounded-md border border-slate-600 mt-4">
+                    <h4 class="font-bold text-white mb-2">Demo: Medidor de Fuerza de Contraseña</h4>
+                    <input type="password" id="pass-input" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mb-2 focus:outline-none" placeholder="Escribe una contraseña para probar..." oninput="checkPasswordStrength()">
+                    <div class="w-full bg-slate-900 h-2 rounded overflow-hidden">
+                        <div id="pass-strength-bar" class="h-full bg-red-500 transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="pass-feedback" class="text-sm mt-2 text-gray-400">Introduce al menos 8 caracteres, mayúsculas, números y símbolos.</p>
+                </div>
+            </div>
+
+            <!-- Nivel Intermedio -->
+            <div class="mb-10 bg-cyber-light rounded-lg p-6 border border-slate-700">
+                <h3 class="text-2xl font-semibold text-yellow-400 mb-3">Nivel Intermedio: Defensas Perimetrales y Malware</h3>
+                <p class="text-gray-300 mb-4 text-justify">
+                    <strong>Malware:</strong> Es un software malicioso. Incluye Virus (infectan archivos), Gusanos (se propagan por la red sin interacción), Troyanos (se disfrazan de programas útiles) y <em>Ransomware</em> (secuestran tus archivos cifrándolos y piden rescate).
+                    <br><br>
+                    <strong>Firewall (Cortafuegos):</strong> Es un guardia de seguridad entre tu red interna y el internet. Bloquea conexiones no autorizadas basándose en reglas predefinidas (Ej. "Bloquear todo el tráfico entrante al puerto 445").
+                </p>
+            </div>
+
+            <!-- Nivel Avanzado -->
+            <div class="mb-10 bg-cyber-light rounded-lg p-6 border border-slate-700">
+                <h3 class="text-2xl font-semibold text-red-400 mb-3">Nivel Avanzado: Ataques Web y Vulnerabilidades</h3>
+                <p class="text-gray-300 mb-4 text-justify">
+                    Las aplicaciones web (como Facebook o tu banco) sufren de ataques específicos:
+                    <ul class="list-disc list-inside text-gray-300 space-y-2 mt-2">
+                        <li><strong>SQL Injection (SQLi):</strong> El atacante introduce código de base de datos en un campo de texto (como el login) para engañar al sistema y acceder, modificar o borrar la base de datos entera.</li>
+                        <li><strong>Cross-Site Scripting (XSS):</strong> El atacante inyecta código JavaScript malicioso en una página web vulnerable. Cuando un usuario normal visita la página, el código se ejecuta en su navegador, robando sus cookies de sesión.</li>
+                        <li><strong>Man-In-The-Middle (MITM):</strong> El atacante se sitúa entre el usuario y el servidor. El usuario cree que habla con el servidor, y el servidor cree que habla con el usuario, pero el atacante lee y puede modificar toda la conversación.</li>
+                    </ul>
+                </p>
+            </div>
+        </section>
+
+        <!-- ======================= SECCIÓN: MINIJUEGOS ======================= -->
+        <section id="minijuegos" class="content-section hidden fade-in">
+            <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-gamepad text-cyber-accent mr-3"></i>Área de Entrenamiento (Minijuegos)</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Juego 1: Rompe el César -->
+                <div class="bg-cyber-light p-6 rounded-lg border border-slate-700 flex flex-col">
+                    <h3 class="text-xl font-bold text-white mb-2"><i class="fa-solid fa-unlock-keyhole text-yellow-400 mr-2"></i>Rompe el César</h3>
+                    <p class="text-gray-400 text-sm mb-4">Un agente enemigo ha enviado este mensaje interceptado. Sabemos que usó un cifrado César. ¡Encuentra el desplazamiento y descubre el mensaje!</p>
+                    
+                    <div class="bg-slate-900 p-4 rounded text-center mb-4 flex-grow">
+                        <span class="text-xs text-gray-500 uppercase tracking-widest">Mensaje Interceptado</span>
+                        <div id="game1-cipher" class="text-2xl text-cyber-accent font-mono mt-2 tracking-widest font-bold">KROA</div>
+                        <p class="text-xs text-gray-400 mt-4">Pista: Es un saludo común en español (4 letras).</p>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <input type="text" id="game1-input" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white text-center uppercase" placeholder="Texto descifrado...">
+                        <button onclick="checkGame1()" class="bg-cyber-accent hover:bg-cyber-accentHover text-white font-bold py-2 px-4 rounded transition">Verificar</button>
+                    </div>
+                    <p id="game1-result" class="mt-2 text-sm text-center font-bold h-5"></p>
+                </div>
+
+                <!-- Juego 2: Detective de Phishing -->
+                <div class="bg-cyber-light p-6 rounded-lg border border-slate-700 flex flex-col">
+                    <h3 class="text-xl font-bold text-white mb-2"><i class="fa-solid fa-fish text-blue-400 mr-2"></i>Detective de Phishing</h3>
+                    <p class="text-gray-400 text-sm mb-4">Revisa la siguiente URL. ¿Es segura para iniciar sesión o es un intento de robo de credenciales?</p>
+                    
+                    <div class="bg-slate-900 p-4 rounded mb-4 flex-grow flex items-center justify-center border-l-4 border-blue-500">
+                        <div id="game2-url" class="text-lg text-white font-mono break-all text-center">
+                            https://www.paypaI.com/login
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="checkGame2(true)" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition"><i class="fa-solid fa-check mr-2"></i>Es Seguro</button>
+                        <button onclick="checkGame2(false)" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition"><i class="fa-solid fa-skull mr-2"></i>Es Phishing</button>
+                    </div>
+                    <p id="game2-result" class="mt-4 text-sm text-center text-gray-300 min-h-[3rem]"></p>
+                    <button onclick="nextPhishing()" class="mt-2 text-cyber-accent text-sm underline hidden" id="game2-next">Siguiente URL</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================= SECCIÓN: QUIZ ======================= -->
+        <section id="quiz" class="content-section hidden fade-in">
+            <h2 class="text-3xl font-bold text-white mb-6 border-b border-slate-700 pb-2"><i class="fa-solid fa-clipboard-question text-cyber-accent mr-3"></i>Evaluación Final</h2>
+            
+            <div class="max-w-2xl mx-auto bg-cyber-light rounded-lg border border-slate-700 p-6 shadow-xl">
+                <div id="quiz-container">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-sm text-gray-400 font-bold" id="quiz-progress">Pregunta 1 de 5</span>
+                        <span class="text-sm text-cyber-accent font-bold">Puntuación: <span id="quiz-score">0</span></span>
+                    </div>
+                    
+                    <h3 id="quiz-question" class="text-xl text-white mb-6 font-medium">¿Cargando pregunta...?</h3>
+                    
+                    <div id="quiz-options" class="space-y-3">
+                        <!-- Opciones generadas por JS -->
+                    </div>
+                </div>
+
+                <div id="quiz-result-container" class="hidden text-center py-8">
+                    <i class="fa-solid fa-graduation-cap text-6xl text-cyber-accent mb-4"></i>
+                    <h3 class="text-3xl font-bold text-white mb-2">¡Evaluación Completada!</h3>
+                    <p class="text-xl text-gray-300 mb-6">Tu puntuación final es: <span id="quiz-final-score" class="font-bold text-cyber-accent"></span></p>
+                    <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition">Reintentar Quiz</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-cyber-light border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-500 text-sm">
+                &copy; 2026 CyberEdu. Proyecto Educativo de Ciberseguridad. <br>
+                Construido con HTML, CSS (Tailwind) y Vanilla JavaScript.
+            </p>
+        </div>
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT -->
+    <script>
+        // ==========================================
+        // NAVEGACIÓN
+        // ==========================================
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.content-section').forEach(sec => {
+                sec.classList.add('hidden');
+            });
+            // Mostrar la seleccionada
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Actualizar botones de navegación
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.getAttribute('data-target') === sectionId) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
+        // ==========================================
+        // DEMOS DE CRIPTOGRAFÍA
+        // ==========================================
+        
+        // Cifrado César
+        function updateCaesar() {
+            const input = document.getElementById('caesar-input').value;
+            const shift = parseInt(document.getElementById('caesar-shift').value);
+            document.getElementById('caesar-shift-val').innerText = shift;
+            
+            let output = '';
+            for (let i = 0; i < input.length; i++) {
+                let charCode = input.charCodeAt(i);
+                
+                // Mayúsculas
+                if (charCode >= 65 && charCode <= 90) {
+                    output += String.fromCharCode(((charCode - 65 + shift) % 26) + 65);
+                }
+                // Minúsculas
+                else if (charCode >= 97 && charCode <= 122) {
+                    output += String.fromCharCode(((charCode - 97 + shift) % 26) + 97);
+                }
+                // Otros caracteres se quedan igual
+                else {
+                    output += input.charAt(i);
+                }
+            }
+            document.getElementById('caesar-output').innerText = output || '...';
+        }
+
+        // AES usando CryptoJS
+        function encryptAES() {
+            const text = document.getElementById('aes-text').value;
+            const key = document.getElementById('aes-key').value;
+            if(!text || !key) {
+                alert("Por favor ingresa texto y una llave.");
+                return;
+            }
+            const encrypted = CryptoJS.AES.encrypt(text, key).toString();
+            document.getElementById('aes-result').value = encrypted;
+        }
+
+        function decryptAES() {
+            const encryptedText = document.getElementById('aes-result').value;
+            const key = document.getElementById('aes-key').value;
+            if(!encryptedText || !key) {
+                alert("Por favor ingresa el texto cifrado y la llave.");
+                return;
+            }
+            try {
+                const decrypted = CryptoJS.AES.decrypt(encryptedText, key);
+                const originalText = decrypted.toString(CryptoJS.enc.Utf8);
+                if(originalText) {
+                    document.getElementById('aes-result').value = originalText;
+                } else {
+                    document.getElementById('aes-result').value = "Error: Llave incorrecta o texto corrupto.";
+                }
+            } catch (e) {
+                document.getElementById('aes-result').value = "Error al descifrar.";
+            }
+        }
+
+        // SHA-256
+        function generateHash() {
+            const input = document.getElementById('hash-input').value;
+            if(input === '') {
+                document.getElementById('hash-output').innerText = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"; // Empty hash
+                return;
+            }
+            const hash = CryptoJS.SHA256(input).toString();
+            document.getElementById('hash-output').innerText = hash;
+        }
+
+        // ==========================================
+        // DEMOS DE SEGURIDAD (Contraseñas)
+        // ==========================================
+        function checkPasswordStrength() {
+            const pw = document.getElementById('pass-input').value;
+            const bar = document.getElementById('pass-strength-bar');
+            const feedback = document.getElementById('pass-feedback');
+            
+            let score = 0;
+            if(pw.length > 0) score += 1; // Al menos 1 caracter
+            if(pw.length >= 8) score += 1; // Longitud
+            if(/[A-Z]/.test(pw)) score += 1; // Mayúsculas
+            if(/[0-9]/.test(pw)) score += 1; // Números
+            if(/[^A-Za-z0-9]/.test(pw)) score += 1; // Símbolos especial
+
+            let width = '0%';
+            let color = 'bg-red-500';
+            let msg = 'Introduce al menos 8 caracteres, mayúsculas, números y símbolos.';
+
+            switch(score) {
+                case 1: width = '20%'; color = 'bg-red-500'; msg = 'Muy débil.'; break;
+                case 2: width = '40%'; color = 'bg-orange-500'; msg = 'Débil. Añade mayúsculas y números.'; break;
+                case 3: width = '60%'; color = 'bg-yellow-500'; msg = 'Regular. Añade símbolos especiales.'; break;
+                case 4: width = '80%'; color = 'bg-blue-500'; msg = 'Buena. Podría ser un poco más larga.'; break;
+                case 5: width = '100%'; color = 'bg-green-500'; msg = '¡Excelente! Contraseña robusta.'; break;
+            }
+            if(pw.length === 0) { width = '0%'; msg = 'Empieza a escribir...'; }
+
+            bar.style.width = width;
+            bar.className = `h-full transition-all duration-300 ${color}`;
+            feedback.innerText = msg;
+        }
+
+        // ==========================================
+        // MINIJUEGOS
+        // ==========================================
+        
+        // Juego 1: César
+        function checkGame1() {
+            const ans = document.getElementById('game1-input').value.toUpperCase().trim();
+            const res = document.getElementById('game1-result');
+            if(ans === 'HOLA') {
+                res.innerText = "¡Correcto! El desplazamiento era de 3 posiciones.";
+                res.className = "mt-2 text-sm text-center font-bold h-5 text-green-500";
+            } else {
+                res.innerText = "Incorrecto. Intenta de nuevo. Pista: H -> K";
+                res.className = "mt-2 text-sm text-center font-bold h-5 text-red-500";
+            }
+        }
+
+        // Juego 2: Phishing
+        const phishingURLs = [
+            { url: "https://www.paypaI.com/login", isSafe: false, reason: "Mira bien la URL, la 'l' de paypal es en realidad una 'I' mayúscula (Ataque Homógrafo)." },
+            { url: "https://login.microsoftonline.com/", isSafe: true, reason: "Es la URL legítima de login de Microsoft." },
+            { url: "http://secure-update.apple.com.id-verificar.net", isSafe: false, reason: "El dominio real aquí es 'id-verificar.net', no apple.com. Faltan certificados seguros (http)." },
+            { url: "https://github.com/settings/security", isSafe: true, reason: "Dominio legítimo y conexión segura." }
+        ];
+        let currentUrlIndex = 0;
+
+        function renderPhishingUrl() {
+            document.getElementById('game2-url').innerText = phishingURLs[currentUrlIndex].url;
+            document.getElementById('game2-result').innerText = "";
+            document.getElementById('game2-next').classList.add('hidden');
+        }
+
+        function checkGame2(guessedSafe) {
+            const actual = phishingURLs[currentUrlIndex];
+            const res = document.getElementById('game2-result');
+            
+            if(guessedSafe === actual.isSafe) {
+                res.innerHTML = `<span class="text-green-500 font-bold">¡Correcto!</span> ${actual.reason}`;
+            } else {
+                res.innerHTML = `<span class="text-red-500 font-bold">¡Te han hackeado!</span> ${actual.reason}`;
+            }
+            document.getElementById('game2-next').classList.remove('hidden');
+        }
+
+        function nextPhishing() {
+            currentUrlIndex = (currentUrlIndex + 1) % phishingURLs.length;
+            renderPhishingUrl();
+        }
+
+        // ==========================================
+        // QUIZ (PREGUNTAS Y RESPUESTAS)
+        // ==========================================
+        const questions = [
+            {
+                q: "¿Qué algoritmo criptográfico utiliza la misma llave para cifrar y descifrar?",
+                options: ["Asimétrico (Ej. RSA)", "Simétrico (Ej. AES)", "Hashing (Ej. SHA-256)", "Firma Digital"],
+                answer: 1
+            },
+            {
+                q: "En el modelo OSI, ¿qué protocolo de transporte garantiza la entrega ordenada de los paquetes?",
+                options: ["UDP", "IP", "TCP", "HTTP"],
+                answer: 2
+            },
+            {
+                q: "Un ataque donde un intruso se sitúa en medio de la comunicación para espiar o alterar los datos se llama:",
+                options: ["Phishing", "Man-In-The-Middle (MITM)", "SQL Injection", "DDoS"],
+                answer: 1
+            },
+            {
+                q: "¿Cuál de las siguientes afirmaciones sobre las funciones HASH es correcta?",
+                options: ["Se pueden descifrar fácilmente con una llave pública.", "Son reversibles solo con fuerza bruta.", "Son funciones unidireccionales (no se pueden descifrar).", "Se usan para ocultar la dirección IP."],
+                answer: 2
+            },
+            {
+                q: "¿Qué ataque web implica insertar código en la base de datos a través de un formulario vulnerable?",
+                options: ["Cross-Site Scripting (XSS)", "Ransomware", "DNS Spoofing", "SQL Injection (SQLi)"],
+                answer: 3
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('quiz-result-container').classList.add('hidden');
+            updateQuiz();
+        }
+
+        function updateQuiz() {
+            if(currentQuestion >= questions.length) {
+                showQuizResults();
+                return;
+            }
+
+            const qInfo = questions[currentQuestion];
+            document.getElementById('quiz-progress').innerText = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+            document.getElementById('quiz-score').innerText = score;
+            document.getElementById('quiz-question').innerText = qInfo.q;
+            
+            const optionsDiv = document.getElementById('quiz-options');
+            optionsDiv.innerHTML = ''; // Limpiar opciones
+
+            qInfo.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left bg-slate-800 hover:bg-slate-700 border border-slate-600 p-4 rounded text-gray-300 transition-colors focus:outline-none";
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(index, btn);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnElement) {
+            // Deshabilitar todos los botones para evitar doble clic
+            const buttons = document.getElementById('quiz-options').querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            const correctIndex = questions[currentQuestion].answer;
+            
+            if(selectedIndex === correctIndex) {
+                score++;
+                btnElement.classList.replace('bg-slate-800', 'bg-green-600');
+                btnElement.classList.replace('text-gray-300', 'text-white');
+            } else {
+                btnElement.classList.replace('bg-slate-800', 'bg-red-600');
+                btnElement.classList.replace('text-gray-300', 'text-white');
+                // Resaltar la correcta
+                buttons[correctIndex].classList.replace('bg-slate-800', 'bg-green-600');
+                buttons[correctIndex].classList.replace('text-gray-300', 'text-white');
+            }
+
+            document.getElementById('quiz-score').innerText = score;
+
+            // Esperar 1.5s y pasar a la siguiente
+            setTimeout(() => {
+                currentQuestion++;
+                updateQuiz();
+            }, 1500);
+        }
+
+        function showQuizResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-result-container').classList.remove('hidden');
+            document.getElementById('quiz-final-score').innerText = `${score} de ${questions.length}`;
+        }
+
+        // Inicializar
+        updateCaesar();
+        renderPhishingUrl();
+        startQuiz(); // Inicializa variables pero la vista está controlada por la navegación
+        
+    </script>
+</body>
+</html>
