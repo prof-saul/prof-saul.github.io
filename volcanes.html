@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Volcanes | El Salvador</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS para el Mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        /* Estilos Personalizados */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0fdf4; /* Verde muy claro */
+        }
+
+        /* Animación de los marcadores del mapa */
+        .volcano-marker {
+            width: 24px;
+            height: 24px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Ocultar secciones */
+        .section-hidden { display: none !important; }
+
+        /* Estilos para el minijuego de memoria */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 500px) {
+            .memory-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .memory-card-inner {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .memory-card.flipped .memory-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card-front, .memory-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .memory-card-front {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            font-size: 2rem;
+        }
+
+        .memory-card-back {
+            background-color: white;
+            transform: rotateY(180deg);
+            font-size: 3rem;
+            border: 2px solid #16a34a;
+        }
+
+        .matched .memory-card-front {
+            background: #cbd5e1;
+            cursor: default;
+        }
+
+        /* Mapa de Leaflet Fixes */
+        #map {
+            height: 100%;
+            width: 100%;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col h-screen overflow-hidden">
+
+    <!-- Navegación -->
+    <nav class="bg-green-700 text-white shadow-lg z-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <i class="fa-solid fa-mountain-sun text-2xl text-yellow-300"></i>
+                    <span class="font-bold text-xl tracking-wide">Volcanes SV</span>
+                </div>
+                <div class="flex space-x-1 sm:space-x-4">
+                    <button onclick="switchSection('map')" id="nav-map" class="nav-btn px-3 py-2 rounded-md text-sm font-medium bg-green-900 transition hover:bg-green-800">
+                        <i class="fa-solid fa-map-location-dot mr-1"></i> <span class="hidden sm:inline">Mapa</span>
+                    </button>
+                    <button onclick="switchSection('game')" id="nav-game" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-800 transition">
+                        <i class="fa-solid fa-gamepad mr-1"></i> <span class="hidden sm:inline">Minijuego</span>
+                    </button>
+                    <button onclick="switchSection('quiz')" id="nav-quiz" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-800 transition">
+                        <i class="fa-solid fa-circle-question mr-1"></i> <span class="hidden sm:inline">Quiz</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Área Principal de Contenido -->
+    <main class="flex-1 relative overflow-y-auto sm:overflow-hidden">
+        
+        <!-- SECCIÓN 1: MAPA INTERACTIVO -->
+        <section id="section-map" class="h-full flex flex-col md:flex-row relative">
+            <!-- Sidebar de Información -->
+            <div class="w-full md:w-1/3 lg:w-1/4 bg-white shadow-xl z-20 flex flex-col overflow-y-auto">
+                <div class="p-6 bg-gradient-to-b from-green-50 to-white">
+                    <h2 class="text-2xl font-bold text-green-800 mb-2">Tierra de Volcanes</h2>
+                    <p class="text-sm text-gray-600 mb-4">El Salvador cuenta con más de 170 volcanes, de los cuales 14 son considerados activos. ¡Selecciona uno para explorarlo!</p>
+                    
+                    <div id="volcano-list" class="space-y-3">
+                        <!-- Lista inyectada por JS -->
+                    </div>
+                </div>
+
+                <!-- Panel de Detalles del Volcán (Se muestra al hacer clic) -->
+                <div id="volcano-detail" class="hidden p-6 border-t border-gray-200 bg-white flex-1 transition-all">
+                    <button onclick="closeDetail()" class="text-sm text-green-600 hover:text-green-800 mb-3 flex items-center">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Volver a la lista
+                    </button>
+                    <img id="det-img" src="" alt="Volcán" class="w-full h-40 object-cover rounded-lg shadow-sm mb-4 bg-gray-200">
+                    <h3 id="det-name" class="text-xl font-bold text-gray-800 mb-1"></h3>
+                    <p id="det-height" class="text-sm font-semibold text-amber-600 mb-3"><i class="fa-solid fa-ruler-vertical mr-1"></i> </p>
+                    <p id="det-desc" class="text-gray-700 text-sm leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Contenedor del Mapa -->
+            <div class="w-full md:w-2/3 lg:w-3/4 h-[50vh] md:h-full relative">
+                <div id="map"></div>
+                <!-- Botón para ver vista general -->
+                <button onclick="resetMap()" class="absolute bottom-6 right-6 z-[1000] bg-white text-green-800 p-3 rounded-full shadow-lg hover:bg-green-50 transition border border-green-200">
+                    <i class="fa-solid fa-expand"></i> Vista General
+                </button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: MINIJUEGO DE MEMORIA -->
+        <section id="section-game" class="section-hidden h-full p-4 sm:p-8 overflow-y-auto bg-green-50">
+            <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 sm:p-10 border border-green-100">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-green-800 mb-2"><i class="fa-solid fa-puzzle-piece text-yellow-500 mr-2"></i>Memoria Volcánica</h2>
+                    <p class="text-gray-600">Encuentra los pares de los elementos geológicos y culturales de El Salvador.</p>
+                    <div class="mt-4 flex justify-center gap-6">
+                        <div class="bg-blue-100 px-4 py-2 rounded-lg font-semibold text-blue-800">
+                            Intentos: <span id="moves-count">0</span>
+                        </div>
+                        <div class="bg-green-100 px-4 py-2 rounded-lg font-semibold text-green-800">
+                            Pares: <span id="matches-count">0</span>/6
+                        </div>
+                    </div>
+                </div>
+
+                <div class="memory-grid" id="memory-board">
+                    <!-- Tarjetas inyectadas por JS -->
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button onclick="initMemoryGame()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition transform hover:scale-105">
+                        <i class="fa-solid fa-rotate-right mr-2"></i>Reiniciar Juego
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: QUIZ (PREGUNTAS Y RESPUESTAS) -->
+        <section id="section-quiz" class="section-hidden h-full p-4 sm:p-8 overflow-y-auto bg-green-50 flex items-center justify-center">
+            <div class="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-6 sm:p-10 border border-green-100">
+                
+                <!-- Pantalla de Inicio del Quiz -->
+                <div id="quiz-intro" class="text-center">
+                    <i class="fa-solid fa-clipboard-question text-6xl text-green-600 mb-4"></i>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Desafío Volcánico</h2>
+                    <p class="text-gray-600 mb-8">¿Cuánto aprendiste sobre los volcanes de El Salvador? Pon a prueba tus conocimientos en este cuestionario de 5 preguntas.</p>
+                    <button onclick="startQuiz()" class="bg-green-600 hover:bg-green-700 text-white font-bold text-lg py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">
+                        ¡Comenzar Quiz!
+                    </button>
+                </div>
+
+                <!-- Pantalla de Preguntas -->
+                <div id="quiz-active" class="hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-sm font-bold text-green-600 uppercase tracking-wider">Pregunta <span id="q-current">1</span> de 5</span>
+                        <div class="w-1/2 bg-gray-200 rounded-full h-2.5">
+                            <div id="quiz-progress" class="bg-green-600 h-2.5 rounded-full" style="width: 20%"></div>
+                        </div>
+                    </div>
+                    
+                    <h3 id="question-text" class="text-2xl font-bold text-gray-800 mb-6 min-h-[4rem]">¿Cargando pregunta?</h3>
+                    
+                    <div id="options-container" class="space-y-3">
+                        <!-- Opciones inyectadas por JS -->
+                    </div>
+                </div>
+
+                <!-- Pantalla de Resultados -->
+                <div id="quiz-result" class="hidden text-center">
+                    <div id="result-icon" class="text-6xl mb-4">🏆</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">¡Completado!</h2>
+                    <p class="text-xl text-gray-600 mb-6">Tu puntuación: <span id="score-display" class="font-bold text-green-600 text-2xl">0</span> de 5</p>
+                    <p id="result-message" class="text-gray-500 mb-8 font-medium"></p>
+                    <button onclick="resetQuiz()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-md transition">
+                        Intentar de nuevo
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts de Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Script Lógica de la Aplicación -->
+    <script>
+        /* =========================================
+           DATOS DE LOS VOLCANES
+        ========================================= */
+        const volcanoes = [
+            {
+                id: 'ilamatepec',
+                name: 'Volcán Ilamatepec (Santa Ana)',
+                lat: 13.853, 
+                lng: -89.630,
+                height: '2,381 msnm',
+                desc: 'Es el volcán más alto y voluminoso de El Salvador. En su cráter principal alberga una espectacular laguna de color verde turquesa debido al azufre. Su última erupción significativa fue en el año 2005.',
+                img: 'https://images.unsplash.com/photo-1628148908851-789bf00d5a71?auto=format&fit=crop&q=80&w=800'
+            },
+            {
+                id: 'izalco',
+                name: 'Volcán de Izalco',
+                lat: 13.813, 
+                lng: -89.633,
+                height: '1,950 msnm',
+                desc: 'Conocido mundialmente como el "Faro del Pacífico". Es uno de los volcanes más jóvenes del continente americano. Durante casi 200 años hizo erupción ininterrumpida, y sus llamas se veían desde el océano.',
+                img: 'https://images.unsplash.com/photo-1596856428612-401fb173f4e2?auto=format&fit=crop&q=80&w=800'
+            },
+            {
+                id: 'quezaltepeque',
+                name: 'Volcán Quezaltepeque (San Salvador)',
+                lat: 13.739, 
+                lng: -89.289,
+                height: '1,893 msnm',
+                desc: 'Domina el paisaje de la ciudad capital. Su cráter principal, llamado "El Boquerón", tiene 1.5 km de diámetro. Dentro de él hay un pequeño cono volcánico llamado "Boqueroncito".',
+                img: 'https://images.unsplash.com/photo-1647464070014-436ed5d5cc6d?auto=format&fit=crop&q=80&w=800'
+            },
+            {
+                id: 'chaparrastique',
+                name: 'Volcán Chaparrastique (San Miguel)',
+                lat: 13.430, 
+                lng: -88.269,
+                height: '2,130 msnm',
+                desc: 'Tiene la forma de un cono truncado casi perfecto y es uno de los más activos del país. Constantemente emite gases y ha tenido múltiples erupciones de ceniza en años recientes.',
+                img: 'https://images.unsplash.com/photo-1614210996175-01e405a41be1?auto=format&fit=crop&q=80&w=800'
+            },
+            {
+                id: 'chinchontepec',
+                name: 'Volcán Chinchontepec (San Vicente)',
+                lat: 13.596, 
+                lng: -88.837,
+                height: '2,182 msnm',
+                desc: 'Se distingue fácilmente en el paisaje por tener dos picos o cúspides. En su base se encuentran los "infiernillos", que son fumarolas y manantiales de aguas termales sulfurosas.',
+                img: 'https://images.unsplash.com/photo-1588698886364-bb894f092305?auto=format&fit=crop&q=80&w=800'
+            },
+            {
+                id: 'conchagua',
+                name: 'Volcán de Conchagua',
+                lat: 13.276, 
+                lng: -87.844,
+                height: '1,225 msnm',
+                desc: 'Ubicado en el oriente del país, a orillas del Golfo de Fonseca. Desde sus miradores se puede apreciar una vista impresionante de las islas y las costas de El Salvador, Honduras y Nicaragua.',
+                img: 'https://images.unsplash.com/photo-1605806616949-1e87b487bc2a?auto=format&fit=crop&q=80&w=800'
+            }
+        ];
+
+        /* =========================================
+           LÓGICA DEL MAPA (LEAFLET)
+        ========================================= */
+        let map;
+        const svCenter = [13.794, -88.896];
+        const initialZoom = 8;
+        let markers = {};
+
+        function initMap() {
+            // Empezamos un poco lejos para crear un efecto de "vuelo" de entrada
+            map = L.map('map').setView([10.0, -85.0], 5);
+
+            // Capa Topográfica (perfecta para montañas/volcanes)
+            L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                maxZoom: 17,
+                attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap'
+            }).addTo(map);
+
+            // Icono personalizado animado usando CSS
+            const volcanoIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: "<div class='volcano-marker'></div>",
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            // Añadir marcadores
+            volcanoes.forEach(vol => {
+                const marker = L.marker([vol.lat, vol.lng], { icon: volcanoIcon }).addTo(map);
+                marker.bindTooltip(`<b>${vol.name}</b><br>${vol.height}`, { direction: 'top', offset: [0, -10] });
+                
+                marker.on('click', () => {
+                    flyToVolcano(vol.id);
+                });
+
+                markers[vol.id] = marker;
+            });
+
+            // Animación inicial: Volar hacia El Salvador
+            setTimeout(() => {
+                map.flyTo(svCenter, initialZoom, { duration: 2.5 });
+            }, 500);
+
+            renderVolcanoList();
+        }
+
+        function renderVolcanoList() {
+            const listContainer = document.getElementById('volcano-list');
+            listContainer.innerHTML = '';
+
+            volcanoes.forEach(vol => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-green-50 hover:border-green-300 transition group flex items-center";
+                btn.onclick = () => flyToVolcano(vol.id);
+                btn.innerHTML = `
+                    <div class="bg-red-100 text-red-500 rounded-full w-8 h-8 flex items-center justify-center mr-3 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-mountain"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm group-hover:text-green-700 transition">${vol.name}</h4>
+                        <p class="text-xs text-gray-500">${vol.height}</p>
+                    </div>
+                `;
+                listContainer.appendChild(btn);
+            });
+        }
+
+        function flyToVolcano(id) {
+            const vol = volcanoes.find(v => v.id === id);
+            if (!vol) return;
+
+            // Animación del mapa
+            map.flyTo([vol.lat, vol.lng], 13, {
+                duration: 2,
+                easeLinearity: 0.25
+            });
+
+            // Mostrar información en el panel
+            document.getElementById('volcano-list').parentElement.classList.add('hidden');
+            const detailPanel = document.getElementById('volcano-detail');
+            detailPanel.classList.remove('hidden');
+            
+            document.getElementById('det-name').textContent = vol.name;
+            document.getElementById('det-height').innerHTML = `<i class="fa-solid fa-ruler-vertical mr-1"></i> ${vol.height}`;
+            document.getElementById('det-desc').textContent = vol.desc;
+            
+            // Imagen de placeholder elegante usando unsplash (se puede reemplazar por imágenes reales)
+            document.getElementById('det-img').src = vol.img;
+        }
+
+        function closeDetail() {
+            document.getElementById('volcano-detail').classList.add('hidden');
+            document.getElementById('volcano-list').parentElement.classList.remove('hidden');
+            resetMap();
+        }
+
+        function resetMap() {
+            map.flyTo(svCenter, initialZoom, { duration: 1.5 });
+            document.getElementById('volcano-detail').classList.add('hidden');
+            document.getElementById('volcano-list').parentElement.classList.remove('hidden');
+        }
+
+        /* =========================================
+           NAVEGACIÓN POR PESTAÑAS
+        ========================================= */
+        function switchSection(sectionId) {
+            // Ocultar todas las secciones
+            ['map', 'game', 'quiz'].forEach(id => {
+                document.getElementById(`section-${id}`).classList.add('section-hidden');
+                document.getElementById(`nav-${id}`).classList.remove('bg-green-900');
+            });
+
+            // Mostrar la seleccionada
+            document.getElementById(`section-${sectionId}`).classList.remove('section-hidden');
+            document.getElementById(`nav-${sectionId}`).classList.add('bg-green-900');
+
+            // Fix para que el mapa renderice bien al volver a la pestaña
+            if (sectionId === 'map' && map) {
+                setTimeout(() => map.invalidateSize(), 50);
+            }
+        }
+
+
+        /* =========================================
+           LÓGICA DEL MINIJUEGO DE MEMORIA
+        ========================================= */
+        const memoryEmojis = ['🌋', '🇸🇻', '🧗', '🏕️', '🦎', '☕']; // 6 pares = 12 cartas
+        let cards = [];
+        let flippedCards = [];
+        let matches = 0;
+        let moves = 0;
+        let isLocked = false;
+
+        function initMemoryGame() {
+            const board = document.getElementById('memory-board');
+            board.innerHTML = '';
+            matches = 0;
+            moves = 0;
+            flippedCards = [];
+            isLocked = false;
+            updateGameStats();
+
+            // Duplicar y barajar
+            cards = [...memoryEmojis, ...memoryEmojis];
+            cards.sort(() => Math.random() - 0.5);
+
+            cards.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.index = index;
+                card.dataset.emoji = emoji;
+                
+                card.innerHTML = `
+                    <div class="memory-card-inner">
+                        <div class="memory-card-front"><i class="fa-solid fa-question"></i></div>
+                        <div class="memory-card-back">${emoji}</div>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => flipCard(card));
+                board.appendChild(card);
+            });
+        }
+
+        function flipCard(card) {
+            if (isLocked) return;
+            if (card.classList.contains('flipped')) return;
+
+            card.classList.add('flipped');
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                updateGameStats();
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            isLocked = true;
+            const [card1, card2] = flippedCards;
+            const match = card1.dataset.emoji === card2.dataset.emoji;
+
+            if (match) {
+                setTimeout(() => {
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    resetBoard();
+                    matches++;
+                    updateGameStats();
+                    if (matches === 6) {
+                        setTimeout(() => alert(`¡Felicidades! Completaste el juego en ${moves} intentos.`), 500);
+                    }
+                }, 500);
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    resetBoard();
+                }, 1000);
+            }
+        }
+
+        function resetBoard() {
+            [flippedCards, isLocked] = [[], false];
+        }
+
+        function updateGameStats() {
+            document.getElementById('moves-count').textContent = moves;
+            document.getElementById('matches-count').textContent = matches;
+        }
+
+
+        /* =========================================
+           LÓGICA DEL QUIZ
+        ========================================= */
+        const questions = [
+            {
+                q: "¿Cuál es el volcán más alto de El Salvador?",
+                options: ["Volcán de San Vicente", "Volcán Ilamatepec (Santa Ana)", "Volcán de Izalco"],
+                ans: 1
+            },
+            {
+                q: '¿A qué volcán se le conoce como el "Faro del Pacífico"?',
+                options: ["Volcán de Izalco", "Volcán Chaparrastique", "Volcán de Conchagua"],
+                ans: 0
+            },
+            {
+                q: '¿Qué volcán posee un cráter llamado "El Boquerón"?',
+                options: ["Volcán de San Miguel", "Volcán de San Vicente", "Volcán de San Salvador"],
+                ans: 2
+            },
+            {
+                q: "¿Cuál de estos volcanes tiene una laguna de azufre verde en su interior?",
+                options: ["Volcán Ilamatepec", "Volcán de Izalco", "Volcán Chinchontepec"],
+                ans: 0
+            },
+            {
+                q: "¿Qué volcán se caracteriza visualmente por tener dos picos o cúspides?",
+                options: ["Volcán de Conchagua", "Volcán Chinchontepec (San Vicente)", "Volcán Quezaltepeque"],
+                ans: 1
+            }
+        ];
+
+        let currentQIndex = 0;
+        let score = 0;
+
+        function startQuiz() {
+            document.getElementById('quiz-intro').classList.add('hidden');
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-active').classList.remove('hidden');
+            currentQIndex = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const qData = questions[currentQIndex];
+            document.getElementById('q-current').textContent = currentQIndex + 1;
+            document.getElementById('quiz-progress').style.width = `${((currentQIndex + 1) / questions.length) * 100}%`;
+            document.getElementById('question-text').textContent = qData.q;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-green-500 hover:bg-green-50 font-medium text-gray-700 transition duration-200 transform hover:-translate-y-1";
+                btn.textContent = opt;
+                btn.onclick = () => handleAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnElement) {
+            // Deshabilitar botones temporamente
+            const allBtns = document.getElementById('options-container').querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+
+            const correctIndex = questions[currentQIndex].ans;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.replace('border-gray-200', 'border-green-500');
+                btnElement.classList.replace('hover:bg-green-50', 'bg-green-100');
+                btnElement.classList.add('text-green-800');
+                btnElement.innerHTML += ' <i class="fa-solid fa-check-circle float-right text-xl"></i>';
+                score++;
+            } else {
+                btnElement.classList.replace('border-gray-200', 'border-red-500');
+                btnElement.classList.replace('hover:bg-green-50', 'bg-red-100');
+                btnElement.classList.add('text-red-800');
+                btnElement.innerHTML += ' <i class="fa-solid fa-times-circle float-right text-xl"></i>';
+                
+                // Mostrar la correcta
+                allBtns[correctIndex].classList.replace('border-gray-200', 'border-green-500');
+                allBtns[correctIndex].classList.add('bg-green-50');
+            }
+
+            setTimeout(() => {
+                currentQIndex++;
+                if (currentQIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showQuizResult();
+                }
+            }, 1500);
+        }
+
+        function showQuizResult() {
+            document.getElementById('quiz-active').classList.add('hidden');
+            document.getElementById('quiz-result').classList.remove('hidden');
+            document.getElementById('score-display').textContent = score;
+
+            const msgEl = document.getElementById('result-message');
+            const iconEl = document.getElementById('result-icon');
+            
+            if (score === 5) {
+                msgEl.textContent = "¡Excelente! Eres un verdadero vulcanólogo.";
+                iconEl.textContent = "🌋🏆";
+            } else if (score >= 3) {
+                msgEl.textContent = "¡Buen trabajo! Conoces muy bien el Pulgarcito de América.";
+                iconEl.textContent = "👍🇸🇻";
+            } else {
+                msgEl.textContent = "Sigue explorando el mapa para aprender más.";
+                iconEl.textContent = "📚🔍";
+            }
+        }
+
+        function resetQuiz() {
+            startQuiz();
+        }
+
+        /* =========================================
+           INICIALIZACIÓN AL CARGAR LA PÁGINA
+        ========================================= */
+        window.onload = () => {
+            initMap();
+            initMemoryGame();
+        };
+
+    </script>
+</body>
+</html>
