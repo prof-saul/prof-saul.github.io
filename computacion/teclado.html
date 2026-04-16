@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Mecanografía Español</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos específicos para el teclado */
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            gap: 0.25rem;
+        }
+        .key {
+            height: 3rem;
+            min-width: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            transition: all 0.1s;
+            color: #374151;
+            user-select: none;
+        }
+        .key-wide { min-width: 4.5rem; }
+        .key-wider { min-width: 6rem; }
+        .key-space { min-width: 18rem; }
+        
+        /* Colores por dedo */
+        .finger-lp { background-color: #fca5a5; } /* Left Pinky - Meñique Izquierdo */
+        .finger-lr { background-color: #fdba74; } /* Left Ring - Anular Izquierdo */
+        .finger-lm { background-color: #fde047; } /* Left Middle - Medio Izquierdo */
+        .finger-li { background-color: #86efac; } /* Left Index - Índice Izquierdo */
+        
+        .finger-ri { background-color: #5eead4; } /* Right Index - Índice Derecho */
+        .finger-rm { background-color: #93c5fd; } /* Right Middle - Medio Derecho */
+        .finger-rr { background-color: #c4b5fd; } /* Right Ring - Anular Derecho */
+        .finger-rp { background-color: #f9a8d4; } /* Right Pinky - Meñique Derecho */
+        
+        .finger-t { background-color: #d1d5db; }  /* Thumbs - Pulgares */
+        .finger-sys { background-color: #e5e7eb; color: #6b7280; font-size: 0.875rem;} /* Teclas de sistema */
+
+        /* Animación y estado de la tecla activa */
+        .key.active-target {
+            border-color: #2563eb;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.6);
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .key.pressed {
+            transform: translateY(2px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            filter: brightness(0.9);
+        }
+
+        /* Área de escritura */
+        .typing-cursor {
+            border-bottom: 3px solid #2563eb;
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+        .char-correct { color: #16a34a; } /* Verde */
+        .char-incorrect { color: #ef4444; background-color: #fee2e2; border-radius: 0.125rem; } /* Rojo */
+        .char-pending { color: #9ca3af; } /* Gris */
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans selection:bg-blue-200">
+
+    <div class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-200 pb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900">MecanoLab ES</h1>
+                <p class="text-slate-500">Aprende a escribir con teclado en español</p>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-white p-3 rounded-lg shadow-sm">
+                <div class="text-center px-4 border-r border-slate-200">
+                    <p class="text-sm text-slate-500 uppercase font-semibold">Precisión</p>
+                    <p class="text-2xl font-bold text-blue-600" id="stat-accuracy">100%</p>
+                </div>
+                <div class="text-center px-4">
+                    <p class="text-sm text-slate-500 uppercase font-semibold">PPM</p>
+                    <p class="text-2xl font-bold text-green-600" id="stat-wpm">0</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Panel Izquierdo: Lecciones y Leyenda -->
+            <div class="lg:col-span-1 space-y-6">
+                
+                <!-- Selector de Lecciones -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-100">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        Planas (Lecciones)
+                    </h2>
+                    <select id="lesson-select" class="w-full bg-slate-50 border border-slate-200 text-slate-700 py-2 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors cursor-pointer">
+                        <!-- Options filled by JS -->
+                    </select>
+                    
+                    <button id="btn-restart" class="mt-4 w-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold py-2 px-4 rounded-lg transition-colors flex justify-center items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Reiniciar Lección
+                    </button>
+                </div>
+
+                <!-- Leyenda de Dedos -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-100">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4">Guía de Dedos</h2>
+                    
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <p class="font-semibold text-slate-600 mb-2 border-b pb-1">Mano Izquierda</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full finger-lp"></div> Meñique</div>
+                                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full finger-lr"></div> Anular</div>
+                                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full finger-lm"></div> Medio</div>
+                                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full finger-li"></div> Índice</div>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-600 mb-2 border-b pb-1">Mano Derecha</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full finger-ri"></div> Índice</div>
+                                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full finger-rm"></div> Medio</div>
+                                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full finger-rr"></div> Anular</div>
+                                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full finger-rp"></div> Meñique</div>
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <div class="flex items-center gap-2"><div class="w-4 h-4 rounded-full finger-t"></div> Pulgares (Espacio)</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Panel Derecho: Área de Texto y Teclado -->
+            <div class="lg:col-span-3 space-y-6">
+                
+                <!-- Área de Escritura -->
+                <div class="bg-white rounded-xl shadow-sm p-6 md:p-10 border border-slate-100 relative overflow-hidden" id="typing-container">
+                    <!-- Instrucción superpuesta al inicio -->
+                    <div id="start-overlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 transition-opacity duration-300">
+                        <p class="text-xl font-bold text-slate-800 mb-2">Haz clic aquí para empezar</p>
+                        <p class="text-slate-500">El temporizador inicia al presionar la primera tecla</p>
+                    </div>
+
+                    <div id="text-display" class="text-2xl md:text-3xl font-mono leading-relaxed tracking-wide outline-none break-words" tabindex="0">
+                        <!-- El texto se inyectará aquí -->
+                    </div>
+                </div>
+
+                <!-- Teclado Visual -->
+                <div class="bg-slate-200 rounded-xl p-4 md:p-6 shadow-inner overflow-x-auto">
+                    <div class="min-w-[700px]"> <!-- Forzar ancho mínimo para evitar que se rompa en móviles -->
+                        
+                        <!-- Fila 1 (Números) -->
+                        <div class="keyboard-row">
+                            <div class="key finger-rp" id="key-º">º</div>
+                            <div class="key finger-lp" id="key-1">1</div>
+                            <div class="key finger-lr" id="key-2">2</div>
+                            <div class="key finger-lm" id="key-3">3</div>
+                            <div class="key finger-li" id="key-4">4</div>
+                            <div class="key finger-li" id="key-5">5</div>
+                            <div class="key finger-ri" id="key-6">6</div>
+                            <div class="key finger-ri" id="key-7">7</div>
+                            <div class="key finger-rm" id="key-8">8</div>
+                            <div class="key finger-rr" id="key-9">9</div>
+                            <div class="key finger-rp" id="key-0">0</div>
+                            <div class="key finger-rp" id="key-'">'</div>
+                            <div class="key finger-rp" id="key-¡">¡</div>
+                            <div class="key key-wide finger-sys">Borrar</div>
+                        </div>
+
+                        <!-- Fila 2 (QWERTY) -->
+                        <div class="keyboard-row">
+                            <div class="key key-wide finger-sys">Tab</div>
+                            <div class="key finger-lp" id="key-q">Q</div>
+                            <div class="key finger-lr" id="key-w">W</div>
+                            <div class="key finger-lm" id="key-e">E</div>
+                            <div class="key finger-li" id="key-r">R</div>
+                            <div class="key finger-li" id="key-t">T</div>
+                            <div class="key finger-ri" id="key-y">Y</div>
+                            <div class="key finger-ri" id="key-u">U</div>
+                            <div class="key finger-rm" id="key-i">I</div>
+                            <div class="key finger-rr" id="key-o">O</div>
+                            <div class="key finger-rp" id="key-p">P</div>
+                            <div class="key finger-rp" id="key-`">`</div>
+                            <div class="key finger-rp" id="key-+">+</div>
+                            <div class="key key-wide finger-sys" style="min-width: 3.5rem;">Ent</div>
+                        </div>
+
+                        <!-- Fila 3 (ASDFG) -->
+                        <div class="keyboard-row">
+                            <div class="key key-wider finger-sys">Bloq Mayús</div>
+                            <div class="key finger-lp" id="key-a">A</div>
+                            <div class="key finger-lr" id="key-s">S</div>
+                            <div class="key finger-lm" id="key-d">D</div>
+                            <div class="key finger-li" id="key-f">F</div>
+                            <div class="key finger-li" id="key-g">G</div>
+                            <div class="key finger-ri" id="key-h">H</div>
+                            <div class="key finger-ri" id="key-j">J</div>
+                            <div class="key finger-rm" id="key-k">K</div>
+                            <div class="key finger-rr" id="key-l">L</div>
+                            <div class="key finger-rp" id="key-ñ">Ñ</div>
+                            <div class="key finger-rp" id="key-´">´</div>
+                            <div class="key finger-rp" id="key-ç">Ç</div>
+                            <div class="key key-wide finger-sys">Enter</div>
+                        </div>
+
+                        <!-- Fila 4 (ZXCVB) -->
+                        <div class="keyboard-row">
+                            <div class="key key-wider finger-sys" id="key-shift-l">Shift</div>
+                            <div class="key finger-lp" id="key-<"><</div>
+                            <div class="key finger-lp" id="key-z">Z</div>
+                            <div class="key finger-lr" id="key-x">X</div>
+                            <div class="key finger-lm" id="key-c">C</div>
+                            <div class="key finger-li" id="key-v">V</div>
+                            <div class="key finger-li" id="key-b">B</div>
+                            <div class="key finger-ri" id="key-n">N</div>
+                            <div class="key finger-ri" id="key-m">M</div>
+                            <div class="key finger-rm" id="key-,">,</div>
+                            <div class="key finger-rr" id="key-.">.</div>
+                            <div class="key finger-rp" id="key--">-</div>
+                            <div class="key key-wider finger-sys" id="key-shift-r">Shift</div>
+                        </div>
+
+                        <!-- Fila 5 (Espacio) -->
+                        <div class="keyboard-row">
+                            <div class="key key-wide finger-sys">Ctrl</div>
+                            <div class="key key-wide finger-sys">Win</div>
+                            <div class="key key-wide finger-sys">Alt</div>
+                            <div class="key key-space finger-t" id="key-space">Espacio</div>
+                            <div class="key key-wide finger-sys">AltGr</div>
+                            <div class="key key-wide finger-sys">Fn</div>
+                            <div class="key key-wide finger-sys">Ctrl</div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        <!-- Modal de Resultados -->
+        <div id="results-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center transform scale-95 transition-transform duration-300">
+                <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">¡Lección Completada!</h2>
+                
+                <div class="grid grid-cols-2 gap-4 my-6">
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <p class="text-sm text-slate-500 uppercase font-semibold">Precisión</p>
+                        <p class="text-2xl font-bold text-blue-600" id="modal-accuracy">100%</p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <p class="text-sm text-slate-500 uppercase font-semibold">PPM</p>
+                        <p class="text-2xl font-bold text-green-600" id="modal-wpm">40</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <button id="btn-next-lesson" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
+                        Siguiente Lección
+                    </button>
+                    <button id="btn-retry-modal" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-lg transition-colors">
+                        Reintentar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Datos de las lecciones
+        const lessons = [
+            { id: 1, title: "1. Fila Guía - Básica (F y J)", text: "ffff jjjj ffjj jjff fj fj jf jf" },
+            { id: 2, title: "2. Fila Guía - Completa", text: "asdf ñlkj asdf ñlkj asdf ñlkj asdf ñlkj" },
+            { id: 3, title: "3. Fila Guía - Palabras", text: "las salas son sanas la osa sana a las salas" },
+            { id: 4, title: "4. Fila Superior - Básica", text: "qwer poiuy qwer poiuy qwe poi qwe poi" },
+            { id: 5, title: "5. Fila Inferior - Básica", text: "zxcv -.,m zxcv -.,m zxcv -.,m" },
+            { id: 6, title: "6. Palabras Cortas", text: "hola que tal como estas hoy bien y tu para por" },
+            { id: 7, title: "7. Letra Ñ y Tildes", text: "el niño soñó con la cigüeña en la cabaña del leñador" },
+            { id: 8, title: "8. Frases Completas", text: "El rápido zorro marrón salta sobre el perro perezoso." },
+            { id: 9, title: "9. Texto Avanzado", text: "La mecanografía es el proceso de introducir texto en un dispositivo mediante un teclado. Quienes practican mejoran su velocidad y precisión notablemente." }
+        ];
+
+        // Variables de estado
+        let currentLessonIndex = 0;
+        let targetText = "";
+        let typedText = "";
+        let mistakes = 0;
+        let isTyping = false;
+        let startTime = null;
+        let timerInterval = null;
+
+        // Elementos del DOM
+        const displayEl = document.getElementById('text-display');
+        const overlayEl = document.getElementById('start-overlay');
+        const selectEl = document.getElementById('lesson-select');
+        const wpmEl = document.getElementById('stat-wpm');
+        const accEl = document.getElementById('stat-accuracy');
+        const modal = document.getElementById('results-modal');
+        const container = document.getElementById('typing-container');
+
+        // Inicializar
+        function init() {
+            // Llenar selector
+            lessons.forEach((lesson, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = lesson.title;
+                selectEl.appendChild(option);
+            });
+
+            selectEl.addEventListener('change', (e) => {
+                loadLesson(parseInt(e.target.value));
+            });
+
+            document.getElementById('btn-restart').addEventListener('click', () => loadLesson(currentLessonIndex));
+            document.getElementById('btn-retry-modal').addEventListener('click', () => {
+                closeModal();
+                loadLesson(currentLessonIndex);
+            });
+            document.getElementById('btn-next-lesson').addEventListener('click', () => {
+                closeModal();
+                if (currentLessonIndex < lessons.length - 1) {
+                    selectEl.value = currentLessonIndex + 1;
+                    loadLesson(currentLessonIndex + 1);
+                } else {
+                    loadLesson(0); // Volver al inicio si terminó
+                }
+            });
+
+            // Enfoque en el área al hacer clic
+            container.addEventListener('click', () => {
+                displayEl.focus();
+                overlayEl.classList.add('opacity-0');
+                setTimeout(() => overlayEl.classList.add('hidden'), 300);
+            });
+
+            // Event listener principal de escritura
+            displayEl.addEventListener('keydown', handleKeyDown);
+
+            loadLesson(0);
+        }
+
+        function loadLesson(index) {
+            currentLessonIndex = index;
+            targetText = lessons[index].text;
+            typedText = "";
+            mistakes = 0;
+            isTyping = false;
+            startTime = null;
+            clearInterval(timerInterval);
+            
+            updateStats(0, 100);
+            renderText();
+            highlightKeyboardKey(targetText[0]);
+            
+            // Reset UI
+            displayEl.focus();
+            overlayEl.classList.remove('hidden', 'opacity-0');
+        }
+
+        function renderText() {
+            displayEl.innerHTML = '';
+            
+            for (let i = 0; i < targetText.length; i++) {
+                const span = document.createElement('span');
+                const char = targetText[i];
+                
+                // Manejar espacios para que sean visibles los errores
+                span.textContent = char === ' ' ? ' ' : char;
+                
+                if (i < typedText.length) {
+                    if (typedText[i] === char) {
+                        span.className = 'char-correct';
+                    } else {
+                        span.className = 'char-incorrect';
+                        // Si es un espacio y hay error, poner un guion bajo o cambiar fondo
+                        if(char === ' ') span.innerHTML = '&nbsp;'; 
+                    }
+                } else if (i === typedText.length) {
+                    span.className = 'char-pending typing-cursor';
+                } else {
+                    span.className = 'char-pending';
+                }
+                
+                displayEl.appendChild(span);
+            }
+        }
+
+        function handleKeyDown(e) {
+            // Ignorar teclas de control solas
+            if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) {
+                return;
+            }
+
+            // Ocultar overlay si está visible
+            if (!overlayEl.classList.contains('hidden')) {
+                overlayEl.classList.add('opacity-0');
+                setTimeout(() => overlayEl.classList.add('hidden'), 300);
+            }
+
+            // Evitar scroll con espacio
+            if (e.key === ' ' || e.key === 'Backspace') {
+                e.preventDefault();
+            }
+
+            // Iniciar temporizador con la primera tecla
+            if (!isTyping && typedText.length === 0) {
+                isTyping = true;
+                startTime = new Date();
+                timerInterval = setInterval(calculateStats, 1000);
+            }
+
+            // Borrar
+            if (e.key === 'Backspace') {
+                if (typedText.length > 0) {
+                    typedText = typedText.slice(0, -1);
+                }
+            } 
+            // Tecla presionada (limitar a longitud del texto)
+            else if (typedText.length < targetText.length) {
+                const expectedChar = targetText[typedText.length];
+                
+                // Contar errores (no restamos errores al borrar para reflejar precisión real)
+                if (e.key !== expectedChar) {
+                    mistakes++;
+                }
+                
+                typedText += e.key;
+            }
+
+            // Efecto visual en el teclado
+            animateKeyPress(e.key);
+
+            renderText();
+            calculateStats();
+
+            // Actualizar siguiente tecla a iluminar
+            if (typedText.length < targetText.length) {
+                highlightKeyboardKey(targetText[typedText.length]);
+            } else {
+                removeKeyboardHighlight();
+            }
+
+            // Comprobar fin de lección
+            if (typedText.length === targetText.length) {
+                finishLesson();
+            }
+        }
+
+        function calculateStats() {
+            if (!startTime) return;
+            
+            const now = new Date();
+            const minutesElapsed = (now - startTime) / 60000;
+            
+            // WPM = (Caracteres correctos / 5) / minutos
+            let correctChars = 0;
+            for(let i=0; i < typedText.length; i++){
+                if(typedText[i] === targetText[i]) correctChars++;
+            }
+            
+            const wpm = minutesElapsed > 0 ? Math.round((correctChars / 5) / minutesElapsed) : 0;
+            
+            // Precisión
+            const totalTyped = typedText.length;
+            const accuracy = totalTyped > 0 ? Math.max(0, Math.round(((totalTyped - mistakes) / totalTyped) * 100)) : 100;
+
+            updateStats(wpm, accuracy);
+        }
+
+        function updateStats(wpm, accuracy) {
+            wpmEl.textContent = wpm;
+            accEl.textContent = `${accuracy}%`;
+        }
+
+        function finishLesson() {
+            isTyping = false;
+            clearInterval(timerInterval);
+            
+            // Mostrar modal
+            document.getElementById('modal-wpm').textContent = wpmEl.textContent;
+            document.getElementById('modal-accuracy').textContent = accEl.textContent;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            // Quitar focus del editor
+            displayEl.blur();
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // --- Funciones del Teclado Visual ---
+        
+        function getVirtualKeyId(char) {
+            const charLower = char.toLowerCase();
+            if (charLower === ' ') return 'key-space';
+            // Mapeo especial para caracteres que cambian con Shift u otros
+            const specialMap = {
+                ';': ',', ':': '.', '_': '-', '=': '+', '?': "'", '¿': '¡', '"': "'",
+                '{': '´', '}': 'ç', '[': '`', ']': '+', '>': '<'
+            };
+            
+            let idChar = specialMap[charLower] || charLower;
+            return `key-${idChar}`;
+        }
+
+        function highlightKeyboardKey(char) {
+            removeKeyboardHighlight();
+            
+            const keyId = getVirtualKeyId(char);
+            const keyEl = document.getElementById(keyId);
+            
+            if (keyEl) {
+                keyEl.classList.add('active-target');
+            }
+
+            // Iluminar Shift si es mayúscula
+            if (char !== char.toLowerCase() && char.toUpperCase() === char) {
+                // Simplificación: iluminar el shift izquierdo por defecto
+                document.getElementById('key-shift-l').classList.add('active-target');
+            }
+        }
+
+        function removeKeyboardHighlight() {
+            document.querySelectorAll('.key').forEach(el => {
+                el.classList.remove('active-target');
+            });
+        }
+
+        function animateKeyPress(char) {
+            const keyId = getVirtualKeyId(char);
+            const keyEl = document.getElementById(keyId);
+            
+            if (keyEl) {
+                keyEl.classList.add('pressed');
+                setTimeout(() => keyEl.classList.remove('pressed'), 100);
+            }
+        }
+
+        // Arrancar la app
+        window.onload = init;
+
+    </script>
+</body>
+</html>
