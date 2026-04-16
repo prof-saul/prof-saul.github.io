@@ -408,8 +408,11 @@
         }
 
         function handleKeyDown(e) {
-            // Ignorar teclas de control solas
-            if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) {
+            // Ignorar teclas de control solas y la tecla 'Dead' (acentos)
+            if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab', 'AltGraph', 'Dead'].includes(e.key)) {
+                if (e.key === 'Dead') {
+                    animateKeyPress('´'); // Animar la tilde si se presiona
+                }
                 return;
             }
 
@@ -523,14 +526,28 @@
                 ';': ',', ':': '.', '_': '-', '=': '+', '?': "'", '¿': '¡', '"': "'",
                 '{': '´', '}': 'ç', '[': '`', ']': '+', '>': '<'
             };
+            // Mapeo para vocales con tilde
+            const accentedMap = {
+                'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
+                'ä': 'a', 'ë': 'e', 'ï': 'i', 'ö': 'o', 'ü': 'u'
+            };
             
-            let idChar = specialMap[charLower] || charLower;
+            let idChar = specialMap[charLower] || accentedMap[charLower] || charLower;
             return `key-${idChar}`;
         }
 
         function highlightKeyboardKey(char) {
             removeKeyboardHighlight();
             
+            const charLower = char.toLowerCase();
+            const accentedVowels = {'á':'a', 'é':'e', 'í':'i', 'ó':'o', 'ú':'u'};
+            
+            // Si la siguiente letra es una vocal con tilde, resaltar también la tecla de la tilde (´)
+            if (accentedVowels[charLower]) {
+                const tildeKey = document.getElementById('key-´');
+                if (tildeKey) tildeKey.classList.add('active-target');
+            }
+
             const keyId = getVirtualKeyId(char);
             const keyEl = document.getElementById(keyId);
             
