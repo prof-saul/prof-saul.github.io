@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="es" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprende Ciclos</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Nunito', sans-serif; }
+    html, body { height: 100%; margin: 0; }
+
+    .tab-active { background: #fbbf24; color: #1e1b4b; transform: scale(1.05); box-shadow: 0 4px 20px rgba(251,191,36,0.4); }
+    .tab-inactive { background: rgba(255,255,255,0.1); color: #c4b5fd; }
+    .tab-inactive:hover { background: rgba(255,255,255,0.2); }
+
+    .emoji-item {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 48px; height: 48px; font-size: 28px;
+      border-radius: 12px; background: rgba(255,255,255,0.1);
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0) rotate(-20deg); opacity: 0; }
+      to { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .floating { animation: float 2s ease-in-out infinite; }
+
+    .code-block {
+      background: #1e1b4b; border-radius: 12px; padding: 16px;
+      font-family: 'Courier New', monospace; font-size: 14px;
+      color: #a5f3fc; line-height: 1.8; overflow-x: auto;
+      border: 2px solid rgba(139,92,246,0.3);
+    }
+    .code-block .keyword { color: #c084fc; font-weight: 700; }
+    .code-block .string { color: #fbbf24; }
+    .code-block .comment { color: #6b7280; font-style: italic; }
+    .code-block .number { color: #34d399; }
+    .code-block .func { color: #60a5fa; }
+    .code-block .highlight-line {
+      background: rgba(251,191,36,0.15); display: block;
+      margin: -2px -8px; padding: 2px 8px; border-radius: 4px;
+      border-left: 3px solid #fbbf24;
+    }
+
+    .result-area {
+      min-height: 80px; background: rgba(0,0,0,0.2); border-radius: 12px;
+      padding: 16px; display: flex; flex-wrap: wrap; gap: 8px;
+      align-items: center; justify-content: center;
+      border: 2px dashed rgba(255,255,255,0.15);
+    }
+
+    .slider-track { -webkit-appearance: none; appearance: none; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.2); outline: none; }
+    .slider-track::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #fbbf24; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+    .tip-box {
+      background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,191,36,0.05));
+      border: 1px solid rgba(251,191,36,0.3); border-radius: 12px; padding: 14px 16px;
+    }
+
+    .challenge-btn {
+      transition: all 0.2s;
+    }
+    .challenge-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+
+    .step-indicator {
+      display: flex; gap: 6px; justify-content: center; margin-top: 12px;
+    }
+    .step-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); transition: all 0.3s;
+    }
+    .step-dot.active { background: #fbbf24; transform: scale(1.3); }
+    .step-dot.done { background: #34d399; }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { bg: '#0f0a2e', surface: '#1a1545', accent: '#fbbf24', text: '#e0d9ff', action: '#8b5cf6' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-brand-bg text-brand-text overflow-auto">
+  <div id="app" class="w-full min-h-full flex flex-col"><!-- Header -->
+   <header class="text-center py-6 px-4 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-20" style="background: radial-gradient(ellipse at 50% 0%, #8b5cf6 0%, transparent 70%);"></div>
+    <div class="relative">
+     <div class="text-4xl mb-2 floating">
+      🔄
+     </div>
+     <h1 id="mainTitle" class="text-3xl md:text-4xl font-black text-white tracking-tight">Aprende Ciclos</h1>
+     <p id="subtitle" class="text-brand-accent font-semibold mt-1 text-lg">¡Programación divertida!</p>
+    </div>
+   </header><!-- Tabs -->
+   <nav class="flex gap-2 px-4 pb-4 justify-center flex-wrap" role="tablist"><button onclick="switchTab('intro')" id="tab-intro" class="tab-active px-4 py-2 rounded-full font-bold text-sm transition-all" role="tab">🎯 ¿Qué es?</button> <button onclick="switchTab('for')" id="tab-for" class="tab-inactive px-4 py-2 rounded-full font-bold text-sm transition-all" role="tab">🔢 For</button> <button onclick="switchTab('while')" id="tab-while" class="tab-inactive px-4 py-2 rounded-full font-bold text-sm transition-all" role="tab">🔁 While</button> <button onclick="switchTab('foreach')" id="tab-foreach" class="tab-inactive px-4 py-2 rounded-full font-bold text-sm transition-all" role="tab">📦 ForEach</button> <button onclick="switchTab('challenge')" id="tab-challenge" class="tab-inactive px-4 py-2 rounded-full font-bold text-sm transition-all" role="tab">🏆 Reto</button>
+   </nav><!-- Content -->
+   <main class="flex-1 px-4 pb-8 max-w-3xl w-full mx-auto"><!-- INTRO -->
+    <section id="panel-intro" class="space-y-5">
+     <div class="bg-brand-surface rounded-2xl p-5 space-y-4">
+      <h2 class="text-2xl font-extrabold text-white">🤔 ¿Qué es un ciclo?</h2>
+      <p class="text-lg leading-relaxed">Un <strong class="text-brand-accent">ciclo</strong> (o bucle) es una instrucción que le dice a la computadora: <em>"repite esto varias veces"</em>.</p>
+      <div class="tip-box">
+       <p class="font-bold text-brand-accent mb-1">💡 Ejemplo de la vida real</p>
+       <p>Imagina que un maestro dice: <em>"Cada alumno pase al frente a presentarse"</em>. ¡Eso es un ciclo! Se repite la misma acción para cada alumno.</p>
+      </div>
+      <div class="text-center py-4">
+       <p class="font-bold mb-3 text-white">¿Cuántas veces quieres aplaudir? 👏</p><input type="range" id="introSlider" min="1" max="10" value="3" class="slider-track w-48" oninput="runIntroDemo()"> <span id="introCount" class="ml-3 text-2xl font-black text-brand-accent">3</span>
+       <div id="introResult" class="result-area mt-3"></div>
+       <p class="text-sm mt-2 opacity-60">La computadora repite "👏" el número de veces que elijas</p>
+      </div>
+     </div>
+     <div class="bg-brand-surface rounded-2xl p-5">
+      <h3 class="text-xl font-bold text-white mb-3">📋 Tipos de ciclos que aprenderás</h3>
+      <div class="grid gap-3">
+       <div class="flex items-center gap-3 bg-brand-bg rounded-xl p-3 cursor-pointer hover:bg-opacity-70 transition" onclick="switchTab('for')"><span class="text-3xl">🔢</span>
+        <div>
+         <strong class="text-brand-accent">FOR</strong> — Cuando sabes cuántas veces repetir
+        </div><i data-lucide="chevron-right" class="ml-auto w-5 h-5 opacity-50"></i>
+       </div>
+       <div class="flex items-center gap-3 bg-brand-bg rounded-xl p-3 cursor-pointer hover:bg-opacity-70 transition" onclick="switchTab('while')"><span class="text-3xl">🔁</span>
+        <div>
+         <strong class="text-brand-accent">WHILE</strong> — Mientras una condición se cumpla
+        </div><i data-lucide="chevron-right" class="ml-auto w-5 h-5 opacity-50"></i>
+       </div>
+       <div class="flex items-center gap-3 bg-brand-bg rounded-xl p-3 cursor-pointer hover:bg-opacity-70 transition" onclick="switchTab('foreach')"><span class="text-3xl">📦</span>
+        <div>
+         <strong class="text-brand-accent">FOR EACH</strong> — Para cada elemento de una lista
+        </div><i data-lucide="chevron-right" class="ml-auto w-5 h-5 opacity-50"></i>
+       </div>
+      </div>
+     </div>
+    </section><!-- FOR -->
+    <section id="panel-for" class="space-y-5 hidden">
+     <div class="bg-brand-surface rounded-2xl p-5 space-y-4">
+      <h2 class="text-2xl font-extrabold text-white">🔢 Ciclo FOR</h2>
+      <p class="text-lg">Úsalo cuando <strong class="text-brand-accent">sabes exactamente cuántas veces</strong> quieres repetir algo.</p>
+      <div class="tip-box">
+       <p class="font-bold text-brand-accent mb-1">🏃 Analogía</p>
+       <p>Es como decir: <em>"Da 5 vueltas a la cancha"</em>. Sabes desde el inicio cuántas son.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-3 mb-4">
+       <div>
+        <p class="text-xs text-brand-accent font-bold mb-1">📝 SEUDOCÓDIGO</p>
+        <div class="code-block text-sm bg-blue-950/40 border-blue-500/30"><span class="comment">// Desde 1 hasta 5:</span><br><span class="keyword">PARA</span> i = <span class="number">1</span> <span class="keyword">HASTA</span> <span class="number" id="forPseudoNum">5</span> <span class="keyword">HACER</span>:<br><span class="highlight-line">&nbsp;&nbsp;MOSTRAR ⭐</span><br><span class="keyword">FIN PARA</span>
+        </div>
+       </div>
+       <div>
+        <p class="text-xs text-brand-accent font-bold mb-1">💻 CÓDIGO REAL (JavaScript)</p>
+        <div class="code-block text-sm"><span class="comment">// Imprimir estrellas</span><br><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt;= <span class="number" id="forCodeNum">5</span>; i++) {<br><span class="highlight-line">&nbsp;&nbsp;<span class="func">mostrar</span>(<span class="string">"⭐"</span>);</span> <br>
+          }
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><label class="font-bold text-white block mb-2">¿Cuántas estrellas? ⭐</label> <input type="range" id="forSlider" min="1" max="12" value="5" class="slider-track w-48" oninput="runForDemo()"> <span id="forCount" class="ml-3 text-2xl font-black text-brand-accent">5</span> <button onclick="runForAnimation()" class="ml-3 bg-brand-action hover:bg-purple-500 text-white px-4 py-2 rounded-full font-bold text-sm transition-all">▶ Ejecutar</button>
+      </div>
+      <div id="forResult" class="result-area"></div>
+      <div id="forStepInfo" class="text-center text-sm opacity-70 min-h-[24px]"></div>
+      <div id="forSteps" class="step-indicator"></div>
+     </div>
+     <div class="bg-brand-surface rounded-2xl p-5">
+      <h3 class="text-xl font-bold text-white mb-2">🧩 ¿Cómo funciona?</h3>
+      <div class="grid gap-2 text-sm">
+       <div class="flex gap-2 items-start">
+        <span class="bg-brand-accent text-brand-bg font-black rounded-full w-6 h-6 flex items-center justify-center shrink-0 text-xs">1</span><span><strong>Inicio:</strong> <code class="text-brand-accent">let i = 1</code> → empieza en 1</span>
+       </div>
+       <div class="flex gap-2 items-start">
+        <span class="bg-brand-accent text-brand-bg font-black rounded-full w-6 h-6 flex items-center justify-center shrink-0 text-xs">2</span><span><strong>Condición:</strong> <code class="text-brand-accent">i &lt;= 5</code> → ¿todavía es menor o igual?</span>
+       </div>
+       <div class="flex gap-2 items-start">
+        <span class="bg-brand-accent text-brand-bg font-black rounded-full w-6 h-6 flex items-center justify-center shrink-0 text-xs">3</span><span><strong>Acción:</strong> Muestra una estrella ⭐</span>
+       </div>
+       <div class="flex gap-2 items-start">
+        <span class="bg-brand-accent text-brand-bg font-black rounded-full w-6 h-6 flex items-center justify-center shrink-0 text-xs">4</span><span><strong>Incremento:</strong> <code class="text-brand-accent">i++</code> → suma 1 y vuelve al paso 2</span>
+       </div>
+      </div>
+     </div>
+    </section><!-- WHILE -->
+    <section id="panel-while" class="space-y-5 hidden">
+     <div class="bg-brand-surface rounded-2xl p-5 space-y-4">
+      <h2 class="text-2xl font-extrabold text-white">🔁 Ciclo WHILE</h2>
+      <p class="text-lg">Úsalo cuando <strong class="text-brand-accent">no sabes cuántas veces</strong> se repetirá, solo sabes la condición para detenerse.</p>
+      <div class="tip-box">
+       <p class="font-bold text-brand-accent mb-1">🍕 Analogía</p>
+       <p><em>"Mientras tengas hambre, come otra rebanada de pizza"</em>. No sabes cuántas comerás, ¡depende de tu hambre!</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-3 mb-4">
+       <div>
+        <p class="text-xs text-brand-accent font-bold mb-1">📝 SEUDOCÓDIGO</p>
+        <div class="code-block text-sm bg-blue-950/40 border-blue-500/30"><span class="keyword">MIENTRAS</span> hambre &gt; <span class="number">0</span> <span class="keyword">HACER</span>:<br><span class="highlight-line">&nbsp;&nbsp;COMER 🍕</span><br>
+          &nbsp;&nbsp;hambre = hambre - <span class="number">1</span><br><span class="keyword">FIN MIENTRAS</span>
+        </div>
+       </div>
+       <div>
+        <p class="text-xs text-brand-accent font-bold mb-1">💻 CÓDIGO REAL (JavaScript)</p>
+        <div class="code-block text-sm"><span class="comment">// Comer mientras haya hambre</span><br><span class="keyword">let</span> hambre = <span class="number" id="whileCodeNum">5</span>;<br><br><span class="keyword">while</span> (hambre &gt; <span class="number">0</span>) {<br><span class="highlight-line">&nbsp;&nbsp;<span class="func">comer</span>(<span class="string">"🍕"</span>);</span><br>
+          &nbsp;&nbsp;hambre = hambre - <span class="number">1</span>;<br>
+          }
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><label class="font-bold text-white block mb-2">Nivel de hambre: 🍕</label> <input type="range" id="whileSlider" min="1" max="10" value="5" class="slider-track w-48" oninput="updateWhileCode()"> <span id="whileCount" class="ml-3 text-2xl font-black text-brand-accent">5</span> <button onclick="runWhileAnimation()" class="ml-3 bg-brand-action hover:bg-purple-500 text-white px-4 py-2 rounded-full font-bold text-sm transition-all">▶ Ejecutar</button>
+      </div>
+      <div id="whileResult" class="result-area"></div>
+      <div id="whileStepInfo" class="text-center text-sm opacity-70 min-h-[24px]"></div>
+      <div id="whileHungerBar" class="flex gap-1 justify-center mt-2"></div>
+     </div>
+     <div class="bg-brand-surface rounded-2xl p-5">
+      <h3 class="text-xl font-bold text-white mb-2">⚠️ ¡Cuidado con el ciclo infinito!</h3>
+      <p class="text-sm">Si la condición <strong>nunca se vuelve falsa</strong>, el ciclo nunca para. Es como decir <em>"mientras estés vivo, respira"</em> — ¡nunca termina!</p>
+      <div class="code-block mt-2 text-sm border-red-500/50"><span class="comment">// ❌ ¡CICLO INFINITO! Nunca para</span><br><span class="keyword">while</span> (<span class="number">true</span>) {<br>
+        &nbsp;&nbsp;<span class="func">mostrar</span>(<span class="string">"¡Auxilio!"</span>);<br>
+        }
+      </div>
+     </div>
+    </section><!-- FOREACH -->
+    <section id="panel-foreach" class="space-y-5 hidden">
+     <div class="bg-brand-surface rounded-2xl p-5 space-y-4">
+      <h2 class="text-2xl font-extrabold text-white">📦 Ciclo FOR EACH</h2>
+      <p class="text-lg">Úsalo para <strong class="text-brand-accent">recorrer cada elemento de una lista</strong>, uno por uno.</p>
+      <div class="tip-box">
+       <p class="font-bold text-brand-accent mb-1">📚 Analogía</p>
+       <p><em>"Para cada libro en tu mochila, ponlo sobre la mesa"</em>. Repites la acción con cada objeto de la lista.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-3 mb-4">
+       <div>
+        <p class="text-xs text-brand-accent font-bold mb-1">📝 SEUDOCÓDIGO</p>
+        <div class="code-block text-sm bg-blue-950/40 border-blue-500/30"><span class="comment">// Lista de frutas</span><br>
+         frutas = [🍎, 🍌, 🍇, 🍊, 🍓]<br><br><span class="keyword">PARA CADA</span> fruta <span class="keyword">EN</span> frutas <span class="keyword">HACER</span>:<br><span class="highlight-line">&nbsp;&nbsp;MOSTRAR fruta</span><br><span class="keyword">FIN PARA</span>
+        </div>
+       </div>
+       <div>
+        <p class="text-xs text-brand-accent font-bold mb-1">💻 CÓDIGO REAL (JavaScript)</p>
+        <div class="code-block text-sm"><span class="keyword">let</span> frutas = [<span class="string">"🍎"</span>, <span class="string">"🍌"</span>, <span class="string">"🍇"</span>, <span class="string">"🍊"</span>, <span class="string">"🍓"</span>];<br><br>
+          frutas.<span class="func">forEach</span>(<span class="keyword">function</span>(fruta) {<br><span class="highlight-line">&nbsp;&nbsp;<span class="func">mostrar</span>(fruta);</span><br>
+          });
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><label class="font-bold text-white block mb-2">Elige las frutas de tu canasta:</label>
+       <div id="fruitPicker" class="flex flex-wrap gap-2 justify-center mb-3"></div><button onclick="runForEachAnimation()" class="bg-brand-action hover:bg-purple-500 text-white px-4 py-2 rounded-full font-bold text-sm transition-all">▶ Recorrer canasta</button>
+      </div>
+      <div id="foreachResult" class="result-area"></div>
+      <div id="foreachStepInfo" class="text-center text-sm opacity-70 min-h-[24px]"></div>
+     </div>
+     <div class="bg-brand-surface rounded-2xl p-5">
+      <h3 class="text-xl font-bold text-white mb-2">🔄 FOR vs FOR EACH</h3>
+      <div class="grid gap-2 text-sm">
+       <div class="bg-brand-bg rounded-xl p-3">
+        <strong class="text-brand-accent">FOR:</strong> Tú controlas el contador (i = 0, 1, 2...)
+       </div>
+       <div class="bg-brand-bg rounded-xl p-3">
+        <strong class="text-brand-accent">FOR EACH:</strong> Automáticamente toma cada elemento, sin necesidad de contador
+       </div>
+      </div>
+     </div>
+    </section><!-- CHALLENGE -->
+    <section id="panel-challenge" class="space-y-5 hidden">
+     <div class="bg-brand-surface rounded-2xl p-5 space-y-4">
+      <h2 class="text-2xl font-extrabold text-white">🏆 ¡Pon a prueba lo que aprendiste!</h2>
+      <div id="challengeArea"></div>
+     </div>
+    </section>
+   </main>
+  </div>
+  <script>
+  // ========== STATE ==========
+  let currentTab = 'intro';
+  const allFruits = ['🍎','🍌','🍇','🍊','🍓','🥝','🍑','🍒'];
+  let selectedFruits = ['🍎','🍌','🍇','🍊','🍓'];
+  let animating = false;
+
+  const challenges = [
+    { q: '¿Qué ciclo usarías si quieres repetir algo exactamente 10 veces?', opts: ['FOR','WHILE','FOR EACH'], correct: 0, explain: '¡FOR! Porque sabes exactamente cuántas veces: 10.' },
+    { q: '"Mientras haya galletas en el frasco, come una". ¿Qué ciclo es?', opts: ['FOR','WHILE','FOR EACH'], correct: 1, explain: '¡WHILE! No sabes cuántas galletas hay, solo la condición.' },
+    { q: '"Para cada alumno de la clase, tomar asistencia". ¿Qué ciclo es?', opts: ['FOR','WHILE','FOR EACH'], correct: 2, explain: '¡FOR EACH! Recorres una lista de alumnos uno por uno.' },
+    { q: '¿Qué pasa si la condición de un WHILE nunca es falsa?', opts: ['Se detiene solo','Ciclo infinito ♾️','Da error'], correct: 1, explain: '¡Ciclo infinito! El programa nunca para. ¡Siempre asegúrate de que la condición cambie!' },
+    { q: '"Imprime los números del 1 al 100". ¿Mejor ciclo?', opts: ['FOR','WHILE','FOR EACH'], correct: 0, explain: 'FOR es ideal porque sabes el rango exacto: del 1 al 100.' },
+  ];
+  let challengeIndex = 0;
+  let challengeScore = 0;
+  let challengeAnswered = false;
+
+  // ========== TABS ==========
+  function switchTab(tab) {
+    currentTab = tab;
+    ['intro','for','while','foreach','challenge'].forEach(t => {
+      document.getElementById('panel-' + t).classList.toggle('hidden', t !== tab);
+      const btn = document.getElementById('tab-' + t);
+      btn.className = btn.className.replace(/tab-active|tab-inactive/g, '').trim();
+      btn.classList.add(t === tab ? 'tab-active' : 'tab-inactive');
+    });
+    if (tab === 'intro') runIntroDemo();
+    if (tab === 'foreach') buildFruitPicker();
+    if (tab === 'challenge') { challengeIndex = 0; challengeScore = 0; renderChallenge(); }
+  }
+
+  // ========== INTRO DEMO ==========
+  function runIntroDemo() {
+    const n = +document.getElementById('introSlider').value;
+    document.getElementById('introCount').textContent = n;
+    const area = document.getElementById('introResult');
+    area.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const span = document.createElement('span');
+      span.className = 'emoji-item';
+      span.textContent = '👏';
+      span.style.animationDelay = i * 80 + 'ms';
+      area.appendChild(span);
+    }
+  }
+
+  // ========== FOR DEMO ==========
+  function runForDemo() {
+    const n = +document.getElementById('forSlider').value;
+    document.getElementById('forCount').textContent = n;
+    document.getElementById('forCodeNum').textContent = n;
+    document.getElementById('forResult').innerHTML = '';
+    document.getElementById('forSteps').innerHTML = '';
+    document.getElementById('forStepInfo').textContent = '';
+  }
+
+  async function runForAnimation() {
+    if (animating) return;
+    animating = true;
+    const n = +document.getElementById('forSlider').value;
+    const area = document.getElementById('forResult');
+    const info = document.getElementById('forStepInfo');
+    const steps = document.getElementById('forSteps');
+    area.innerHTML = '';
+    steps.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'step-dot';
+      steps.appendChild(dot);
+    }
+    for (let i = 0; i < n; i++) {
+      info.textContent = `Vuelta ${i + 1} de ${n} → i = ${i + 1}`;
+      steps.children[i].classList.add('active');
+      const span = document.createElement('span');
+      span.className = 'emoji-item';
+      span.textContent = '⭐';
+      area.appendChild(span);
+      await sleep(350);
+      steps.children[i].classList.remove('active');
+      steps.children[i].classList.add('done');
+    }
+    info.textContent = `✅ ¡Listo! Se repitió ${n} veces.`;
+    animating = false;
+  }
+
+  // ========== WHILE DEMO ==========
+  function updateWhileCode() {
+    const n = +document.getElementById('whileSlider').value;
+    document.getElementById('whileCount').textContent = n;
+    document.getElementById('whileCodeNum').textContent = n;
+    document.getElementById('whileResult').innerHTML = '';
+    document.getElementById('whileStepInfo').textContent = '';
+    document.getElementById('whileHungerBar').innerHTML = '';
+  }
+
+  async function runWhileAnimation() {
+    if (animating) return;
+    animating = true;
+    let hunger = +document.getElementById('whileSlider').value;
+    const area = document.getElementById('whileResult');
+    const info = document.getElementById('whileStepInfo');
+    const bar = document.getElementById('whileHungerBar');
+    area.innerHTML = '';
+    bar.innerHTML = '';
+
+    // Build hunger bar
+    for (let i = 0; i < hunger; i++) {
+      const d = document.createElement('div');
+      d.className = 'w-6 h-6 rounded bg-red-400 transition-all duration-300';
+      d.id = 'hb-' + i;
+      bar.appendChild(d);
+    }
+
+    let h = hunger;
+    while (h > 0) {
+      info.textContent = `Hambre = ${h} → ¡come pizza!`;
+      const span = document.createElement('span');
+      span.className = 'emoji-item';
+      span.textContent = '🍕';
+      area.appendChild(span);
+      h--;
+      const hbEl = document.getElementById('hb-' + h);
+      if (hbEl) { hbEl.classList.remove('bg-red-400'); hbEl.classList.add('bg-green-400'); }
+      await sleep(400);
+    }
+    info.textContent = `✅ hambre = 0 → ¡Condición falsa! El ciclo se detiene.`;
+    animating = false;
+  }
+
+  // ========== FOREACH DEMO ==========
+  function buildFruitPicker() {
+    const picker = document.getElementById('fruitPicker');
+    picker.innerHTML = '';
+    allFruits.forEach(f => {
+      const btn = document.createElement('button');
+      btn.textContent = f;
+      btn.className = 'text-2xl w-11 h-11 rounded-xl transition-all ' +
+        (selectedFruits.includes(f) ? 'bg-brand-accent/30 ring-2 ring-brand-accent scale-110' : 'bg-white/10 opacity-60');
+      btn.onclick = () => toggleFruit(f);
+      picker.appendChild(btn);
+    });
+  }
+
+  function toggleFruit(f) {
+    if (selectedFruits.includes(f)) selectedFruits = selectedFruits.filter(x => x !== f);
+    else if (selectedFruits.length < 7) selectedFruits.push(f);
+    buildFruitPicker();
+    document.getElementById('foreachResult').innerHTML = '';
+    document.getElementById('foreachStepInfo').textContent = '';
+  }
+
+  async function runForEachAnimation() {
+    if (animating || selectedFruits.length === 0) return;
+    animating = true;
+    const area = document.getElementById('foreachResult');
+    const info = document.getElementById('foreachStepInfo');
+    area.innerHTML = '';
+    for (let i = 0; i < selectedFruits.length; i++) {
+      info.textContent = `forEach → fruta = ${selectedFruits[i]} (elemento ${i + 1} de ${selectedFruits.length})`;
+      const span = document.createElement('span');
+      span.className = 'emoji-item';
+      span.textContent = selectedFruits[i];
+      area.appendChild(span);
+      await sleep(400);
+    }
+    info.textContent = `✅ ¡Recorrió las ${selectedFruits.length} frutas de la canasta!`;
+    animating = false;
+  }
+
+  // ========== CHALLENGE ==========
+  function renderChallenge() {
+    const area = document.getElementById('challengeArea');
+    if (challengeIndex >= challenges.length) {
+      const pct = Math.round(challengeScore / challenges.length * 100);
+      const emoji = pct === 100 ? '🎉' : pct >= 60 ? '👍' : '💪';
+      area.innerHTML = `
+        <div class="text-center py-6 space-y-3">
+          <div class="text-6xl floating">${emoji}</div>
+          <p class="text-2xl font-black text-white">${challengeScore} de ${challenges.length} correctas</p>
+          <p class="text-lg">${pct === 100 ? '¡Perfecto! ¡Eres un experto en ciclos!' : pct >= 60 ? '¡Muy bien! Sigue practicando.' : '¡No te rindas! Revisa las lecciones y vuelve a intentarlo.'}</p>
+          <button onclick="challengeIndex=0;challengeScore=0;renderChallenge()" class="challenge-btn bg-brand-accent text-brand-bg font-bold px-6 py-3 rounded-full mt-2">🔄 Intentar de nuevo</button>
+        </div>`;
+      return;
+    }
+    challengeAnswered = false;
+    const c = challenges[challengeIndex];
+    area.innerHTML = `
+      <p class="text-sm text-brand-accent font-bold mb-1">Pregunta ${challengeIndex + 1} de ${challenges.length}</p>
+      <p class="text-lg font-bold text-white mb-4">${c.q}</p>
+      <div class="grid gap-2" id="challengeOpts"></div>
+      <div id="challengeFeedback" class="mt-3 min-h-[48px]"></div>
+    `;
+    const opts = document.getElementById('challengeOpts');
+    c.opts.forEach((o, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'challenge-btn bg-brand-bg text-white font-bold py-3 px-4 rounded-xl text-left';
+      btn.textContent = o;
+      btn.onclick = () => answerChallenge(i);
+      opts.appendChild(btn);
+    });
+  }
+
+  function answerChallenge(i) {
+    if (challengeAnswered) return;
+    challengeAnswered = true;
+    const c = challenges[challengeIndex];
+    const opts = document.getElementById('challengeOpts');
+    const fb = document.getElementById('challengeFeedback');
+    [...opts.children].forEach((btn, idx) => {
+      if (idx === c.correct) { btn.classList.remove('bg-brand-bg'); btn.classList.add('bg-green-600'); }
+      else if (idx === i && i !== c.correct) { btn.classList.remove('bg-brand-bg'); btn.classList.add('bg-red-600'); }
+      btn.onclick = null;
+    });
+    if (i === c.correct) {
+      challengeScore++;
+      fb.innerHTML = `<p class="text-green-400 font-bold">✅ ¡Correcto! ${c.explain}</p>`;
+    } else {
+      fb.innerHTML = `<p class="text-red-400 font-bold">❌ Incorrecto. ${c.explain}</p>`;
+    }
+    fb.innerHTML += `<button onclick="challengeIndex++;renderChallenge()" class="challenge-btn bg-brand-action text-white font-bold px-5 py-2 rounded-full mt-2 text-sm">Siguiente →</button>`;
+  }
+
+  // ========== UTILS ==========
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  // ========== ELEMENT SDK ==========
+  const defaultConfig = {
+    main_title: 'Aprende Ciclos',
+    subtitle: '¡Programación divertida!',
+    background_color: '#0f0a2e',
+    surface_color: '#1a1545',
+    text_color: '#e0d9ff',
+    accent_color: '#fbbf24',
+    action_color: '#8b5cf6',
+    font_family: 'Nunito',
+    font_size: 16
+  };
+
+  function applyConfig(cfg) {
+    document.getElementById('mainTitle').textContent = cfg.main_title || defaultConfig.main_title;
+    document.getElementById('subtitle').textContent = cfg.subtitle || defaultConfig.subtitle;
+
+    const bg = cfg.background_color || defaultConfig.background_color;
+    const surface = cfg.surface_color || defaultConfig.surface_color;
+    const text = cfg.text_color || defaultConfig.text_color;
+    const accent = cfg.accent_color || defaultConfig.accent_color;
+    const action = cfg.action_color || defaultConfig.action_color;
+    const font = cfg.font_family || defaultConfig.font_family;
+    const size = cfg.font_size || defaultConfig.font_size;
+
+    document.body.style.backgroundColor = bg;
+    document.body.style.color = text;
+    document.body.style.fontFamily = `${font}, Nunito, sans-serif`;
+    document.body.style.fontSize = size + 'px';
+
+    document.querySelectorAll('.bg-brand-surface').forEach(el => el.style.backgroundColor = surface);
+    document.querySelectorAll('.text-brand-accent, .font-bold.text-brand-accent').forEach(el => el.style.color = accent);
+    document.querySelectorAll('.bg-brand-action').forEach(el => el.style.backgroundColor = action);
+
+    document.getElementById('mainTitle').style.fontSize = (size * 2.2) + 'px';
+    document.getElementById('subtitle').style.fontSize = (size * 1.15) + 'px';
+  }
+
+  if (window.elementSdk) {
+    window.elementSdk.init({
+      defaultConfig,
+      onConfigChange: async (cfg) => applyConfig(cfg),
+      mapToCapabilities: (cfg) => ({
+        recolorables: [
+          { get: () => cfg.background_color || defaultConfig.background_color, set: v => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+          { get: () => cfg.surface_color || defaultConfig.surface_color, set: v => { cfg.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+          { get: () => cfg.text_color || defaultConfig.text_color, set: v => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+          { get: () => cfg.accent_color || defaultConfig.accent_color, set: v => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); } },
+          { get: () => cfg.action_color || defaultConfig.action_color, set: v => { cfg.action_color = v; window.elementSdk.setConfig({ action_color: v }); } },
+        ],
+        borderables: [],
+        fontEditable: { get: () => cfg.font_family || defaultConfig.font_family, set: v => { cfg.font_family = v; window.elementSdk.setConfig({ font_family: v }); } },
+        fontSizeable: { get: () => cfg.font_size || defaultConfig.font_size, set: v => { cfg.font_size = v; window.elementSdk.setConfig({ font_size: v }); } },
+      }),
+      mapToEditPanelValues: (cfg) => new Map([
+        ['main_title', cfg.main_title || defaultConfig.main_title],
+        ['subtitle', cfg.subtitle || defaultConfig.subtitle],
+      ])
+    });
+  }
+
+  // Init
+  runIntroDemo();
+  lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ede7f6c656bb643',t:'MTc3NjQ2MTA3OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
