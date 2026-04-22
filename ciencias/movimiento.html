@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Virtual: MRU y MCU</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'title': ['Orbitron', 'sans-serif'],
+                        'body': ['Roboto', 'sans-serif']
+                    },
+                    colors: {
+                        neonBlue: '#00f3ff',
+                        neonPurple: '#bc13fe',
+                        neonGreen: '#00ff66',
+                        darkBg: '#0b0f19',
+                        panelBg: 'rgba(17, 24, 39, 0.8)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0b0f19;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(188, 19, 254, 0.08), transparent 25%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar custom */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 4px; }
+
+        .glass-panel {
+            background: rgba(17, 25, 40, 0.75);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .neon-border {
+            border: 1px solid #00f3ff;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5), inset 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+        .text-glow-blue { text-shadow: 0 0 8px rgba(0, 243, 255, 0.8); }
+        .text-glow-purple { text-shadow: 0 0 8px rgba(188, 19, 254, 0.8); }
+        
+        .nav-btn {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            width: 0; height: 2px;
+            bottom: -4px; left: 0;
+            background-color: #00f3ff;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px #00f3ff;
+        }
+        .nav-btn:hover::after, .nav-btn.active::after { width: 100%; }
+        .nav-btn.active { color: #00f3ff; text-shadow: 0 0 5px rgba(0,243,255,0.5); }
+
+        canvas {
+            background: #050810;
+            border-radius: 8px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            width: 100%;
+            height: auto;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+        }
+
+        /* Sliders */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px; width: 16px;
+            border-radius: 50%;
+            background: #00f3ff;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px #00f3ff;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px;
+            cursor: pointer;
+            background: #374151;
+            border-radius: 2px;
+        }
+        
+        /* Toast Notification */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: rgba(0, 243, 255, 0.1);
+            border-left: 4px solid #00f3ff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-family: 'Orbitron', sans-serif;
+            backdrop-filter: blur(5px);
+            animation: slideIn 0.3s ease-out forwards;
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+        
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* XP Bar */
+        .xp-bar-container {
+            width: 150px;
+            height: 8px;
+            background: #1f2937;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #374151;
+        }
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f3ff, #bc13fe);
+            width: 0%;
+            transition: width 0.5s ease-out;
+            box-shadow: 0 0 10px rgba(188, 19, 254, 0.8);
+        }
+
+        .formula-box {
+            background: rgba(0,0,0,0.4);
+            border: 1px dashed #374151;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            color: #93c5fd;
+        }
+    </style>
+</head>
+<body class="font-body min-h-screen flex flex-col">
+
+    <!-- Header & Gamification Status -->
+    <header class="glass-panel sticky top-0 z-40 border-b border-gray-700 p-4">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-atom text-neonBlue text-3xl animate-pulse"></i>
+                <h1 class="font-title text-2xl font-bold text-white tracking-wider">KINE<span class="text-neonBlue">LAB</span></h1>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="hidden md:flex gap-6 font-title text-sm tracking-widest">
+                <button onclick="switchTab('home')" class="nav-btn active" id="nav-home"><i class="fa-solid fa-house mr-1"></i> INICIO</button>
+                <button onclick="switchTab('mru')" class="nav-btn" id="nav-mru"><i class="fa-solid fa-arrow-right mr-1"></i> MRU</button>
+                <button onclick="switchTab('mcu')" class="nav-btn" id="nav-mcu"><i class="fa-solid fa-rotate-right mr-1"></i> MCU</button>
+                <button onclick="switchTab('game')" class="nav-btn text-yellow-400" id="nav-game"><i class="fa-solid fa-gamepad mr-1"></i> DESAFÍO</button>
+            </nav>
+
+            <!-- Player Status -->
+            <div class="flex items-center gap-4 bg-gray-900 px-4 py-2 rounded-lg border border-gray-700">
+                <div class="text-right">
+                    <div class="font-title text-xs text-gray-400">NIVEL <span id="player-level" class="text-neonPurple font-bold">1</span></div>
+                    <div class="text-xs font-bold" id="player-title">Estudiante</div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-[10px] mb-1">
+                        <span>XP</span>
+                        <span id="xp-text">0 / 100</span>
+                    </div>
+                    <div class="xp-bar-container">
+                        <div class="xp-bar-fill" id="xp-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Nav -->
+        <div class="md:hidden flex justify-center gap-4 mt-4 font-title text-xs">
+            <button onclick="switchTab('home')" class="nav-btn active text-neonBlue" id="nav-home-mob">INICIO</button>
+            <button onclick="switchTab('mru')" class="nav-btn" id="nav-mru-mob">MRU</button>
+            <button onclick="switchTab('mcu')" class="nav-btn" id="nav-mcu-mob">MCU</button>
+            <button onclick="switchTab('game')" class="nav-btn text-yellow-400" id="nav-game-mob">DESAFÍO</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto p-4 flex-grow relative overflow-hidden">
+        
+        <!-- ==================== HOME SECTION ==================== -->
+        <section id="sec-home" class="view-section fade-in mt-8">
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-6">
+                    <h2 class="font-title text-4xl md:text-6xl font-bold leading-tight">
+                        Domina la <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-neonBlue to-neonPurple">Cinemática</span>
+                    </h2>
+                    <p class="text-lg text-gray-300 leading-relaxed">
+                        Bienvenido al laboratorio virtual. Aquí exploraremos el movimiento de los cuerpos sin preocuparnos por las causas que lo producen. 
+                        Interactúa, experimenta y gana experiencia (XP) mientras aprendes.
+                    </p>
+                    <div class="flex gap-4">
+                        <button onclick="switchTab('mru')" class="bg-transparent hover:bg-neonBlue text-neonBlue hover:text-darkBg font-title border border-neonBlue py-3 px-6 rounded transition duration-300">
+                            Iniciar MRU
+                        </button>
+                        <button onclick="switchTab('mcu')" class="bg-transparent hover:bg-neonPurple text-neonPurple hover:text-white font-title border border-neonPurple py-3 px-6 rounded transition duration-300">
+                            Iniciar MCU
+                        </button>
+                    </div>
+                </div>
+                <div class="glass-panel p-6 neon-border relative group">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-blue-900/20 to-purple-900/20 rounded-xl"></div>
+                    <h3 class="font-title text-xl text-neonBlue mb-4 flex items-center"><i class="fa-solid fa-book-open mr-2"></i> Conceptos Clave</h3>
+                    <ul class="space-y-4 text-gray-300">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-ruler text-neonGreen mt-1 mr-3"></i>
+                            <div><strong>Posición:</strong> Lugar que ocupa un cuerpo en el espacio en un instante dado.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-gauge-high text-neonBlue mt-1 mr-3"></i>
+                            <div><strong>Velocidad:</strong> Magnitud vectorial que relaciona el cambio de posición con el tiempo.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-rocket text-neonPurple mt-1 mr-3"></i>
+                            <div><strong>Aceleración:</strong> Magnitud vectorial que nos indica la variación de velocidad por unidad de tiempo.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MRU SECTION ==================== -->
+        <section id="sec-mru" class="view-section hidden fade-in">
+            <div class="text-center mb-8 mt-4">
+                <h2 class="font-title text-3xl text-neonBlue text-glow-blue inline-block border-b-2 border-neonBlue pb-2">Movimiento Rectilíneo Uniforme (MRU)</h2>
+            </div>
+            
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- Theory -->
+                <div class="glass-panel p-6 space-y-4 lg:col-span-1">
+                    <h3 class="font-title text-xl text-white"><i class="fa-solid fa-chalkboard text-neonBlue mr-2"></i> Teoría</h3>
+                    <p class="text-sm text-gray-300">
+                        Un cuerpo describe un <strong>MRU</strong> cuando su trayectoria es una línea recta y su <strong>velocidad es constante</strong>. Esto implica que recorre distancias iguales en tiempos iguales y su aceleración es cero.
+                    </p>
+                    <div class="formula-box">
+                        <div class="text-white text-sm mb-1">Ecuación de Posición</div>
+                        x = x₀ + v · t
+                    </div>
+                    <div class="formula-box mt-2">
+                        <div class="text-white text-sm mb-1">Velocidad</div>
+                        v = Δx / Δt = constante
+                    </div>
+                    <div class="bg-blue-900/30 border border-blue-500/50 p-3 rounded-lg text-sm mt-4">
+                        <i class="fa-solid fa-lightbulb text-yellow-400 mr-1"></i> 
+                        <strong>¿Sabías que?</strong> La luz en el vacío viaja en MRU a ~300,000 km/s.
+                    </div>
+                </div>
+
+                <!-- Simulator -->
+                <div class="glass-panel p-6 lg:col-span-2 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-title text-xl"><i class="fa-solid fa-desktop text-neonBlue mr-2"></i> Simulador MRU</h3>
+                        <div class="space-x-2">
+                            <button id="btn-mru-play" class="bg-neonBlue text-darkBg px-3 py-1 rounded hover:bg-cyan-300 font-bold"><i class="fa-solid fa-play"></i> Iniciar</button>
+                            <button id="btn-mru-reset" class="bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600"><i class="fa-solid fa-rotate-left"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Canvas container -->
+                    <div class="relative w-full aspect-[21/9] bg-black rounded-lg border border-gray-600 overflow-hidden mb-4">
+                        <canvas id="mruCanvas" width="800" height="340" class="absolute inset-0 w-full h-full"></canvas>
+                        <!-- HUD overlay -->
+                        <div class="absolute top-2 left-2 bg-black/60 p-2 rounded text-xs font-mono text-neonGreen pointer-events-none">
+                            Tiempo (t): <span id="mru-hud-t">0.00</span> s<br>
+                            Posición (x): <span id="mru-hud-x">0.0</span> m<br>
+                            Velocidad (v): <span id="mru-hud-v">5.0</span> m/s
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-auto">
+                        <div class="space-y-2">
+                            <label class="flex justify-between text-sm text-gray-300">
+                                <span>Velocidad (v)</span>
+                                <span id="mru-val-v" class="text-neonBlue font-mono">5.0 m/s</span>
+                            </label>
+                            <input type="range" id="mru-slider-v" min="-20" max="20" step="1" value="5">
+                            <div class="flex justify-between text-[10px] text-gray-500">
+                                <span>-20 (Retroceso)</span><span>0</span><span>+20 (Avance)</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="flex justify-between text-sm text-gray-300">
+                                <span>Posición Inicial (x₀)</span>
+                                <span id="mru-val-x0" class="text-neonBlue font-mono">0 m</span>
+                            </label>
+                            <input type="range" id="mru-slider-x0" min="0" max="400" step="10" value="0">
+                            <div class="flex justify-between text-[10px] text-gray-500">
+                                <span>0 m</span><span>400 m</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MCU SECTION ==================== -->
+        <section id="sec-mcu" class="view-section hidden fade-in">
+            <div class="text-center mb-8 mt-4">
+                <h2 class="font-title text-3xl text-neonPurple text-glow-purple inline-block border-b-2 border-neonPurple pb-2">Movimiento Circular Uniforme (MCU)</h2>
+            </div>
+            
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- Theory -->
+                <div class="glass-panel p-6 space-y-4 lg:col-span-1">
+                    <h3 class="font-title text-xl text-white"><i class="fa-solid fa-chalkboard text-neonPurple mr-2"></i> Teoría</h3>
+                    <p class="text-sm text-gray-300">
+                        En el <strong>MCU</strong>, un objeto viaja en una trayectoria circular con rapidez constante. Aunque la rapidez no cambia, la <strong>dirección de la velocidad sí cambia</strong> constantemente, por lo que existe una aceleración dirigida hacia el centro: la <strong>aceleración centrípeta</strong>.
+                    </p>
+                    <div class="formula-box border-purple-500/50 text-purple-300">
+                        <div class="text-white text-sm mb-1">Velocidad Angular (ω)</div>
+                        ω = Δθ / Δt  [rad/s]
+                    </div>
+                    <div class="formula-box border-purple-500/50 text-purple-300 mt-2">
+                        <div class="text-white text-sm mb-1">Velocidad Tangencial (v)</div>
+                        v = ω · r
+                    </div>
+                    <div class="formula-box border-purple-500/50 text-purple-300 mt-2">
+                        <div class="text-white text-sm mb-1">Aceleración Centrípeta (ac)</div>
+                        a_c = v² / r = ω² · r
+                    </div>
+                </div>
+
+                <!-- Simulator -->
+                <div class="glass-panel p-6 lg:col-span-2 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-title text-xl"><i class="fa-solid fa-satellite text-neonPurple mr-2"></i> Simulador MCU</h3>
+                        <div class="space-x-2">
+                            <button id="btn-mcu-vectors" class="bg-gray-800 text-gray-300 border border-gray-600 px-3 py-1 rounded hover:bg-gray-700 text-sm"><i class="fa-solid fa-eye"></i> Vectores</button>
+                            <button id="btn-mcu-play" class="bg-neonPurple text-white px-3 py-1 rounded hover:bg-purple-500 font-bold"><i class="fa-solid fa-play"></i> Iniciar</button>
+                            <button id="btn-mcu-reset" class="bg-gray-700 text-white px-3 py-1 rounded hover:bg-gray-600"><i class="fa-solid fa-rotate-left"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Canvas container -->
+                    <div class="relative w-full aspect-[16/9] bg-black rounded-lg border border-gray-600 overflow-hidden mb-4 flex justify-center items-center">
+                        <canvas id="mcuCanvas" width="600" height="340" class="absolute inset-0 w-full h-full"></canvas>
+                        <!-- HUD overlay -->
+                        <div class="absolute top-2 left-2 bg-black/60 p-2 rounded text-xs font-mono text-neonPurple pointer-events-none">
+                            Tiempo (t): <span id="mcu-hud-t">0.00</span> s<br>
+                            Ángulo (θ): <span id="mcu-hud-theta">0.0</span>°<br>
+                            V. Angular (ω): <span id="mcu-hud-w">1.0</span> rad/s<br>
+                            V. Tangencial (v): <span id="mcu-hud-v">100.0</span> px/s<br>
+                            A. Centrípeta (ac): <span id="mcu-hud-ac">100.0</span> px/s²
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-auto">
+                        <div class="space-y-2">
+                            <label class="flex justify-between text-sm text-gray-300">
+                                <span>Velocidad Angular (ω)</span>
+                                <span id="mcu-val-w" class="text-neonPurple font-mono">1.0 rad/s</span>
+                            </label>
+                            <input type="range" id="mcu-slider-w" min="-5" max="5" step="0.1" value="1.0">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="flex justify-between text-sm text-gray-300">
+                                <span>Radio (r)</span>
+                                <span id="mcu-val-r" class="text-neonPurple font-mono">100 px</span>
+                            </label>
+                            <input type="range" id="mcu-slider-r" min="40" max="150" step="5" value="100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== GAME / QUIZ SECTION ==================== -->
+        <section id="sec-game" class="view-section hidden fade-in">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-8 mt-4">
+                    <h2 class="font-title text-3xl text-yellow-400 text-glow-purple inline-block border-b-2 border-yellow-400 pb-2">
+                        <i class="fa-solid fa-trophy"></i> Desafío Cinemático
+                    </h2>
+                    <p class="text-gray-300 mt-4">Pon a prueba tus conocimientos. Responde correctamente para ganar experiencia, subir de nivel y obtener el título de Físico Maestro.</p>
+                </div>
+
+                <div id="quiz-container" class="glass-panel p-8 neon-border relative">
+                    <!-- Progress -->
+                    <div class="flex justify-between text-sm mb-4 font-title text-gray-400">
+                        <span>Pregunta <span id="quiz-current">1</span>/3</span>
+                        <span>Recompensa: <span class="text-neonGreen">+50 XP</span></span>
+                    </div>
+
+                    <!-- Question Area -->
+                    <div id="question-area" class="mb-6">
+                        <h3 id="question-text" class="text-xl font-bold mb-6">Un tren viaja en línea recta a velocidad constante de 20 m/s. ¿Qué distancia recorrerá en 5 segundos?</h3>
+                        
+                        <div class="grid grid-cols-1 gap-3" id="options-area">
+                            <!-- Options rendered via JS -->
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-feedback" class="hidden p-4 rounded mb-4 font-bold text-center"></div>
+
+                    <button id="btn-next-question" class="hidden w-full bg-yellow-500 hover:bg-yellow-400 text-black font-title py-3 rounded font-bold transition duration-300">
+                        Siguiente Pregunta <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- Final Screen -->
+                <div id="quiz-completed" class="hidden glass-panel p-8 text-center neon-border border-yellow-400">
+                    <i class="fa-solid fa-medal text-6xl text-yellow-400 mb-4 animate-bounce"></i>
+                    <h3 class="font-title text-3xl text-white mb-2">¡Desafío Completado!</h3>
+                    <p class="text-gray-300 mb-6">Has demostrado un gran dominio sobre el MRU y el MCU.</p>
+                    <button onclick="resetQuiz()" class="bg-transparent border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black py-2 px-6 rounded font-title transition">
+                        Reintentar Desafío
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toasts Container -->
+    <div id="toast-container"></div>
+
+    <script>
+        // ==========================================
+        // 1. STATE & GAMIFICATION SYSTEM
+        // ==========================================
+        const state = {
+            xp: 0,
+            level: 1,
+            maxLevelXP: 100,
+            hasExploredMRU: false,
+            hasExploredMCU: false,
+            currentView: 'home'
+        };
+
+        const titles = ["Estudiante", "Asistente de Lab", "Físico Junior", "Investigador", "Físico Maestro"];
+
+        function addXP(amount, reason) {
+            state.xp += amount;
+            showToast(`¡+${amount} XP! ${reason}`);
+            
+            // Level Up logic
+            if (state.xp >= state.maxLevelXP) {
+                state.level++;
+                state.xp -= state.maxLevelXP;
+                state.maxLevelXP = Math.floor(state.maxLevelXP * 1.5); // Escala la dificultad
+                showToast(`¡SUBISTE AL NIVEL ${state.level}! 🎉`, 'level-up');
+            }
+            updateHUD();
+        }
+
+        function updateHUD() {
+            document.getElementById('player-level').textContent = state.level;
+            const titleIndex = Math.min(state.level - 1, titles.length - 1);
+            document.getElementById('player-title').textContent = titles[titleIndex];
+            
+            document.getElementById('xp-text').textContent = `${state.xp} / ${state.maxLevelXP}`;
+            const percent = (state.xp / state.maxLevelXP) * 100;
+            document.getElementById('xp-bar').style.width = `${percent}%`;
+        }
+
+        function showToast(message, type = 'normal') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            if (type === 'level-up') {
+                toast.style.borderColor = '#bc13fe';
+                toast.style.background = 'rgba(188, 19, 254, 0.2)';
+                toast.style.color = '#fff';
+                toast.style.textShadow = '0 0 5px #bc13fe';
+            }
+            toast.innerHTML = `<i class="fa-solid fa-star text-yellow-400 mr-2"></i> ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease-out forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ==========================================
+        // 2. NAVIGATION
+        // ==========================================
+        function switchTab(tabId) {
+            // Update buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`nav-${tabId}`).classList.add('active');
+            if(document.getElementById(`nav-${tabId}-mob`)) {
+                document.getElementById(`nav-${tabId}-mob`).classList.add('active');
+            }
+
+            // Hide all sections
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+            
+            // Show target
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+            state.currentView = tabId;
+
+            // Gamification checks
+            if (tabId === 'mru' && !state.hasExploredMRU) {
+                state.hasExploredMRU = true;
+                addXP(20, 'Descubriste el MRU');
+            }
+            if (tabId === 'mcu' && !state.hasExploredMCU) {
+                state.hasExploredMCU = true;
+                addXP(20, 'Descubriste el MCU');
+            }
+        }
+
+        // ==========================================
+        // 3. SIMULADOR MRU
+        // ==========================================
+        const mruCanvas = document.getElementById('mruCanvas');
+        const mruCtx = mruCanvas.getContext('2d');
+        
+        let mru = {
+            running: false,
+            lastTime: 0,
+            t: 0,
+            x: 0,
+            v: 5,
+            x0: 0,
+            pxPerMeter: 1 // 1 pixel = 1 meter for simplicity
+        };
+
+        const mruBtnPlay = document.getElementById('btn-mru-play');
+        const mruSliderV = document.getElementById('mru-slider-v');
+        const mruSliderX0 = document.getElementById('mru-slider-x0');
+
+        function drawMRU() {
+            // Clear
+            mruCtx.fillStyle = '#050810';
+            mruCtx.fillRect(0, 0, mruCanvas.width, mruCanvas.height);
+
+            // Draw Grid/Road
+            mruCtx.strokeStyle = '#374151';
+            mruCtx.lineWidth = 1;
+            mruCtx.beginPath();
+            mruCtx.moveTo(0, mruCanvas.height / 2 + 30);
+            mruCtx.lineTo(mruCanvas.width, mruCanvas.height / 2 + 30);
+            mruCtx.stroke();
+            
+            // Draw markers
+            for(let i=0; i<=mruCanvas.width; i+=100) {
+                mruCtx.fillStyle = '#6b7280';
+                mruCtx.fillRect(i, mruCanvas.height / 2 + 30, 2, 10);
+                mruCtx.font = '10px monospace';
+                mruCtx.fillText(`${i}m`, i+5, mruCanvas.height / 2 + 45);
+            }
+
+            // Draw object (Cyber Pod)
+            const podX = mru.x * mru.pxPerMeter;
+            const podY = mruCanvas.height / 2;
+            
+            mruCtx.save();
+            mruCtx.translate(podX, podY);
+            
+            // Glow
+            mruCtx.shadowColor = '#00f3ff';
+            mruCtx.shadowBlur = 15;
+            
+            // Pod Body
+            mruCtx.fillStyle = '#1e3a8a';
+            mruCtx.strokeStyle = '#00f3ff';
+            mruCtx.lineWidth = 2;
+            mruCtx.beginPath();
+            mruCtx.roundRect(-20, -15, 40, 30, 8);
+            mruCtx.fill();
+            mruCtx.stroke();
+            
+            // Window
+            mruCtx.fillStyle = '#bae6fd';
+            mruCtx.fillRect(5, -10, 10, 20);
+
+            // Engine Trail if moving
+            if(mru.running && mru.v !== 0) {
+                mruCtx.shadowColor = '#bc13fe';
+                mruCtx.fillStyle = '#bc13fe';
+                const direction = mru.v > 0 ? -1 : 1;
+                mruCtx.beginPath();
+                mruCtx.arc(direction * 25, 0, Math.random() * 5 + 5, 0, Math.PI * 2);
+                mruCtx.fill();
+            }
+
+            mruCtx.restore();
+
+            // Vector Velocity
+            if (mru.v !== 0) {
+                mruCtx.strokeStyle = '#00ff66';
+                mruCtx.fillStyle = '#00ff66';
+                mruCtx.lineWidth = 2;
+                mruCtx.beginPath();
+                mruCtx.moveTo(podX, podY - 25);
+                const vLen = mru.v * 3; // visual scale
+                mruCtx.lineTo(podX + vLen, podY - 25);
+                mruCtx.stroke();
+                // Arrow head
+                mruCtx.beginPath();
+                mruCtx.moveTo(podX + vLen, podY - 25);
+                mruCtx.lineTo(podX + vLen - Math.sign(mru.v)*8, podY - 29);
+                mruCtx.lineTo(podX + vLen - Math.sign(mru.v)*8, podY - 21);
+                mruCtx.fill();
+                
+                mruCtx.font = '12px Orbitron';
+                mruCtx.fillText(`v`, podX + vLen/2, podY - 32);
+            }
+        }
+
+        function updateMRULoop(timestamp) {
+            if (!mru.lastTime) mru.lastTime = timestamp;
+            const dt = (timestamp - mru.lastTime) / 1000; // in seconds
+            mru.lastTime = timestamp;
+
+            if (mru.running) {
+                mru.t += dt;
+                // Equation: x = x0 + v*t
+                mru.x = mru.x0 + (mru.v * mru.t);
+                
+                // Boundaries (Reset if goes off screen)
+                if (mru.x > mruCanvas.width + 50 || mru.x < -50) {
+                    mru.running = false;
+                    mruBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i> Iniciar';
+                }
+
+                // Update HUD
+                document.getElementById('mru-hud-t').textContent = mru.t.toFixed(2);
+                document.getElementById('mru-hud-x').textContent = mru.x.toFixed(1);
+            }
+
+            if (state.currentView === 'mru') drawMRU();
+            requestAnimationFrame(updateMRULoop);
+        }
+
+        // Event Listeners MRU
+        mruSliderV.addEventListener('input', (e) => {
+            mru.v = parseFloat(e.target.value);
+            document.getElementById('mru-val-v').textContent = `${mru.v.toFixed(1)} m/s`;
+            document.getElementById('mru-hud-v').textContent = mru.v.toFixed(1);
+            if(!mru.running) drawMRU();
+        });
+
+        mruSliderX0.addEventListener('input', (e) => {
+            mru.x0 = parseFloat(e.target.value);
+            document.getElementById('mru-val-x0').textContent = `${mru.x0} m`;
+            if(!mru.running) {
+                mru.x = mru.x0;
+                mru.t = 0;
+                document.getElementById('mru-hud-t').textContent = '0.00';
+                document.getElementById('mru-hud-x').textContent = mru.x.toFixed(1);
+                drawMRU();
+            }
+        });
+
+        mruBtnPlay.addEventListener('click', () => {
+            mru.running = !mru.running;
+            mru.lastTime = 0;
+            if (mru.running) {
+                // If off screen, reset
+                if (mru.x > mruCanvas.width || mru.x < 0) {
+                    mru.x = mru.x0;
+                    mru.t = 0;
+                }
+                mruBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i> Pausa';
+                mruBtnPlay.classList.replace('bg-neonBlue', 'bg-yellow-500');
+            } else {
+                mruBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i> Continuar';
+                mruBtnPlay.classList.replace('bg-yellow-500', 'bg-neonBlue');
+            }
+        });
+
+        document.getElementById('btn-mru-reset').addEventListener('click', () => {
+            mru.running = false;
+            mru.t = 0;
+            mru.x = mru.x0;
+            mruBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i> Iniciar';
+            mruBtnPlay.classList.replace('bg-yellow-500', 'bg-neonBlue');
+            document.getElementById('mru-hud-t').textContent = '0.00';
+            document.getElementById('mru-hud-x').textContent = mru.x.toFixed(1);
+            drawMRU();
+        });
+
+        // ==========================================
+        // 4. SIMULADOR MCU
+        // ==========================================
+        const mcuCanvas = document.getElementById('mcuCanvas');
+        const mcuCtx = mcuCanvas.getContext('2d');
+        
+        let mcu = {
+            running: false,
+            lastTime: 0,
+            t: 0,
+            theta: 0, // radians
+            w: 1.0,   // rad/s
+            r: 100,   // px
+            showVectors: true
+        };
+
+        const mcuBtnPlay = document.getElementById('btn-mcu-play');
+        const mcuBtnVectors = document.getElementById('btn-mcu-vectors');
+        const mcuSliderW = document.getElementById('mcu-slider-w');
+        const mcuSliderR = document.getElementById('mcu-slider-r');
+
+        function drawMCU() {
+            const cx = mcuCanvas.width / 2;
+            const cy = mcuCanvas.height / 2;
+
+            mcuCtx.fillStyle = '#050810';
+            mcuCtx.fillRect(0, 0, mcuCanvas.width, mcuCanvas.height);
+
+            // Orbit path
+            mcuCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            mcuCtx.setLineDash([5, 5]);
+            mcuCtx.beginPath();
+            mcuCtx.arc(cx, cy, mcu.r, 0, Math.PI * 2);
+            mcuCtx.stroke();
+            mcuCtx.setLineDash([]); // reset
+
+            // Center Point (Planet/Star)
+            mcuCtx.shadowColor = '#fbbf24';
+            mcuCtx.shadowBlur = 20;
+            mcuCtx.fillStyle = '#fbbf24';
+            mcuCtx.beginPath();
+            mcuCtx.arc(cx, cy, 10, 0, Math.PI * 2);
+            mcuCtx.fill();
+
+            // Object position
+            const objX = cx + mcu.r * Math.cos(mcu.theta);
+            const objY = cy + mcu.r * Math.sin(mcu.theta);
+
+            // Radius line
+            mcuCtx.shadowBlur = 0;
+            mcuCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            mcuCtx.beginPath();
+            mcuCtx.moveTo(cx, cy);
+            mcuCtx.lineTo(objX, objY);
+            mcuCtx.stroke();
+
+            // Draw Object (Satellite)
+            mcuCtx.shadowColor = '#bc13fe';
+            mcuCtx.shadowBlur = 15;
+            mcuCtx.fillStyle = '#bc13fe';
+            mcuCtx.beginPath();
+            mcuCtx.arc(objX, objY, 8, 0, Math.PI * 2);
+            mcuCtx.fill();
+
+            if (mcu.showVectors) {
+                mcuCtx.shadowBlur = 0;
+                const v = mcu.w * mcu.r; // scalar velocity
+                
+                // Tangential Velocity Vector (Green)
+                if(mcu.w !== 0) {
+                    mcuCtx.strokeStyle = '#00ff66';
+                    mcuCtx.fillStyle = '#00ff66';
+                    mcuCtx.lineWidth = 2;
+                    
+                    // The derivative of position (r*cos(t), r*sin(t)) is (-r*w*sin(t), r*w*cos(t))
+                    const vx = -mcu.w * mcu.r * Math.sin(mcu.theta);
+                    const vy = mcu.w * mcu.r * Math.cos(mcu.theta);
+                    
+                    // Normalize and scale for visibility
+                    const vScale = 0.5; 
+                    const vEndX = objX + vx * vScale;
+                    const vEndY = objY + vy * vScale;
+
+                    drawArrow(mcuCtx, objX, objY, vEndX, vEndY);
+                    mcuCtx.fillText('v', vEndX + 5, vEndY + 5);
+                }
+
+                // Centripetal Acceleration Vector (Cyan)
+                if(mcu.w !== 0) {
+                    mcuCtx.strokeStyle = '#00f3ff';
+                    mcuCtx.fillStyle = '#00f3ff';
+                    
+                    // Points towards center
+                    const dirX = cx - objX;
+                    const dirY = cy - objY;
+                    
+                    // Scale length based on w^2 * r (visual scale)
+                    const acMag = Math.min(Math.abs(mcu.w * mcu.w * mcu.r) * 0.1, mcu.r - 10);
+                    const len = Math.sqrt(dirX*dirX + dirY*dirY);
+                    
+                    const acEndX = objX + (dirX/len) * acMag;
+                    const acEndY = objY + (dirY/len) * acMag;
+
+                    drawArrow(mcuCtx, objX, objY, acEndX, acEndY);
+                    mcuCtx.fillText('ac', acEndX + 5, acEndY + 5);
+                }
+            }
+        }
+
+        function drawArrow(ctx, fromx, fromy, tox, toy) {
+            const headlen = 10; 
+            const dx = tox - fromx;
+            const dy = toy - fromy;
+            const angle = Math.atan2(dy, dx);
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.fill();
+        }
+
+        function updateMCULoop(timestamp) {
+            if (!mcu.lastTime) mcu.lastTime = timestamp;
+            const dt = (timestamp - mcu.lastTime) / 1000;
+            mcu.lastTime = timestamp;
+
+            if (mcu.running) {
+                mcu.t += dt;
+                // Equation: theta = theta0 + w*t
+                mcu.theta += mcu.w * dt;
+                // Keep angle between 0 and 2PI for display
+                if (mcu.theta >= Math.PI * 2) mcu.theta -= Math.PI * 2;
+                if (mcu.theta < 0) mcu.theta += Math.PI * 2;
+                
+                // Update HUD
+                document.getElementById('mcu-hud-t').textContent = mcu.t.toFixed(2);
+                document.getElementById('mcu-hud-theta').textContent = (mcu.theta * (180/Math.PI)).toFixed(1);
+                const vMag = Math.abs(mcu.w * mcu.r);
+                const acMag = (mcu.w * mcu.w * mcu.r);
+                document.getElementById('mcu-hud-v').textContent = vMag.toFixed(1);
+                document.getElementById('mcu-hud-ac').textContent = acMag.toFixed(1);
+            }
+
+            if (state.currentView === 'mcu') drawMCU();
+            requestAnimationFrame(updateMCULoop);
+        }
+
+        // Event Listeners MCU
+        mcuSliderW.addEventListener('input', (e) => {
+            mcu.w = parseFloat(e.target.value);
+            document.getElementById('mcu-val-w').textContent = `${mcu.w.toFixed(1)} rad/s`;
+            document.getElementById('mcu-hud-w').textContent = mcu.w.toFixed(1);
+            
+            // Update dependent values in HUD
+            const vMag = Math.abs(mcu.w * mcu.r);
+            const acMag = (mcu.w * mcu.w * mcu.r);
+            document.getElementById('mcu-hud-v').textContent = vMag.toFixed(1);
+            document.getElementById('mcu-hud-ac').textContent = acMag.toFixed(1);
+
+            if(!mcu.running) drawMCU();
+        });
+
+        mcuSliderR.addEventListener('input', (e) => {
+            mcu.r = parseFloat(e.target.value);
+            document.getElementById('mcu-val-r').textContent = `${mcu.r} px`;
+            
+            const vMag = Math.abs(mcu.w * mcu.r);
+            const acMag = (mcu.w * mcu.w * mcu.r);
+            document.getElementById('mcu-hud-v').textContent = vMag.toFixed(1);
+            document.getElementById('mcu-hud-ac').textContent = acMag.toFixed(1);
+
+            if(!mcu.running) drawMCU();
+        });
+
+        mcuBtnPlay.addEventListener('click', () => {
+            mcu.running = !mcu.running;
+            mcu.lastTime = 0;
+            if (mcu.running) {
+                mcuBtnPlay.innerHTML = '<i class="fa-solid fa-pause"></i> Pausa';
+                mcuBtnPlay.classList.replace('bg-neonPurple', 'bg-yellow-500');
+            } else {
+                mcuBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i> Continuar';
+                mcuBtnPlay.classList.replace('bg-yellow-500', 'bg-neonPurple');
+            }
+        });
+
+        document.getElementById('btn-mcu-reset').addEventListener('click', () => {
+            mcu.running = false;
+            mcu.t = 0;
+            mcu.theta = 0;
+            mcuBtnPlay.innerHTML = '<i class="fa-solid fa-play"></i> Iniciar';
+            mcuBtnPlay.classList.replace('bg-yellow-500', 'bg-neonPurple');
+            document.getElementById('mcu-hud-t').textContent = '0.00';
+            document.getElementById('mcu-hud-theta').textContent = '0.0';
+            drawMCU();
+        });
+
+        mcuBtnVectors.addEventListener('click', () => {
+            mcu.showVectors = !mcu.showVectors;
+            mcuBtnVectors.classList.toggle('text-gray-300');
+            mcuBtnVectors.classList.toggle('text-neonBlue');
+            if(!mcu.running) drawMCU();
+        });
+
+        // ==========================================
+        // 5. QUIZ / GAMIFICATION LOGIC
+        // ==========================================
+        const questions = [
+            {
+                q: "Un coche viaja en MRU a una velocidad de 15 m/s. ¿Qué distancia recorre en 4 segundos?",
+                options: ["19 m", "30 m", "60 m", "120 m"],
+                correct: 2,
+                explanation: "x = v · t = 15 m/s · 4 s = 60 m."
+            },
+            {
+                q: "En un Movimiento Circular Uniforme (MCU), ¿cuál de estas afirmaciones es verdadera?",
+                options: [
+                    "La velocidad es constante en magnitud y dirección.",
+                    "No hay ningún tipo de aceleración.",
+                    "La aceleración centrípeta siempre apunta hacia afuera.",
+                    "La rapidez es constante, pero hay aceleración porque cambia la dirección."
+                ],
+                correct: 3,
+                explanation: "En el MCU, el módulo de la velocidad (rapidez) no cambia, pero su dirección cambia constantemente, generando aceleración centrípeta hacia el centro."
+            },
+            {
+                q: "Un disco gira con MCU. Si duplicamos la velocidad angular (ω) manteniendo el radio constante, ¿qué sucede con la aceleración centrípeta?",
+                options: [
+                    "Se mantiene igual.",
+                    "Se duplica.",
+                    "Se cuadruplica.",
+                    "Se reduce a la mitad."
+                ],
+                correct: 2,
+                explanation: "Como a_c = ω² · r, si ω se multiplica por 2, la aceleración se multiplica por 2², es decir, se cuadruplica."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let quizActive = true;
+
+        function loadQuestion() {
+            if (currentQuestion >= questions.length) {
+                // Quiz completed
+                document.getElementById('quiz-container').classList.add('hidden');
+                document.getElementById('quiz-completed').classList.remove('hidden');
+                addXP(100, '¡Desafío completado perfectamente!');
+                return;
+            }
+
+            const qData = questions[currentQuestion];
+            document.getElementById('quiz-current').textContent = currentQuestion + 1;
+            document.getElementById('question-text').textContent = qData.q;
+            
+            const optionsArea = document.getElementById('options-area');
+            optionsArea.innerHTML = '';
+            
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded bg-gray-800 border border-gray-600 hover:border-neonBlue hover:bg-gray-700 transition duration-200';
+                btn.textContent = `${['A', 'B', 'C', 'D'][index]}. ${opt}`;
+                btn.onclick = () => selectAnswer(index, btn);
+                optionsArea.appendChild(btn);
+            });
+
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('btn-next-question').classList.add('hidden');
+            quizActive = true;
+        }
+
+        function selectAnswer(index, btnElement) {
+            if (!quizActive) return;
+            quizActive = false;
+
+            const qData = questions[currentQuestion];
+            const feedback = document.getElementById('quiz-feedback');
+            const nextBtn = document.getElementById('btn-next-question');
+            
+            // Disable all buttons
+            const buttons = document.getElementById('options-area').querySelectorAll('button');
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:border-neonBlue', 'hover:bg-gray-700');
+            });
+
+            if (index === qData.correct) {
+                // Correct
+                btnElement.classList.add('bg-green-900', 'border-green-500', 'text-white');
+                feedback.innerHTML = `<i class="fa-solid fa-check-circle text-green-400"></i> ¡Correcto! ${qData.explanation}`;
+                feedback.className = 'p-4 rounded mb-4 font-bold text-sm bg-green-900/30 border border-green-500/50 text-green-300 block fade-in';
+                addXP(50, 'Respuesta correcta');
+            } else {
+                // Incorrect
+                btnElement.classList.add('bg-red-900', 'border-red-500', 'text-white');
+                buttons[qData.correct].classList.add('bg-green-900', 'border-green-500', 'text-white'); // Highlight correct
+                feedback.innerHTML = `<i class="fa-solid fa-times-circle text-red-400"></i> Incorrecto. ${qData.explanation}`;
+                feedback.className = 'p-4 rounded mb-4 font-bold text-sm bg-red-900/30 border border-red-500/50 text-red-300 block fade-in';
+            }
+
+            nextBtn.classList.remove('hidden');
+        }
+
+        document.getElementById('btn-next-question').addEventListener('click', () => {
+            currentQuestion++;
+            loadQuestion();
+        });
+
+        function resetQuiz() {
+            currentQuestion = 0;
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('quiz-completed').classList.add('hidden');
+            loadQuestion();
+        }
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        window.onload = () => {
+            updateHUD();
+            drawMRU();
+            drawMCU();
+            loadQuestion();
+            
+            // Start Animation Loops
+            requestAnimationFrame(updateMRULoop);
+            requestAnimationFrame(updateMCULoop);
+        };
+
+    </script>
+</body>
+</html>
