@@ -225,37 +225,37 @@
             <div class="grid md:grid-cols-2 gap-8 items-center">
                 <div class="space-y-6">
                     <h2 class="font-title text-4xl md:text-6xl font-bold leading-tight">
-                        Domina la <br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-neonBlue to-neonPurple">Cinemática</span>
+                        Academia de <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-neonBlue to-neonPurple">Pilotos Estelares</span>
                     </h2>
                     <p class="text-lg text-gray-300 leading-relaxed">
-                        Bienvenido al laboratorio virtual. Aquí exploraremos el movimiento de los cuerpos sin preocuparnos por las causas que lo producen. 
-                        Interactúa, experimenta y gana experiencia (XP) mientras aprendes.
+                        ¡Hola, futuro capitán! Bienvenido a tu simulador de vuelo. Aquí aprenderás cómo se mueven las naves y los planetas. 
+                        Juega con los controles, descubre los secretos del movimiento y gana puntos (XP) para subir de rango.
                     </p>
                     <div class="flex gap-4">
                         <button onclick="switchTab('mru')" class="bg-transparent hover:bg-neonBlue text-neonBlue hover:text-darkBg font-title border border-neonBlue py-3 px-6 rounded transition duration-300">
-                            Iniciar MRU
+                            Misión: Línea Recta (MRU)
                         </button>
                         <button onclick="switchTab('mcu')" class="bg-transparent hover:bg-neonPurple text-neonPurple hover:text-white font-title border border-neonPurple py-3 px-6 rounded transition duration-300">
-                            Iniciar MCU
+                            Misión: Órbita (MCU)
                         </button>
                     </div>
                 </div>
                 <div class="glass-panel p-6 neon-border relative group">
                     <div class="absolute inset-0 bg-gradient-to-tr from-blue-900/20 to-purple-900/20 rounded-xl"></div>
-                    <h3 class="font-title text-xl text-neonBlue mb-4 flex items-center"><i class="fa-solid fa-book-open mr-2"></i> Conceptos Clave</h3>
+                    <h3 class="font-title text-xl text-neonBlue mb-4 flex items-center"><i class="fa-solid fa-book-open mr-2"></i> Diccionario Espacial</h3>
                     <ul class="space-y-4 text-gray-300">
                         <li class="flex items-start">
-                            <i class="fa-solid fa-ruler text-neonGreen mt-1 mr-3"></i>
-                            <div><strong>Posición:</strong> Lugar que ocupa un cuerpo en el espacio en un instante dado.</div>
+                            <i class="fa-solid fa-map-pin text-neonGreen mt-1 mr-3"></i>
+                            <div><strong>Posición:</strong> Es el lugar exacto donde estás en este momento. ¡Tu punto en el mapa!</div>
                         </li>
                         <li class="flex items-start">
                             <i class="fa-solid fa-gauge-high text-neonBlue mt-1 mr-3"></i>
-                            <div><strong>Velocidad:</strong> Magnitud vectorial que relaciona el cambio de posición con el tiempo.</div>
+                            <div><strong>Velocidad:</strong> Qué tan rápido viajas de un lugar a otro y hacia dónde vas.</div>
                         </li>
                         <li class="flex items-start">
                             <i class="fa-solid fa-rocket text-neonPurple mt-1 mr-3"></i>
-                            <div><strong>Aceleración:</strong> Magnitud vectorial que nos indica la variación de velocidad por unidad de tiempo.</div>
+                            <div><strong>Aceleración:</strong> Cuando pisas el acelerador para ir más rápido, o pisas el freno para detenerte.</div>
                         </li>
                     </ul>
                 </div>
@@ -271,21 +271,23 @@
             <div class="grid lg:grid-cols-3 gap-6">
                 <!-- Theory -->
                 <div class="glass-panel p-6 space-y-4 lg:col-span-1">
-                    <h3 class="font-title text-xl text-white"><i class="fa-solid fa-chalkboard text-neonBlue mr-2"></i> Teoría</h3>
+                    <h3 class="font-title text-xl text-white"><i class="fa-solid fa-chalkboard text-neonBlue mr-2"></i> ¿Qué es el MRU?</h3>
                     <p class="text-sm text-gray-300">
-                        Un cuerpo describe un <strong>MRU</strong> cuando su trayectoria es una línea recta y su <strong>velocidad es constante</strong>. Esto implica que recorre distancias iguales en tiempos iguales y su aceleración es cero.
+                        Imagina que viajas por el espacio en <strong>línea recta</strong> y pones el piloto automático. Tu nave <strong>no acelera ni frena</strong>; siempre va a la misma velocidad. ¡Eso es el MRU!
                     </p>
                     <div class="formula-box">
-                        <div class="text-white text-sm mb-1">Ecuación de Posición</div>
-                        x = x₀ + v · t
-                    </div>
-                    <div class="formula-box mt-2">
-                        <div class="text-white text-sm mb-1">Velocidad</div>
-                        v = Δx / Δt = constante
+                        <div class="text-white text-sm mb-2 font-bold">¿Dónde estará la nave?</div>
+                        <span class="text-xl">x = x₀ + v · t</span>
+                        <div class="text-xs text-gray-300 mt-3 text-left space-y-1">
+                            <p><strong>x</strong> = Posición final (A dónde llegas)</p>
+                            <p><strong>x₀</strong> = Posición inicial (De dónde sales)</p>
+                            <p><strong>v</strong> = Velocidad (Qué tan rápido vas)</p>
+                            <p><strong>t</strong> = Tiempo (Cuántos segundos viajas)</p>
+                        </div>
                     </div>
                     <div class="bg-blue-900/30 border border-blue-500/50 p-3 rounded-lg text-sm mt-4">
                         <i class="fa-solid fa-lightbulb text-yellow-400 mr-1"></i> 
-                        <strong>¿Sabías que?</strong> La luz en el vacío viaja en MRU a ~300,000 km/s.
+                        <strong>¡Dato genial!</strong> La luz viaja en MRU súper rápido. ¡Puede dar 7.5 vueltas a la Tierra en solo 1 segundo!
                     </div>
                 </div>
 
@@ -346,21 +348,22 @@
             <div class="grid lg:grid-cols-3 gap-6">
                 <!-- Theory -->
                 <div class="glass-panel p-6 space-y-4 lg:col-span-1">
-                    <h3 class="font-title text-xl text-white"><i class="fa-solid fa-chalkboard text-neonPurple mr-2"></i> Teoría</h3>
+                    <h3 class="font-title text-xl text-white"><i class="fa-solid fa-chalkboard text-neonPurple mr-2"></i> ¿Qué es el MCU?</h3>
                     <p class="text-sm text-gray-300">
-                        En el <strong>MCU</strong>, un objeto viaja en una trayectoria circular con rapidez constante. Aunque la rapidez no cambia, la <strong>dirección de la velocidad sí cambia</strong> constantemente, por lo que existe una aceleración dirigida hacia el centro: la <strong>aceleración centrípeta</strong>.
+                        Es como dar vueltas en un carrusel espacial. Giras en <strong>círculos</strong> siempre al mismo ritmo. Pero cuidado: como siempre estás cambiando de dirección (para no salir volando recto), existe una fuerza invisible que te jala hacia el centro.
                     </p>
                     <div class="formula-box border-purple-500/50 text-purple-300">
-                        <div class="text-white text-sm mb-1">Velocidad Angular (ω)</div>
-                        ω = Δθ / Δt  [rad/s]
-                    </div>
-                    <div class="formula-box border-purple-500/50 text-purple-300 mt-2">
-                        <div class="text-white text-sm mb-1">Velocidad Tangencial (v)</div>
-                        v = ω · r
-                    </div>
-                    <div class="formula-box border-purple-500/50 text-purple-300 mt-2">
-                        <div class="text-white text-sm mb-1">Aceleración Centrípeta (ac)</div>
-                        a_c = v² / r = ω² · r
+                        <div class="text-white text-sm mb-2 font-bold">Fórmulas del Círculo</div>
+                        <span class="text-lg text-neonPurple">v = ω · r</span>
+                        <div class="text-xs text-gray-300 mt-3 text-left space-y-1 border-b border-gray-600 pb-2 mb-2">
+                            <p><strong>v</strong> = Velocidad si salieras volando recto</p>
+                            <p><strong>ω (Omega)</strong> = Qué tan rápido das la vuelta</p>
+                            <p><strong>r (Radio)</strong> = Distancia desde el centro</p>
+                        </div>
+                        <span class="text-lg text-neonPurple">a_c = v² / r</span>
+                        <div class="text-xs text-gray-300 mt-2 text-left space-y-1">
+                            <p><strong>a_c (Aceleración Centrípeta)</strong> = ¡La atracción que te jala hacia el centro para que no te salgas de la curva!</p>
+                        </div>
                     </div>
                 </div>
 
@@ -414,9 +417,9 @@
             <div class="max-w-3xl mx-auto">
                 <div class="text-center mb-8 mt-4">
                     <h2 class="font-title text-3xl text-yellow-400 text-glow-purple inline-block border-b-2 border-yellow-400 pb-2">
-                        <i class="fa-solid fa-trophy"></i> Desafío Cinemático
+                        <i class="fa-solid fa-trophy"></i> Desafío del Capitán
                     </h2>
-                    <p class="text-gray-300 mt-4">Pon a prueba tus conocimientos. Responde correctamente para ganar experiencia, subir de nivel y obtener el título de Físico Maestro.</p>
+                    <p class="text-gray-300 mt-4">¡Es hora de la prueba final! Responde correctamente para ganar experiencia y convertirte en el mejor Piloto de la Galaxia.</p>
                 </div>
 
                 <div id="quiz-container" class="glass-panel p-8 neon-border relative">
@@ -472,7 +475,7 @@
             currentView: 'home'
         };
 
-        const titles = ["Estudiante", "Asistente de Lab", "Físico Junior", "Investigador", "Físico Maestro"];
+        const titles = ["Cadete Espacial", "Explorador", "Piloto Estelar", "Capitán Galáctico", "Maestro del Universo"];
 
         function addXP(amount, reason) {
             state.xp += amount;
@@ -931,32 +934,32 @@
         // ==========================================
         const questions = [
             {
-                q: "Un coche viaja en MRU a una velocidad de 15 m/s. ¿Qué distancia recorre en 4 segundos?",
-                options: ["19 m", "30 m", "60 m", "120 m"],
-                correct: 2,
-                explanation: "x = v · t = 15 m/s · 4 s = 60 m."
+                q: "Vas en tu patineta en línea recta a 3 m/s sin frenar ni acelerar. ¿Cuántos metros vas a avanzar en 4 segundos?",
+                options: ["7 metros", "12 metros", "1 metro", "15 metros"],
+                correct: 1,
+                explanation: "¡Genial! Multiplicaste la velocidad (3) por el tiempo (4). ¡3 x 4 = 12 metros!"
             },
             {
-                q: "En un Movimiento Circular Uniforme (MCU), ¿cuál de estas afirmaciones es verdadera?",
+                q: "Estás dando vueltas en un carrusel del parque que siempre gira exactamente al mismo ritmo. ¿Qué tipo de movimiento es?",
                 options: [
-                    "La velocidad es constante en magnitud y dirección.",
-                    "No hay ningún tipo de aceleración.",
-                    "La aceleración centrípeta siempre apunta hacia afuera.",
-                    "La rapidez es constante, pero hay aceleración porque cambia la dirección."
-                ],
-                correct: 3,
-                explanation: "En el MCU, el módulo de la velocidad (rapidez) no cambia, pero su dirección cambia constantemente, generando aceleración centrípeta hacia el centro."
-            },
-            {
-                q: "Un disco gira con MCU. Si duplicamos la velocidad angular (ω) manteniendo el radio constante, ¿qué sucede con la aceleración centrípeta?",
-                options: [
-                    "Se mantiene igual.",
-                    "Se duplica.",
-                    "Se cuadruplica.",
-                    "Se reduce a la mitad."
+                    "Movimiento Rectilíneo (MRU)",
+                    "Movimiento Mágico Espacial",
+                    "Movimiento Circular Uniforme (MCU)",
+                    "No se está moviendo para nada"
                 ],
                 correct: 2,
-                explanation: "Como a_c = ω² · r, si ω se multiplica por 2, la aceleración se multiplica por 2², es decir, se cuadruplica."
+                explanation: "¡Exacto! Es 'Circular' porque das vueltas, y 'Uniforme' porque no cambia su ritmo."
+            },
+            {
+                q: "Cuando giras muy rápido en un juego, sientes que algo te 'jala' hacia el centro para no salir volando. ¿Cómo se llama eso?",
+                options: [
+                    "Velocidad Mágica",
+                    "Aceleración Centrípeta",
+                    "Gravedad de la Tierra",
+                    "Freno de emergencia"
+                ],
+                correct: 1,
+                explanation: "¡Muy bien! 'Centrípeta' es una palabra elegante que significa 'que busca el centro'. ¡Es lo que te mantiene girando seguro!"
             }
         ];
 
