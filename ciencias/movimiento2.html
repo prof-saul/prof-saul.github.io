@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡La Gran Aventura del Movimiento!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f9ff;
+            background-image: radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .title-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        
+        /* Animaciones personalizadas */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+
+        @keyframes spin-slow {
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-slow { animation: spin-slow 4s linear infinite; }
+
+        @keyframes move-mru {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100% - 50px)); } /* Ajuste para el tamaño del icono */
+        }
+        
+        .track {
+            position: relative;
+            background: #e5e7eb;
+            height: 60px;
+            border-radius: 30px;
+            border: 4px dashed #9ca3af;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            overflow: hidden;
+        }
+
+        .moving-obj {
+            position: absolute;
+            font-size: 2.5rem;
+            transition: all 0.1s linear;
+            left: 10px;
+            z-index: 10;
+        }
+
+        .vector-arrow {
+            position: absolute;
+            height: 6px;
+            background-color: #ef4444;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 50px;
+            width: 0px;
+            transition: width 0.1s linear;
+            z-index: 5;
+        }
+        .vector-arrow::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: -7px;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid #ef4444;
+        }
+
+        /* Estilo para las tarjetas de fórmulas */
+        .formula-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-bottom: 8px solid;
+            transition: transform 0.2s;
+        }
+        .formula-card:hover {
+            transform: translateY(-5px);
+        }
+
+        #canvas-map {
+            background: #dcfce7;
+            border: 4px solid #22c55e;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            cursor: pointer;
+        }
+
+        /* --- Gamificación y Nuevas Secciones --- */
+        .point-float {
+            position: fixed;
+            color: #facc15;
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            pointer-events: none;
+            animation: floatUpAndFade 1s ease-out forwards;
+            z-index: 9999;
+            text-shadow: 2px 2px 0 #ca8a04;
+        }
+        @keyframes floatUpAndFade {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Órbita MCU */
+        .orbit-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            border: 4px dashed #cbd5e1;
+            border-radius: 50%;
+            margin: 0 auto;
+        }
+        .satellite {
+            position: absolute;
+            top: -20px; /* Radio aprox */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3.5rem;
+            cursor: pointer;
+            transform-origin: 50% 145px; /* Centro de rotación */
+            transition: transform 0.1s;
+        }
+        .satellite:active {
+            transform: translateX(-50%) scale(0.8);
+        }
+    </style>
+</head>
+<body class="text-gray-800 pb-20">
+
+    <!-- Header -->
+    <header class="bg-blue-500 text-white p-6 text-center shadow-lg relative overflow-hidden">
+        <!-- Marcador de Gamificación -->
+        <div class="absolute top-4 left-4 md:left-10 bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full font-bold shadow-lg text-lg flex items-center gap-2 border-2 border-yellow-300 z-50 transform hover:scale-110 transition cursor-default">
+            🏆 Puntos: <span id="score-display" class="text-2xl">0</span>
+        </div>
+
+        <div class="absolute top-0 left-0 text-6xl opacity-20 animate-float" style="animation-delay: 0s;">🚀</div>
+        <div class="absolute top-4 right-10 text-6xl opacity-20 animate-float" style="animation-delay: 1s;">🌍</div>
+        <h1 class="text-4xl md:text-6xl mb-2 text-yellow-300 drop-shadow-md">¡La Aventura del Movimiento!</h1>
+        <p class="text-xl md:text-2xl font-bold">Física divertida para futuros científicos 👩‍🔬👨‍🚀</p>
+    </header>
+
+    <main class="container mx-auto px-4 mt-8 space-y-12 max-w-5xl">
+
+        <!-- WRAPPER PRINCIPAL (Ocultaremos esto al entrar a los mundos detalle) -->
+        <div id="main-content" class="space-y-12 block">
+
+        <!-- Sección 1: Posición, Trayectoria y Desplazamiento -->
+        <section class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-t-8 border-green-400 relative">
+            <div class="absolute -top-6 -right-4 text-5xl">🗺️</div>
+            <h2 class="text-3xl text-green-600 mb-4">1. El Mapa del Tesoro: Posición, Trayectoria y Desplazamiento</h2>
+            
+            <div class="grid md:grid-cols-2 gap-6 items-center">
+                <div>
+                    <p class="text-lg mb-3">Imagina que estás en tu <strong>casa (🏠)</strong> y quieres ir al <strong>parque (🎡)</strong>.</p>
+                    <ul class="space-y-4 text-lg">
+                        <li class="bg-green-50 p-3 rounded-xl">📍 <strong>Posición:</strong> Es el lugar exacto donde estás en este momento. Como la "X" en un mapa.</li>
+                        <li class="bg-yellow-50 p-3 rounded-xl border-l-4 border-yellow-400">🐍 <strong>Trayectoria:</strong> Son todas las calles por las que caminaste, esquivando perritos y baches. ¡Es el camino dibujado con tus huellas!</li>
+                        <li class="bg-blue-50 p-3 rounded-xl border-l-4 border-blue-400">📏 <strong>Desplazamiento:</strong> Es una línea recta mágica desde tu casa hasta el parque. ¡Como si fueras un pájaro volando recto! No le importa por dónde caminaste, solo dónde empezaste y dónde terminaste.</li>
+                    </ul>
+                    <div class="mt-6 flex gap-2 flex-wrap">
+                        <button onclick="drawMap('trayectoria')" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-2 px-4 rounded-full shadow-md transform transition hover:scale-105 active:scale-95 flex items-center gap-2">
+                            <span>👣 Ver Trayectoria</span>
+                        </button>
+                        <button onclick="drawMap('desplazamiento')" class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-full shadow-md transform transition hover:scale-105 active:scale-95 flex items-center gap-2">
+                            <span>🚀 Ver Desplazamiento</span>
+                        </button>
+                        <button onclick="clearMap()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-full shadow-md transform transition hover:scale-105 active:scale-95">
+                            Limpiar Mapa
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-center flex-col items-center">
+                    <canvas id="canvas-map" width="500" height="300"></canvas>
+                    <p class="text-sm text-gray-500 mt-2 font-bold">🏠 Casa (A) &nbsp;&nbsp;&nbsp; 🎡 Parque (B)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección 2: Velocidad y Vectores -->
+        <section class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-t-8 border-red-500 relative">
+             <div class="absolute -top-6 -right-4 text-5xl">🏎️</div>
+            <h2 class="text-3xl text-red-600 mb-4">2. ¡Vectores y Velocidad (20 m/s)!</h2>
+            
+            <p class="text-lg mb-4">
+                La <strong>Velocidad</strong> nos dice qué tan rápido vas y *hacia dónde*. Cuando decimos hacia dónde (norte, sur, derecha), usamos una flecha imaginaria llamada <strong>¡VECTOR!</strong> 🏹
+            </p>
+            
+            <div class="bg-red-50 rounded-2xl p-4 mb-6 border-2 border-red-200 flex items-center gap-4">
+                <div class="text-5xl">🤔</div>
+                <div>
+                    <h3 class="font-bold text-xl text-red-700">¿Qué significa ir a 20 m/s?</h3>
+                    <p>Imagina que puedes dar pasos de gigante. <strong>20 m/s</strong> (metros por segundo) significa que cada vez que el reloj hace "Tic" (1 segundo), tú avanzas <strong>20 metros</strong>. ¡Es la velocidad de un guepardo corriendo detrás de su cena! 🐆</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-100 p-4 rounded-2xl">
+                <p class="font-bold text-center mb-2">Presiona el botón para ver el auto ir a velocidad constante.</p>
+                <div class="track w-full">
+                    <div id="car" class="moving-obj">🏎️</div>
+                    <div id="velocity-vector" class="vector-arrow"></div>
+                </div>
+                <div class="mt-4 text-center">
+                    <button onclick="moveCar()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 title-font text-xl">
+                        ¡Acelera a 20 m/s! 🏁
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección 3: Aceleración -->
+        <section class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-t-8 border-orange-500 relative">
+            <div class="absolute -top-6 -right-4 text-5xl">☄️</div>
+            <h2 class="text-3xl text-orange-600 mb-4">3. Aceleración: ¡Pisando el acelerador! (3 m/s²)</h2>
+            
+            <p class="text-lg mb-4">
+                La <strong>Aceleración</strong> es cuando <em>cambias</em> tu velocidad. Si empiezas lento y te vuelves más rápido, ¡estás acelerando! Si frenas, estás desacelerando. También se dibuja con una flecha (Vector).
+            </p>
+
+            <div class="bg-orange-50 rounded-2xl p-4 mb-6 border-2 border-orange-200 flex items-center gap-4">
+                <div class="text-5xl">🎢</div>
+                <div>
+                    <h3 class="font-bold text-xl text-orange-700">¿Qué significa acelerar a 3 m/s²?</h3>
+                    <p>Imagina que te lanzas por un tobogán súper resbaladizo. Al principio vas lento (0 m/s). 
+                    <br>• En el segundo 1: vas a <strong>3 m/s</strong> (Caminando rápido)
+                    <br>• En el segundo 2: vas a <strong>6 m/s</strong> (Corriendo)
+                    <br>• En el segundo 3: vas a <strong>9 m/s</strong> (¡Vas volando!)
+                    <br><strong>¡Significa que cada segundo que pasa, tu velocidad aumenta en 3 pasos de gigante!</strong></p>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-2xl relative overflow-hidden">
+                <div class="absolute top-2 left-2 text-white font-mono text-sm">Velocidad: <span id="speed-meter" class="text-orange-400 font-bold text-lg">0</span> m/s</div>
+                <div class="track bg-gray-700 border-gray-600 mt-6" style="height: 100px;">
+                    <div id="rocket" class="moving-obj" style="font-size: 3rem; transform: rotate(90deg);">🚀</div>
+                    <!-- Partículas de fuego imaginarias -->
+                    <div id="fire" class="absolute left-0 opacity-0 text-3xl" style="transition: opacity 0.2s;">🔥💨</div>
+                </div>
+                <div class="mt-4 text-center">
+                    <button id="btn-rocket" onclick="launchRocket()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.7)] transform transition hover:scale-105 active:scale-95 title-font text-xl">
+                        ¡Lanzar Cohete a 3 m/s²! 👨‍🚀
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección 4: Tipos de Movimiento (MRU y MCU) -->
+        <section class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-t-8 border-purple-500">
+            <h2 class="text-3xl text-purple-600 mb-6 text-center">4. Tipos de Movimiento: MRU y MCU</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- MRU -->
+                <div class="bg-purple-50 rounded-2xl p-6 border-2 border-purple-200 text-center flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-purple-700 mb-2">MRU 📏</h3>
+                        <p class="text-sm font-bold text-gray-500 mb-4">(Movimiento Rectilíneo Uniforme)</p>
+                        <p class="mb-6 text-lg">Vas en <strong>línea recta</strong> y a la <strong>misma velocidad</strong> siempre. ¡No aceleras ni frenas!</p>
+                    </div>
+                    <button onclick="showMRUDetail()" class="bg-purple-500 text-white px-6 py-3 rounded-full font-bold hover:bg-purple-600 active:scale-95 shadow-lg transform transition hover:-translate-y-1 flex items-center justify-center gap-2 mx-auto w-full max-w-xs text-lg">
+                        <span>🔍 Entrar al Mundo MRU</span>
+                    </button>
+                </div>
+
+                <!-- MCU -->
+                <div class="bg-pink-50 rounded-2xl p-6 border-2 border-pink-200 text-center flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-pink-700 mb-2">MCU 🎡</h3>
+                        <p class="text-sm font-bold text-gray-500 mb-4">(Movimiento Circular Uniforme)</p>
+                        <p class="mb-6 text-lg">Vas dando <strong>vueltas en círculo</strong> a la <strong>misma velocidad</strong>. Como las tazas locas de la feria.</p>
+                    </div>
+                    <button onclick="showMCUDetail()" class="bg-pink-500 text-white px-6 py-3 rounded-full font-bold hover:bg-pink-600 active:scale-95 shadow-lg transform transition hover:-translate-y-1 flex items-center justify-center gap-2 mx-auto w-full max-w-xs text-lg">
+                        <span>🔍 Entrar al Mundo MCU</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección 5: Fórmulas Mágicas -->
+        <section class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-t-8 border-teal-500 mb-12">
+            <h2 class="text-3xl text-teal-600 mb-6 text-center">5. El Club de las Fórmulas Mágicas 🧙‍♂️✨</h2>
+            
+            <p class="text-center text-lg mb-8">Los científicos usan "hechizos" matemáticos llamados fórmulas para descubrir secretos del movimiento. ¡Conozcamos dos muy famosas!</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Formula Velocidad -->
+                <div class="formula-card border-teal-400 p-6 bg-teal-50">
+                    <div class="text-center text-4xl mb-4 text-teal-600 title-font tracking-wider">v = d / t</div>
+                    <h3 class="font-bold text-xl text-teal-800 border-b-2 border-teal-200 pb-2 mb-3">Fórmula de Velocidad</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li>🔵 <strong>v (velocidad):</strong> Qué tan rápido vas (m/s).</li>
+                        <li>📏 <strong>d (distancia):</strong> Cuánto caminaste (metros).</li>
+                        <li>⏱️ <strong>t (tiempo):</strong> Cuánto tardaste (segundos).</li>
+                    </ul>
+                    <div class="mt-4 p-3 bg-white rounded-lg text-sm italic">
+                        "Si divides la distancia entre el tiempo, ¡descubres la velocidad!"
+                    </div>
+                </div>
+
+                <!-- Formula Aceleracion -->
+                <div class="formula-card border-indigo-400 p-6 bg-indigo-50">
+                    <div class="text-center text-3xl mb-4 text-indigo-600 title-font tracking-wider">a = (v<sub>f</sub> - v<sub>i</sub>) / t</div>
+                    <h3 class="font-bold text-xl text-indigo-800 border-b-2 border-indigo-200 pb-2 mb-3">Fórmula de Aceleración</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li>🚀 <strong>a (aceleración):</strong> Qué tan rápido cambias de velocidad (m/s²).</li>
+                        <li>🏁 <strong>v<sub>f</sub> (velocidad final):</strong> A qué velocidad terminaste.</li>
+                        <li>🐢 <strong>v<sub>i</sub> (velocidad inicial):</strong> A qué velocidad empezaste.</li>
+                        <li>⏱️ <strong>t (tiempo):</strong> Cuánto tiempo estuviste acelerando.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Mini Calculadora -->
+            <div class="mt-8 bg-gray-800 rounded-2xl p-6 text-white text-center shadow-inner">
+                <h3 class="text-2xl font-bold mb-4 text-yellow-300">🎮 ¡Mini Calculadora de Velocidad!</h3>
+                <p class="mb-4">Si un perrito corre <input type="number" id="calc-d" value="100" class="w-20 px-2 py-1 text-black rounded font-bold text-center"> metros en <input type="number" id="calc-t" value="10" class="w-20 px-2 py-1 text-black rounded font-bold text-center"> segundos...</p>
+                <button onclick="calculateSpeed()" class="bg-yellow-400 text-gray-900 font-bold py-2 px-6 rounded-full hover:bg-yellow-300 active:scale-95 shadow mb-4">¿Cuál es su velocidad?</button>
+                <div id="calc-result" class="text-2xl title-font hidden text-green-400">¡Su velocidad es 10 m/s! 🐶💨</div>
+            </div>
+
+        </section>
+        
+        </div> <!-- Fin de #main-content -->
+
+        <!-- ============================================== -->
+        <!-- SECCIÓN DETALLE: MUNDO MRU                     -->
+        <!-- ============================================== -->
+        <section id="mru-detail" class="hidden bg-white rounded-3xl p-6 md:p-10 shadow-2xl border-t-8 border-purple-500 relative" style="animation: fadeIn 0.5s ease-out;">
+            <button onclick="goBack()" class="absolute top-6 right-6 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-full shadow-sm transition flex items-center gap-2">⬅️ Volver al menú</button>
+            <h2 class="text-4xl text-purple-600 mb-6 mt-8 title-font text-center">El Mundo del MRU 📏🚂</h2>
+            
+            <div class="bg-purple-50 p-6 rounded-2xl border-2 border-purple-200 text-lg mb-8 shadow-inner">
+                <p class="mb-4 text-xl"><strong>M</strong>ovimiento <strong>R</strong>ectilíneo <strong>U</strong>niforme significa tres cosas mágicas:</p>
+                <ul class="list-none space-y-4 text-purple-900">
+                    <li class="flex items-center gap-3"><span class="text-3xl">📏</span> <strong>Rectilíneo:</strong> ¡Vas en una línea perfectamente recta! No puedes doblar ni dar curvas.</li>
+                    <li class="flex items-center gap-3"><span class="text-3xl">🐢</span> <strong>Uniforme:</strong> ¡Vas a la misma velocidad SIEMPRE! No puedes ir más rápido ni frenar.</li>
+                    <li class="flex items-center gap-3"><span class="text-3xl">⚖️</span> <strong>La regla de oro:</strong> Recorres distancias iguales en tiempos iguales. (Si haces 2 metros en 1 segundo, harás 4 metros en 2 segundos).</li>
+                </ul>
+            </div>
+
+            <!-- Gamificación MRU -->
+            <div class="bg-gray-800 text-white rounded-2xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.3)] text-center relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 text-9xl opacity-10">🚂</div>
+                <h3 class="text-3xl font-bold mb-4 text-yellow-300 title-font">🎮 Minijuego: El Maquinista Matemático</h3>
+                <p class="mb-4 text-lg">Eres el maquinista. El tren va por unas vías perfectamente rectas a una velocidad constante de <strong class="text-green-400 text-2xl">5 m/s</strong>.</p>
+                
+                <div class="track bg-gray-700 border-gray-600 my-8 shadow-inner">
+                    <div id="mru-train" class="moving-obj text-5xl z-10" style="transition: none; left: 10px;">🚂</div>
+                    <div class="absolute right-2 text-5xl z-0">🚉</div>
+                </div>
+
+                <div class="bg-gray-700 border border-gray-600 p-6 rounded-xl inline-block shadow-lg">
+                    <p class="mb-2 font-bold text-blue-300 text-xl">La estación está a 15 metros. ¿En cuántos segundos llegarás?</p>
+                    <p class="text-sm text-gray-400 mb-4">(Pista de científicos: Fórmula del tiempo ➔ t = d / v)</p>
+                    <div class="flex flex-wrap items-center justify-center gap-3">
+                        <input type="number" id="mru-answer" class="w-32 px-4 py-3 text-black text-2xl rounded-lg font-bold text-center border-4 border-gray-500 focus:border-yellow-400 outline-none" placeholder="seg.">
+                        <button onclick="checkMRUMinigame()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform hover:scale-105 active:scale-95 text-xl">¡Comprobar! ✔️</button>
+                    </div>
+                </div>
+                <div id="mru-feedback" class="mt-6 text-2xl title-font hidden"></div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SECCIÓN DETALLE: MUNDO MCU                     -->
+        <!-- ============================================== -->
+        <section id="mcu-detail" class="hidden bg-white rounded-3xl p-6 md:p-10 shadow-2xl border-t-8 border-pink-500 relative" style="animation: fadeIn 0.5s ease-out;">
+            <button onclick="goBack()" class="absolute top-6 right-6 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-full shadow-sm transition flex items-center gap-2">⬅️ Volver al menú</button>
+            <h2 class="text-4xl text-pink-600 mb-6 mt-8 title-font text-center">El Mundo del MCU 🎡🛰️</h2>
+            
+            <div class="bg-pink-50 p-6 rounded-2xl border-2 border-pink-200 text-lg mb-8 shadow-inner">
+                <p class="mb-4 text-xl"><strong>M</strong>ovimiento <strong>C</strong>ircular <strong>U</strong>niforme significa que:</p>
+                <ul class="list-none space-y-4 text-pink-900">
+                    <li class="flex items-center gap-3"><span class="text-3xl">⭕</span> <strong>Circular:</strong> Tu trayectoria es un círculo perfecto. Estás atado a una distancia llamada "Radio" que va hacia el "Centro".</li>
+                    <li class="flex items-center gap-3"><span class="text-3xl">🎠</span> <strong>Uniforme:</strong> Giras siempre al mismo ritmo. La rapidez del número no cambia.</li>
+                    <li class="flex items-center gap-3"><span class="text-3xl">⚠️</span> <strong>¡El truco!:</strong> Aunque tu rapidez sea la misma, tu <em>dirección</em> cambia a cada segundo porque vas dando curvas. ¡Por eso hay fuerzas especiales ahí!</li>
+                </ul>
+            </div>
+
+            <!-- Gamificación MCU -->
+            <div class="bg-indigo-900 text-white rounded-2xl p-6 md:p-10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] text-center">
+                <h3 class="text-3xl font-bold mb-2 text-yellow-300 title-font">🎮 Minijuego: Atrapa el Satélite</h3>
+                <p class="mb-2 text-lg text-indigo-200">El satélite alienígena está orbitando la Tierra en un perfecto MCU.</p>
+                <p class="mb-6 font-bold text-yellow-400">¡Haz clic sobre él para recolectar datos espaciales y ganar puntos!</p>
+                
+                <div class="orbit-container my-12 bg-indigo-950/50 shadow-inner">
+                    <div class="absolute inset-0 flex items-center justify-center text-6xl">🌍</div>
+                    <div id="mcu-satellite" class="satellite animate-spin-slow" onclick="catchSatellite(event)">🛸</div>
+                </div>
+                
+                <p class="text-sm text-indigo-300 mt-4 bg-indigo-800/50 inline-block p-3 rounded-xl border border-indigo-700">El satélite recorre su trayectoria (el borde del círculo punteado) manteniendo siempre el mismo Radio respecto al centro de la Tierra.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Integrado -->
+    <script>
+        // --- SISTEMA DE SONIDOS (Web Audio API) ---
+        // Usamos el navegador para hacer soniditos sin descargar archivos.
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // --- GAMIFICACIÓN: SISTEMA DE PUNTOS ---
+        let score = 0;
+        
+        function addPoints(points, x, y) {
+            score += points;
+            
+            // Animación del número en el header
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.innerText = score;
+            scoreDisplay.classList.add('animate-ping');
+            setTimeout(() => scoreDisplay.classList.remove('animate-ping'), 300);
+
+            playSound('magic');
+            
+            // Texto flotante de puntos en la posición del ratón
+            if (x && y) {
+                const floater = document.createElement('div');
+                floater.className = 'point-float';
+                floater.innerText = `+${points}`;
+                floater.style.left = `${x - 20}px`;
+                floater.style.top = `${y - 20}px`;
+                document.body.appendChild(floater);
+                
+                setTimeout(() => {
+                    floater.remove();
+                }, 1000); // 1s dura la animacion floatUpAndFade
+            }
+        }
+
+        // --- NAVEGACIÓN ENTRE MUNDOS ---
+        function showMRUDetail() {
+            playSound('pop');
+            document.getElementById('main-content').classList.add('hidden');
+            document.getElementById('mcu-detail').classList.add('hidden');
+            document.getElementById('mru-detail').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function showMCUDetail() {
+            playSound('pop');
+            document.getElementById('main-content').classList.add('hidden');
+            document.getElementById('mru-detail').classList.add('hidden');
+            document.getElementById('mcu-detail').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function goBack() {
+            playSound('pop');
+            document.getElementById('mru-detail').classList.add('hidden');
+            document.getElementById('mcu-detail').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'pop') {
+                // Sonido corto y feliz (para botones)
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'zoom') {
+                // Sonido de auto pasando rápido
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 1); // Baja el tono (Efecto Doppler)
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.5, now + 0.3);
+                gainNode.gain.linearRampToValueAtTime(0, now + 1);
+                osc.start(now);
+                osc.stop(now + 1);
+            } else if (type === 'launch') {
+                // Sonido de cohete acelerando (tono que sube)
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(50, now);
+                osc.frequency.linearRampToValueAtTime(300, now + 2);
+                
+                // Filtro para hacerlo sonar menos ruidoso y más a "viento/cohete"
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(100, now);
+                filter.frequency.linearRampToValueAtTime(1000, now + 2);
+                
+                osc.disconnect();
+                osc.connect(filter);
+                filter.connect(gainNode);
+
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.3, now + 0.5);
+                gainNode.gain.linearRampToValueAtTime(0, now + 2);
+                osc.start(now);
+                osc.stop(now + 2);
+            } else if (type === 'magic') {
+                 // Sonido de cálculo / campanita
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.setValueAtTime(800, now + 0.1);
+                osc.frequency.setValueAtTime(1000, now + 0.2);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+        }
+
+        // --- SECCIÓN 1: CANVAS DE MAPA ---
+        const canvas = document.getElementById('canvas-map');
+        const ctx = canvas.getContext('2d');
+        
+        // Puntos A (Casa) y B (Parque)
+        const ptA = { x: 50, y: 250 };
+        const ptB = { x: 450, y: 50 };
+
+        function drawPoints() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Dibujar cuadrícula tenue
+            ctx.strokeStyle = '#bbf7d0'; // verde clarito
+            ctx.lineWidth = 1;
+            for(let i=0; i<500; i+=20) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 300); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(500, i); ctx.stroke();
+            }
+
+            // Casa (A)
+            ctx.font = '30px Arial';
+            ctx.fillText('🏠', ptA.x - 15, ptA.y + 10);
+            
+            // Parque (B)
+            ctx.fillText('🎡', ptB.x - 15, ptB.y + 10);
+        }
+
+        function drawMap(type) {
+            playSound('pop');
+            drawPoints();
+            ctx.lineWidth = 4;
+            
+            if (type === 'trayectoria') {
+                // Camino con curvas (Trayectoria)
+                ctx.strokeStyle = '#eab308'; // Amarillo
+                ctx.setLineDash([]);
+                ctx.beginPath();
+                ctx.moveTo(ptA.x, ptA.y);
+                // Dibujamos curvas locas simulando caminar por calles
+                ctx.bezierCurveTo(150, 250, 150, 100, 250, 150);
+                ctx.bezierCurveTo(350, 200, 350, 50, ptB.x, ptB.y);
+                ctx.stroke();
+            } else if (type === 'desplazamiento') {
+                // Línea recta (Desplazamiento)
+                ctx.strokeStyle = '#3b82f6'; // Azul
+                ctx.setLineDash([10, 10]); // Línea punteada
+                ctx.beginPath();
+                ctx.moveTo(ptA.x, ptA.y);
+                ctx.lineTo(ptB.x, ptB.y);
+                ctx.stroke();
+
+                // Flecha final
+                ctx.beginPath();
+                ctx.moveTo(ptB.x, ptB.y);
+                ctx.lineTo(ptB.x - 20, ptB.y + 5);
+                ctx.lineTo(ptB.x - 5, ptB.y + 20);
+                ctx.fillStyle = '#3b82f6';
+                ctx.fill();
+            }
+        }
+
+        function clearMap() {
+            playSound('pop');
+            drawPoints();
+        }
+        
+        // Inicializar mapa
+        drawPoints();
+
+        // --- SECCIÓN 2: VELOCIDAD (MRU) ---
+        function moveCar() {
+            playSound('zoom');
+            const car = document.getElementById('car');
+            const vector = document.getElementById('velocity-vector');
+            const trackWidth = document.querySelector('.track').offsetWidth;
+            
+            // Reiniciar posición (sin animación para el reseteo)
+            car.style.transition = 'none';
+            vector.style.transition = 'none';
+            car.style.left = '10px';
+            vector.style.left = '50px';
+            vector.style.width = '0px';
+
+            // Forzar un "reflow" para que el navegador aplique el reseteo inmediatamente
+            void car.offsetWidth;
+
+            // Iniciar animación
+            // 20 m/s es velocidad constante. Transición lineal.
+            const animationTime = 1; // 1 segundo real
+            car.style.transition = `left ${animationTime}s linear`;
+            vector.style.transition = `width 0.2s linear`; // la flecha crece rápido al principio
+            
+            car.style.left = `calc(100% - 60px)`;
+            
+            // El vector (flecha roja) acompaña al auto indicando dirección y magnitud
+            setTimeout(() => { vector.style.width = '100px'; }, 50);
+            
+            // Esconder la flecha al llegar al final
+            setTimeout(() => { vector.style.width = '0px'; }, animationTime * 1000);
+        }
+
+        // --- SECCIÓN 3: ACELERACIÓN ---
+        function launchRocket() {
+            const btn = document.getElementById('btn-rocket');
+            if(btn.disabled) return; // Evitar multiples clicks
+            btn.disabled = true;
+
+            playSound('launch');
+            const rocket = document.getElementById('rocket');
+            const speedMeter = document.getElementById('speed-meter');
+            const fire = document.getElementById('fire');
+            
+            rocket.style.transition = 'none';
+            rocket.style.left = '10px';
+            fire.style.opacity = '0';
+            void rocket.offsetWidth;
+
+            // Simularemos un bucle de aceleración
+            // Fórmula d = 0.5 * a * t^2
+            // Usaremos requestAnimationFrame para fluidez
+            let start = null;
+            const a = 3; // Aceleración imaginaria (3 m/s²)
+            const duration = 2000; // 2 segundos de animación
+            const totalWidth = document.querySelector('.track').offsetWidth - 60;
+
+            // Factor de escala visual: a los 2 seg llegaremos al final (totalWidth)
+            // totalWidth = 0.5 * visual_a * (2^2) => visual_a = totalWidth / 2
+            const visual_a = totalWidth / 2;
+
+            function animateAcceleration(timestamp) {
+                if (!start) start = timestamp;
+                const progress = timestamp - start;
+                const t = progress / 1000; // tiempo en segundos
+
+                if (t > 0.1) fire.style.opacity = '1';
+
+                // Mostrar la velocidad actual real calculada (v = a * t)
+                let currentSpeed = (a * t).toFixed(1);
+                speedMeter.innerText = currentSpeed;
+
+                // Mover el cohete físicamente en pantalla acelerando (posición = 0.5 * a * t^2)
+                let pos = 0.5 * visual_a * (t * t);
+                rocket.style.left = (10 + pos) + 'px';
+                fire.style.left = (-20 + pos) + 'px';
+
+                if (progress < duration) {
+                    window.requestAnimationFrame(animateAcceleration);
+                } else {
+                    // Finalizado
+                    speedMeter.innerText = (a * (duration/1000)).toFixed(1); // Debería ser 6.0
+                    setTimeout(() => {
+                        fire.style.opacity = '0';
+                        btn.disabled = false;
+                    }, 500);
+                }
+            }
+
+            window.requestAnimationFrame(animateAcceleration);
+        }
+
+        // --- SECCIÓN 4: MRU y MCU ---
+        function startMRU() {
+            playSound('pop');
+            const skater = document.getElementById('skater');
+            // Quitamos la clase si la tiene, forzamos reflow y la volvemos a añadir
+            skater.classList.remove('animate-[move-mru_2s_linear]');
+            void skater.offsetWidth;
+            skater.classList.add('animate-[move-mru_2s_linear]');
+        }
+
+        function startMCU() {
+            playSound('pop');
+            const spinner = document.getElementById('spinner');
+            if(spinner.classList.contains('animate-spin-slow')) {
+                spinner.classList.remove('animate-spin-slow');
+                void spinner.offsetWidth;
+            }
+            spinner.classList.add('animate-spin-slow');
+            // Detener después de 4 segundos
+            setTimeout(() => {
+                spinner.classList.remove('animate-spin-slow');
+            }, 4000);
+        }
+
+        // --- SECCIÓN 5: CALCULADORA ---
+        function calculateSpeed() {
+            playSound('magic');
+            const d = parseFloat(document.getElementById('calc-d').value);
+            const t = parseFloat(document.getElementById('calc-t').value);
+            const resDiv = document.getElementById('calc-result');
+
+            if (t <= 0 || isNaN(t) || isNaN(d)) {
+                resDiv.innerText = "¡Ups! Pon números válidos (tiempo > 0).";
+                resDiv.className = "text-xl title-font mt-4 text-red-400 block animate-bounce";
+                return;
+            }
+
+            const v = (d / t);
+            
+            // Decidir el emoji según la velocidad
+            let emoji = "🚶";
+            if(v > 5) emoji = "🏃";
+            if(v > 15) emoji = "🚲";
+            if(v > 30) emoji = "🚗";
+            if(v > 100) emoji = "🚀";
+
+            // Redondear a 2 decimales si es necesario
+            let vText = Number.isInteger(v) ? v : v.toFixed(2);
+
+            resDiv.innerText = `¡Su velocidad es ${vText} m/s! ${emoji}`;
+            resDiv.className = "text-2xl title-font mt-4 text-green-400 block animate-bounce";
+            
+            setTimeout(() => {
+                resDiv.classList.remove('animate-bounce');
+            }, 1000);
+        }
+
+        // --- LÓGICA DE LOS MINIJUEGOS MRU Y MCU ---
+        
+        function checkMRUMinigame() {
+            const ans = document.getElementById('mru-answer').value;
+            const feedback = document.getElementById('mru-feedback');
+            const train = document.getElementById('mru-train');
+            
+            if (ans === "3") {
+                // Correcto
+                feedback.innerText = "¡CORRECTO! 15m / 5m/s = 3 segundos. ¡Eres un genio!";
+                feedback.className = "mt-6 text-2xl title-font text-green-400 block animate-bounce";
+                
+                // Mover tren visualmente
+                train.style.transition = "left 3s linear";
+                train.style.left = "calc(100% - 60px)";
+                playSound('zoom');
+                
+                // Otorgar puntos donde está el input
+                const rect = document.getElementById('mru-answer').getBoundingClientRect();
+                addPoints(50, rect.left + 50, rect.top);
+                
+                // Resetear tren después del viaje
+                setTimeout(() => {
+                    train.style.transition = "none";
+                    train.style.left = "10px";
+                }, 4000);
+            } else if (ans === "") {
+                feedback.innerText = "Escribe un número primero.";
+                feedback.className = "mt-6 text-xl title-font text-yellow-400 block";
+            } else {
+                // Incorrecto
+                playSound('pop'); 
+                feedback.innerText = "¡Uy! Intenta de nuevo. Pista: Divide 15 entre 5.";
+                feedback.className = "mt-6 text-xl title-font text-red-400 block";
+            }
+        }
+
+        function catchSatellite(event) {
+            // Prevenir bugs de multiples clics simultáneos (evita seleccionar texto)
+            event.preventDefault(); 
+
+            // Dar puntos justo donde hicieron el clic
+            addPoints(20, event.clientX, event.clientY);
+            
+            // Efecto visual: hacer el platillo girar más rápido al tocarlo momentáneamente
+            const sat = document.getElementById('mcu-satellite');
+            
+            // Mensajito flotante extra
+            const msg = document.createElement('div');
+            msg.className = 'absolute text-yellow-300 font-bold text-3xl pointer-events-none z-50';
+            msg.style.animation = 'floatUpAndFade 1s ease-out forwards';
+            msg.innerText = "¡Dato obtenido!";
+            msg.style.left = '50%';
+            msg.style.top = '30%';
+            msg.style.transform = 'translate(-50%, -50%)';
+            document.querySelector('.orbit-container').appendChild(msg);
+            
+            setTimeout(() => { msg.remove(); }, 1000);
+        }
+
+    </script>
+</body>
+</html>
