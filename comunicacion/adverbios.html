@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Adverbios - 4to Grado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f0f9ff;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .btn-hover:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .tab-active {
+            border-bottom: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        .word-tag {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: inline-block;
+            margin: 2px;
+        }
+
+        .word-tag:hover {
+            background-color: #e0f2fe;
+        }
+
+        .selected-affirmation { background-color: #86efac !important; color: #166534; }
+        .selected-negation { background-color: #fca5a5 !important; color: #991b1b; }
+        .selected-doubt { background-color: #fde047 !important; color: #854d0e; }
+
+        .game-bucket {
+            min-height: 150px;
+            border: 3px dashed #cbd5e1;
+            transition: all 0.3s;
+        }
+
+        .game-bucket.drag-over {
+            background-color: #f1f5f9;
+            border-color: #3b82f6;
+        }
+
+        /* Sonidos sintéticos simples usando Web Audio API */
+        .confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Encabezado -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-600 mb-2 floating">🧪 Laboratorio de Adverbios</h1>
+            <p class="text-gray-600 text-lg">Aprende sobre la Afirmación, Negación y Duda</p>
+        </header>
+
+        <!-- Navegación -->
+        <nav class="flex justify-center space-x-4 mb-8 overflow-x-auto pb-2">
+            <button onclick="showSection('theory')" id="nav-theory" class="px-6 py-2 font-bold text-gray-500 tab-active">📚 Teoría</button>
+            <button onclick="showSection('learn')" id="nav-learn" class="px-6 py-2 font-bold text-gray-500">💡 Aprende</button>
+            <button onclick="showSection('practice')" id="nav-practice" class="px-6 py-2 font-bold text-gray-500">📝 Práctica</button>
+            <button onclick="showSection('game')" id="nav-game" class="px-6 py-2 font-bold text-gray-500">🎮 Juego</button>
+        </nav>
+
+        <!-- SECCIÓN: TEORÍA -->
+        <section id="section-theory" class="glass-card p-6 md:p-10 animate-fade-in">
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-green-100 p-6 rounded-2xl border-b-4 border-green-500">
+                    <h3 class="text-2xl font-bold text-green-700 mb-3">✅ Afirmación</h3>
+                    <p class="text-green-800">Se usan para asegurar que algo es cierto o que estamos de acuerdo.</p>
+                    <ul class="mt-4 space-y-2 font-semibold">
+                        <li>🌟 Sí</li>
+                        <li>🌟 También</li>
+                        <li>🌟 Cierto</li>
+                        <li>🌟 Realmente</li>
+                    </ul>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl border-b-4 border-red-500">
+                    <h3 class="text-2xl font-bold text-red-700 mb-3">❌ Negación</h3>
+                    <p class="text-red-800">Se usan para negar algo o decir que algo no ocurre.</p>
+                    <ul class="mt-4 space-y-2 font-semibold">
+                        <li>🚫 No</li>
+                        <li>🚫 Nunca</li>
+                        <li>🚫 Jamás</li>
+                        <li>🚫 Tampoco</li>
+                    </ul>
+                </div>
+                <div class="bg-yellow-100 p-6 rounded-2xl border-b-4 border-yellow-500">
+                    <h3 class="text-2xl font-bold text-yellow-700 mb-3">❓ Duda</h3>
+                    <p class="text-yellow-800">Se usan cuando no estamos seguros de si algo pasará o no.</p>
+                    <ul class="mt-4 space-y-2 font-semibold">
+                        <li>🤔 Quizás</li>
+                        <li>🤔 Tal vez</li>
+                        <li>🤔 Probablemente</li>
+                        <li>🤔 Posiblemente</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-10 text-center">
+                <p class="text-xl text-blue-800 italic font-medium">"Los adverbios son como 'adornos' que nos dan más información sobre la acción."</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: APRENDE -->
+        <section id="section-learn" class="hidden glass-card p-6 md:p-10">
+            <h2 class="text-3xl font-bold text-center text-blue-700 mb-8">¡Identifica el Adverbio!</h2>
+            <div id="flashcard-container" class="flex flex-col items-center">
+                <div id="flashcard" class="w-full max-w-md bg-white border-2 border-blue-200 rounded-3xl p-8 text-center shadow-lg transition-all duration-500">
+                    <p id="card-sentence" class="text-2xl font-medium mb-6">Cargando frase...</p>
+                    <div id="card-options" class="grid grid-cols-1 gap-3">
+                        <!-- Opciones generadas por JS -->
+                    </div>
+                </div>
+                <button onclick="nextFlashcard()" class="mt-8 bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg btn-hover">Siguiente Frase ➔</button>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: PRÁCTICA (TEXTO DE LA IMAGEN) -->
+        <section id="section-practice" class="hidden glass-card p-6 md:p-10">
+            <h2 class="text-3xl font-bold text-center text-indigo-700 mb-4">Misión de Lectura 🕵️‍♂️</h2>
+            <p class="text-center text-gray-600 mb-8">Haz clic en las palabras del texto que sean <b>adverbios de duda, afirmación o negación</b>.</p>
+            
+            <div class="bg-blue-50 p-8 rounded-3xl border-2 border-blue-100 leading-relaxed text-xl shadow-inner mb-6" id="practice-text-container">
+                <!-- El texto se cargará aquí por JS para ser interactivo -->
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4 mt-8">
+                <div class="flex items-center space-x-2"><span class="w-4 h-4 rounded-full bg-green-400"></span> <span>Afirmación</span></div>
+                <div class="flex items-center space-x-2"><span class="w-4 h-4 rounded-full bg-red-400"></span> <span>Negación</span></div>
+                <div class="flex items-center space-x-2"><span class="w-4 h-4 rounded-full bg-yellow-400"></span> <span>Duda</span></div>
+            </div>
+
+            <div class="text-center mt-8">
+                <button onclick="checkPractice()" class="bg-indigo-600 text-white px-10 py-4 rounded-full font-bold shadow-xl btn-hover">Comprobar Hallazgos</button>
+                <p id="practice-feedback" class="mt-4 font-bold text-xl"></p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: JUEGO -->
+        <section id="section-game" class="hidden glass-card p-6 md:p-10">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-purple-700">Clasificador Veloz</h2>
+                <div class="text-2xl font-bold bg-purple-100 text-purple-700 px-4 py-2 rounded-xl">Puntos: <span id="game-score">0</span></div>
+            </div>
+
+            <div class="flex flex-col items-center">
+                <div id="word-to-sort" class="text-4xl font-bold bg-white px-10 py-6 rounded-2xl shadow-xl border-4 border-purple-200 mb-10 transition-all">
+                    ¡LISTO!
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                    <button onclick="sortWord('affirmation')" class="bg-green-500 text-white p-6 rounded-2xl font-bold text-xl shadow-lg btn-hover">AFIRMACIÓN</button>
+                    <button onclick="sortWord('negation')" class="bg-red-500 text-white p-6 rounded-2xl font-bold text-xl shadow-lg btn-hover">NEGACIÓN</button>
+                    <button onclick="sortWord('doubt')" class="bg-yellow-500 text-white p-6 rounded-2xl font-bold text-xl shadow-lg btn-hover">DUDA</button>
+                </div>
+                
+                <button id="start-game-btn" onclick="startGame()" class="mt-10 bg-purple-600 text-white px-12 py-4 rounded-full font-bold text-xl shadow-2xl btn-hover">¡Empezar Juego!</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal de Feedback -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <div id="modal-icon" class="text-6xl mb-4"></div>
+            <h3 id="modal-title" class="text-2xl font-bold mb-2"></h3>
+            <p id="modal-msg" class="text-gray-600 mb-6"></p>
+            <button onclick="closeModal()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Continuar</button>
+        </div>
+    </div>
+
+    <canvas id="confetti" class="confetti-canvas"></canvas>
+
+    <script>
+        // --- ESTADO DE LA APP ---
+        const sections = ['theory', 'learn', 'practice', 'game'];
+        let currentFlashcard = 0;
+        let gameScore = 0;
+        let gameActive = false;
+        let currentWordIndex = 0;
+
+        const flashcards = [
+            { s: "___ mañana llueva en la ciudad.", options: ["Probablemente", "Sí", "Jamás"], correct: "Probablemente" },
+            { s: "Él ___ quiere comer brócoli.", options: ["También", "No", "Tal vez"], correct: "No" },
+            { s: "___ iré a tu fiesta de cumpleaños.", options: ["Sí", "Tampoco", "Acaso"], correct: "Sí" },
+            { s: "___ hemos visto un dinosaurio real.", options: ["Cierto", "Nunca", "Posiblemente"], correct: "Nunca" },
+            { s: "___ nos encontremos en el parque.", options: ["Jamás", "Realmente", "Quizás"], correct: "Quizás" }
+        ];
+
+        const gameWords = [
+            { w: "SÍ", type: "affirmation" }, { w: "NUNCA", type: "negation" }, { w: "QUIZÁS", type: "doubt" },
+            { w: "TAMBIÉN", type: "affirmation" }, { w: "NO", type: "negation" }, { w: "POSIBLEMENTE", type: "doubt" },
+            { w: "JAMÁS", type: "negation" }, { w: "REALMENTE", type: "affirmation" }, { w: "ACASO", type: "doubt" },
+            { w: "CIERTO", type: "affirmation" }, { w: "TAMPOCO", type: "negation" }, { w: "PROBABLEMENTE", type: "doubt" }
+        ];
+
+        // Texto de la imagen para la práctica
+        const originalText = "Me gusta ir al centro comercial, probablemente esta semana vaya con mi hermano a ver una película, pero no estoy seguro. Mi mamá quiere que nos quedemos en casa ya que nunca compartimos tiempo con ella, realmente tiene razón. Se me ocurre decirle que preparemos unas galletas, que visitemos el parque y que después vayamos al cine, posiblemente ella acepte ya que jamás ha visto una película en 3D. Ella nunca olvidará este día.";
+        
+        // Adverbios específicos a encontrar en el texto
+        const targetAdverbs = {
+            "probablemente": "doubt",
+            "no": "negation",
+            "nunca": "negation",
+            "realmente": "affirmation",
+            "posiblemente": "doubt",
+            "jamás": "negation"
+        };
+
+        const practiceSelection = new Set();
+
+        // --- MOTOR DE SONIDO (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playSuccess() { playTone(523.25, 'sine', 0.2); setTimeout(() => playTone(659.25, 'sine', 0.3), 100); }
+        function playError() { playTone(220, 'square', 0.3); }
+
+        // --- NAVEGACIÓN ---
+        function showSection(id) {
+            sections.forEach(s => {
+                document.getElementById('section-' + s).classList.add('hidden');
+                document.getElementById('nav-' + s).classList.remove('tab-active');
+            });
+            document.getElementById('section-' + id).classList.remove('hidden');
+            document.getElementById('nav-' + id).classList.add('tab-active');
+            
+            if (id === 'learn') loadFlashcard();
+            if (id === 'practice') initPractice();
+        }
+
+        // --- LÓGICA DE APRENDE ---
+        function loadFlashcard() {
+            const card = flashcards[currentFlashcard];
+            document.getElementById('card-sentence').innerText = card.s;
+            const container = document.getElementById('card-options');
+            container.innerHTML = '';
+            card.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 py-3 rounded-xl font-bold transition-all";
+                btn.innerText = opt;
+                btn.onclick = () => checkFlashcard(opt, card.correct);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkFlashcard(selected, correct) {
+            if (selected === correct) {
+                playSuccess();
+                showModal("🎯 ¡Excelente!", "Has identificado el adverbio correctamente.", "⭐");
+            } else {
+                playError();
+                showModal("Oops...", "Ese no era. ¡Inténtalo de nuevo!", "❌");
+            }
+        }
+
+        function nextFlashcard() {
+            currentFlashcard = (currentFlashcard + 1) % flashcards.length;
+            loadFlashcard();
+        }
+
+        // --- LÓGICA DE PRÁCTICA (TEXTO IMAGEN) ---
+        function initPractice() {
+            const container = document.getElementById('practice-text-container');
+            const words = originalText.split(/(\s+|,|\.)/);
+            container.innerHTML = '';
+            practiceSelection.clear();
+            document.getElementById('practice-feedback').innerText = '';
+
+            words.forEach((word, index) => {
+                if (word.trim() === '' || word === ',' || word === '.') {
+                    const span = document.createElement('span');
+                    span.innerText = word;
+                    container.appendChild(span);
+                } else {
+                    const cleanWord = word.toLowerCase().replace(/[,.]/g, '');
+                    const span = document.createElement('span');
+                    span.innerText = word;
+                    span.className = "word-tag";
+                    span.id = `word-${index}`;
+                    span.onclick = () => toggleWord(span, index, cleanWord);
+                    container.appendChild(span);
+                }
+            });
+        }
+
+        function toggleWord(el, index, word) {
+            if (practiceSelection.has(index)) {
+                practiceSelection.delete(index);
+                el.classList.remove('selected-affirmation', 'selected-negation', 'selected-doubt');
+            } else {
+                practiceSelection.add(index);
+                // Por simplicidad, marcaremos con color según el tipo que sea
+                if (targetAdverbs[word]) {
+                    const type = targetAdverbs[word];
+                    el.classList.add(`selected-${type}`);
+                } else {
+                    el.classList.add('bg-gray-300'); // Palabra neutra marcada
+                }
+            }
+        }
+
+        function checkPractice() {
+            let found = 0;
+            let errors = 0;
+            const container = document.getElementById('practice-text-container');
+            const spans = container.querySelectorAll('.word-tag');
+            
+            const totalToFind = Object.keys(targetAdverbs).length + 1; // "Nunca" aparece 2 veces
+
+            spans.forEach(span => {
+                const word = span.innerText.toLowerCase().replace(/[,.]/g, '');
+                const isSelected = span.classList.contains('selected-affirmation') || 
+                                 span.classList.contains('selected-negation') || 
+                                 span.classList.contains('selected-doubt') ||
+                                 span.classList.contains('bg-gray-300');
+
+                if (targetAdverbs[word]) {
+                    if (isSelected) found++;
+                    else span.classList.add('border-b-4', 'border-red-400'); // Resaltar faltantes
+                } else {
+                    if (isSelected) errors++;
+                }
+            });
+
+            if (found >= 5 && errors === 0) {
+                playSuccess();
+                document.getElementById('practice-feedback').innerHTML = `<span class="text-green-600">¡Increíble! Encontraste casi todos los adverbios. ¡Eres un experto! 🏆</span>`;
+                launchConfetti();
+            } else {
+                playError();
+                document.getElementById('practice-feedback').innerHTML = `<span class="text-blue-600">Buen intento. Encontraste ${found}. ¿Podrás encontrar todos sin equivocarte?</span>`;
+            }
+        }
+
+        // --- LÓGICA DE JUEGO ---
+        function startGame() {
+            gameActive = true;
+            gameScore = 0;
+            currentWordIndex = 0;
+            document.getElementById('game-score').innerText = gameScore;
+            document.getElementById('start-game-btn').classList.add('hidden');
+            nextGameWord();
+        }
+
+        function nextGameWord() {
+            if (currentWordIndex >= gameWords.length) {
+                gameActive = false;
+                showModal("🎊 ¡Fin del Juego!", `Puntaje final: ${gameScore} puntos.`, "🏆");
+                document.getElementById('start-game-btn').classList.remove('hidden');
+                document.getElementById('word-to-sort').innerText = "¡TERMINASTE!";
+                launchConfetti();
+                return;
+            }
+            const display = document.getElementById('word-to-sort');
+            display.innerText = gameWords[currentWordIndex].w;
+            display.style.transform = "scale(1.2)";
+            setTimeout(() => display.style.transform = "scale(1)", 200);
+        }
+
+        function sortWord(type) {
+            if (!gameActive) return;
+            
+            if (gameWords[currentWordIndex].type === type) {
+                gameScore += 10;
+                playSuccess();
+            } else {
+                gameScore = Math.max(0, gameScore - 5);
+                playError();
+            }
+            
+            document.getElementById('game-score').innerText = gameScore;
+            currentWordIndex++;
+            nextGameWord();
+        }
+
+        // --- UI UTILS ---
+        function showModal(title, msg, icon) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-msg').innerText = msg;
+            document.getElementById('modal-icon').innerText = icon;
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function launchConfetti() {
+            const canvas = document.getElementById('confetti');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            let particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 10 + 5,
+                    color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                    speed: Math.random() * 5 + 2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.y += p.speed;
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x, p.y, p.size, p.size);
+                });
+                if (particles[0].y < canvas.height) requestAnimationFrame(animate);
+                else ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            animate();
+        }
+
+        // Iniciar en Teoría
+        window.onload = () => showSection('theory');
+    </script>
+</body>
+</html>
