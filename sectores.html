@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Aventura Económica!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4ADE80',    // Green
+                        secondary: '#FB923C',  // Orange
+                        tertiary: '#60A5FA',   // Blue
+                        bgMain: '#F0FDF4',     // Light green bg
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #F0FDF4;
+            background-image: radial-gradient(#BBF7D0 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
+
+        .section-container {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .section-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce-sm {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .hover-bounce:hover {
+            animation: bounce-sm 0.5s ease infinite;
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .pop-in {
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .nav-btn.active-tab {
+            background-color: #FCD34D;
+            color: #78350F;
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Minigame styles */
+        .game-item {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .game-item.selected {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(250, 204, 21, 0.8);
+            border-color: #FBBF24;
+            background-color: #FEF3C7;
+        }
+        .zone {
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .zone:hover {
+            transform: scale(1.02);
+            filter: brightness(1.05);
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <!-- Header / Nav -->
+    <header class="w-full max-w-5xl bg-white rounded-3xl shadow-xl p-4 mb-8 border-4 border-yellow-400">
+        <div class="text-center mb-4">
+            <h1 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-500 via-blue-500 to-orange-500 pop-in">
+                <i class="fa-solid fa-earth-americas text-blue-500"></i> ¡Aventura Económica!
+            </h1>
+            <p class="text-lg font-bold text-gray-500 mt-2">Aprende cómo funciona el mundo 🌍</p>
+        </div>
+
+        <nav class="flex flex-wrap justify-center gap-2 md:gap-4 mt-6">
+            <button onclick="switchTab('teoria')" id="tab-teoria" class="nav-btn active-tab bg-gray-100 hover:bg-yellow-200 text-gray-700 font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 text-lg">
+                <i class="fa-solid fa-book-open"></i> Teoría
+            </button>
+            <button onclick="switchTab('aprender')" id="tab-aprender" class="nav-btn bg-gray-100 hover:bg-yellow-200 text-gray-700 font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 text-lg">
+                <i class="fa-solid fa-lightbulb"></i> Aprender
+            </button>
+            <button onclick="switchTab('practicar')" id="tab-practicar" class="nav-btn bg-gray-100 hover:bg-yellow-200 text-gray-700 font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 text-lg">
+                <i class="fa-solid fa-pencil"></i> Practicar
+            </button>
+            <button onclick="switchTab('juegos')" id="tab-juegos" class="nav-btn bg-gray-100 hover:bg-yellow-200 text-gray-700 font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 text-lg">
+                <i class="fa-solid fa-gamepad"></i> Minijuego
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="w-full max-w-5xl">
+
+        <!-- SECTION 1: TEORÍA -->
+        <section id="teoria" class="section-container active">
+            <div class="bg-white rounded-3xl shadow-lg p-6 md:p-10 border-4 border-blue-300 mb-8">
+                <h2 class="text-3xl font-black text-blue-600 mb-4 flex items-center gap-3">
+                    <i class="fa-solid fa-circle-question text-yellow-400 text-4xl"></i> ¿Qué es la Economía?
+                </h2>
+                <p class="text-xl leading-relaxed">
+                    Imagina que la economía es como un gran <b>equipo de trabajo gigante</b>. Es la forma en la que las personas nos organizamos para conseguir todo lo que necesitamos para vivir: comida, ropa, casas, juguetes e internet.
+                </p>
+                <p class="text-xl leading-relaxed mt-4">
+                    Para que todo funcione, dividimos los trabajos en <b>3 grandes equipos</b> llamados "Sectores". ¡Vamos a conocerlos!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Primario -->
+                <div class="bg-green-100 rounded-3xl p-6 border-4 border-green-400 shadow-md transform transition hover:-translate-y-2 hover:shadow-xl">
+                    <div class="text-6xl text-center mb-4">🌾🐄</div>
+                    <h3 class="text-2xl font-black text-green-700 text-center mb-2">Sector Primario</h3>
+                    <p class="text-lg text-green-900 font-semibold mb-4 text-center">(La Naturaleza)</p>
+                    <p class="text-gray-700 text-lg">
+                        Son los trabajos que extraen cosas directamente de la naturaleza. ¡Nos dan las materias primas!
+                    </p>
+                    <ul class="mt-4 font-bold text-green-800 text-lg list-disc pl-5">
+                        <li>Agricultura (Cultivar)</li>
+                        <li>Ganadería (Animales)</li>
+                        <li>Pesca (Peces)</li>
+                        <li>Minería (Minerales)</li>
+                    </ul>
+                </div>
+
+                <!-- Secundario -->
+                <div class="bg-orange-100 rounded-3xl p-6 border-4 border-orange-400 shadow-md transform transition hover:-translate-y-2 hover:shadow-xl">
+                    <div class="text-6xl text-center mb-4">🏭🔨</div>
+                    <h3 class="text-2xl font-black text-orange-700 text-center mb-2">Sector Secundario</h3>
+                    <p class="text-lg text-orange-900 font-semibold mb-4 text-center">(La Transformación)</p>
+                    <p class="text-gray-700 text-lg">
+                        Toman lo que sacó el sector primario y lo <b>transforman</b> en cosas nuevas usando fábricas y herramientas.
+                    </p>
+                    <ul class="mt-4 font-bold text-orange-800 text-lg list-disc pl-5">
+                        <li>Fábricas de ropa</li>
+                        <li>Carpinterías (Muebles)</li>
+                        <li>Construcción de casas</li>
+                        <li>Industria de alimentos</li>
+                    </ul>
+                </div>
+
+                <!-- Terciario -->
+                <div class="bg-blue-100 rounded-3xl p-6 border-4 border-blue-400 shadow-md transform transition hover:-translate-y-2 hover:shadow-xl">
+                    <div class="text-6xl text-center mb-4">👨‍🏫🚑</div>
+                    <h3 class="text-2xl font-black text-blue-700 text-center mb-2">Sector Terciario</h3>
+                    <p class="text-lg text-blue-900 font-semibold mb-4 text-center">(Los Servicios)</p>
+                    <p class="text-gray-700 text-lg">
+                        No hacen objetos físicos, sino que nos ofrecen <b>servicios</b> que nos ayudan y nos hacen la vida más fácil y feliz.
+                    </p>
+                    <ul class="mt-4 font-bold text-blue-800 text-lg list-disc pl-5">
+                        <li>Hospitales (Doctores)</li>
+                        <li>Escuelas (Maestros)</li>
+                        <li>Tiendas y Supermercados</li>
+                        <li>Transporte y Policías</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: APRENDER (HISTORIA INTERACTIVA) -->
+        <section id="aprender" class="section-container">
+            <div class="bg-white rounded-3xl shadow-xl p-8 border-4 border-purple-400">
+                <h2 class="text-3xl font-black text-purple-600 mb-6 text-center">📖 El Viaje del Tomate</h2>
+                <p class="text-xl text-center mb-8">Mira cómo los 3 sectores trabajan juntos como un equipo.</p>
+                
+                <div class="relative bg-purple-50 rounded-2xl p-6 border-2 border-purple-200">
+                    
+                    <!-- Historia Pasos -->
+                    <div id="story-step-1" class="text-center pop-in">
+                        <div class="text-8xl mb-4 hover-bounce">👩‍🌾🍅</div>
+                        <h3 class="text-2xl font-black text-green-600 mb-2">1. Sector Primario</h3>
+                        <p class="text-xl">La granjera <b>Sofía</b> planta semillas en la tierra, las riega con agua y cosecha unos tomates rojos y jugosos.</p>
+                    </div>
+
+                    <div id="story-step-2" class="text-center hidden">
+                        <div class="text-8xl mb-4 hover-bounce">🚚🏭🥫</div>
+                        <h3 class="text-2xl font-black text-orange-600 mb-2">2. Sector Secundario</h3>
+                        <p class="text-xl">Los tomates viajan a una fábrica. Allí, las máquinas los lavan, los cocinan y los transforman en deliciosa <b>Salsa Ketchup</b>.</p>
+                    </div>
+
+                    <div id="story-step-3" class="text-center hidden">
+                        <div class="text-8xl mb-4 hover-bounce">🏪🛒🍔</div>
+                        <h3 class="text-2xl font-black text-blue-600 mb-2">3. Sector Terciario</h3>
+                        <p class="text-xl">El supermercado vende el Ketchup, y un restaurante lo sirve para que tú te lo comas con unas ricas hamburguesas. ¡Mmm!</p>
+                    </div>
+
+                    <!-- Controles Historia -->
+                    <div class="flex justify-between mt-8">
+                        <button onclick="storyPrev()" id="btn-story-prev" class="bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-full opacity-50 cursor-not-allowed">
+                            <i class="fa-solid fa-arrow-left"></i> Anterior
+                        </button>
+                        <div class="flex gap-2 items-center" id="story-dots">
+                            <div class="w-4 h-4 rounded-full bg-purple-600"></div>
+                            <div class="w-4 h-4 rounded-full bg-gray-300"></div>
+                            <div class="w-4 h-4 rounded-full bg-gray-300"></div>
+                        </div>
+                        <button onclick="storyNext()" id="btn-story-next" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition hover:scale-105">
+                            Siguiente <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PRACTICAR (QUIZ) -->
+        <section id="practicar" class="section-container">
+            <div class="bg-white rounded-3xl shadow-xl p-8 border-4 border-pink-400 max-w-3xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-black text-pink-600">🧠 ¡Ponte a Prueba!</h2>
+                    <div class="text-2xl font-bold bg-pink-100 text-pink-700 px-4 py-2 rounded-full border-2 border-pink-300">
+                        Puntos: <span id="quiz-score">0</span>
+                    </div>
+                </div>
+
+                <div id="quiz-container" class="bg-pink-50 p-6 rounded-2xl border-2 border-pink-200">
+                    <h3 id="question-text" class="text-2xl font-bold text-gray-800 mb-6 text-center">Pregunta aquí...</h3>
+                    <div id="answers-grid" class="grid grid-cols-1 gap-4">
+                        <!-- Respuestas dinámicas -->
+                    </div>
+                </div>
+
+                <div id="quiz-end" class="hidden text-center py-8">
+                    <div class="text-6xl mb-4">🏆</div>
+                    <h3 class="text-3xl font-black text-green-600 mb-4">¡Terminaste el Quiz!</h3>
+                    <p class="text-xl font-bold mb-6">Obtuviste <span id="final-score" class="text-pink-600 text-2xl">0</span> puntos.</p>
+                    <button onclick="initQuiz()" class="bg-pink-500 hover:bg-pink-400 text-white font-bold py-3 px-8 rounded-full shadow-lg text-xl transform transition hover:scale-105">
+                        <i class="fa-solid fa-rotate-right"></i> Volver a jugar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: MINIJUEGO (CLASIFICAR) -->
+        <section id="juegos" class="section-container">
+            <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border-4 border-yellow-400">
+                <div class="text-center mb-6">
+                    <h2 class="text-3xl font-black text-yellow-500 mb-2">🎮 Minijuego: El Clasificador</h2>
+                    <p class="text-lg font-bold text-gray-600">
+                        1. Toca un trabajador/lugar de arriba.<br>
+                        2. Toca la caja correcta abajo para guardarlo.
+                    </p>
+                </div>
+
+                <!-- Items to sort -->
+                <div class="bg-gray-100 p-4 rounded-2xl mb-8 flex flex-wrap justify-center gap-4 min-h-[120px]" id="game-items">
+                    <!-- Se llenará con JS -->
+                </div>
+
+                <!-- Drop Zones -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Primario -->
+                    <div onclick="attemptDrop('primario')" class="zone bg-green-50 border-4 border-dashed border-green-400 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[200px]">
+                        <h3 class="text-2xl font-black text-green-600 mb-4">Sector Primario</h3>
+                        <div class="text-4xl text-green-200 mb-4"><i class="fa-solid fa-leaf"></i></div>
+                        <div id="zone-primario" class="flex flex-wrap gap-2 justify-center"></div>
+                    </div>
+                    <!-- Secundario -->
+                    <div onclick="attemptDrop('secundario')" class="zone bg-orange-50 border-4 border-dashed border-orange-400 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[200px]">
+                        <h3 class="text-2xl font-black text-orange-600 mb-4">Sector Secundario</h3>
+                        <div class="text-4xl text-orange-200 mb-4"><i class="fa-solid fa-industry"></i></div>
+                        <div id="zone-secundario" class="flex flex-wrap gap-2 justify-center"></div>
+                    </div>
+                    <!-- Terciario -->
+                    <div onclick="attemptDrop('terciario')" class="zone bg-blue-50 border-4 border-dashed border-blue-400 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[200px]">
+                        <h3 class="text-2xl font-black text-blue-600 mb-4">Sector Terciario</h3>
+                        <div class="text-4xl text-blue-200 mb-4"><i class="fa-solid fa-store"></i></div>
+                        <div id="zone-terciario" class="flex flex-wrap gap-2 justify-center"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8 hidden" id="game-won">
+                    <h3 class="text-3xl font-black text-green-500 mb-4 pop-in">¡Todos ordenados perfectamente! 🎉</h3>
+                    <button onclick="initGame()" class="bg-yellow-500 hover:bg-yellow-400 text-white font-bold py-3 px-8 rounded-full shadow-lg text-xl transform transition hover:scale-105">
+                        <i class="fa-solid fa-rotate-right"></i> Jugar de nuevo
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Message -->
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 text-center transform scale-95 transition-transform duration-300" id="modal-content">
+            <div id="modal-icon" class="text-6xl mb-4"></div>
+            <h3 id="modal-title" class="text-2xl font-black mb-2"></h3>
+            <p id="modal-text" class="text-lg text-gray-600 mb-6"></p>
+            <button onclick="closeModal()" class="bg-blue-500 text-white font-bold py-2 px-6 rounded-full hover:bg-blue-600 w-full text-xl">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Javascript Logic -->
+    <script>
+        // --- SOUND ENGINE (Web Audio API) ---
+        // Genera sonidos sin necesidad de archivos externos
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            initAudio();
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'pop') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                gainNode.gain.setValueAtTime(0.5, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } 
+            else if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.setValueAtTime(600, now + 0.1);
+                osc.frequency.setValueAtTime(800, now + 0.2);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+            else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+            else if (type === 'win') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.setValueAtTime(500, now + 0.15);
+                osc.frequency.setValueAtTime(600, now + 0.3);
+                osc.frequency.setValueAtTime(800, now + 0.45);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.8);
+                osc.start(now);
+                osc.stop(now + 0.8);
+            }
+        }
+
+        // --- NAVIGATION ---
+        function switchTab(tabId) {
+            playSound('pop');
+            // Hide all sections
+            document.querySelectorAll('.section-container').forEach(el => el.classList.remove('active'));
+            // Remove active style from buttons
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-tab'));
+            
+            // Show selected section
+            document.getElementById(tabId).classList.add('active');
+            // Highlight selected tab
+            document.getElementById(`tab-${tabId}`).classList.add('active-tab');
+
+            // Initializations for specific tabs
+            if(tabId === 'practicar' && currentQuestionIndex === 0 && score === 0) {
+                initQuiz();
+            }
+            if(tabId === 'juegos' && document.getElementById('zone-primario').children.length === 0) {
+                initGame();
+            }
+        }
+
+        // --- STORY LOGIC (Aprender) ---
+        let currentStoryStep = 1;
+        const totalSteps = 3;
+
+        function updateStoryUI() {
+            // Hide all
+            for(let i=1; i<=totalSteps; i++) {
+                document.getElementById(`story-step-${i}`).classList.add('hidden');
+                document.getElementById(`story-step-${i}`).classList.remove('pop-in');
+            }
+            // Show current
+            const currentEl = document.getElementById(`story-step-${currentStoryStep}`);
+            currentEl.classList.remove('hidden');
+            // Force reflow to trigger animation
+            void currentEl.offsetWidth; 
+            currentEl.classList.add('pop-in');
+
+            // Update buttons
+            const btnPrev = document.getElementById('btn-story-prev');
+            const btnNext = document.getElementById('btn-story-next');
+            
+            if(currentStoryStep === 1) {
+                btnPrev.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnPrev.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            if(currentStoryStep === totalSteps) {
+                btnNext.innerHTML = '¡Terminar! <i class="fa-solid fa-star"></i>';
+                btnNext.classList.replace('bg-purple-600', 'bg-yellow-500');
+                btnNext.classList.replace('hover:bg-purple-500', 'hover:bg-yellow-400');
+            } else {
+                btnNext.innerHTML = 'Siguiente <i class="fa-solid fa-arrow-right"></i>';
+                btnNext.classList.replace('bg-yellow-500', 'bg-purple-600');
+                btnNext.classList.replace('hover:bg-yellow-400', 'hover:bg-purple-500');
+            }
+
+            // Update dots
+            const dots = document.getElementById('story-dots').children;
+            for(let i=0; i<dots.length; i++) {
+                if(i < currentStoryStep) {
+                    dots[i].classList.replace('bg-gray-300', 'bg-purple-600');
+                } else {
+                    dots[i].classList.replace('bg-purple-600', 'bg-gray-300');
+                }
+            }
+        }
+
+        function storyNext() {
+            if(currentStoryStep < totalSteps) {
+                playSound('pop');
+                currentStoryStep++;
+                updateStoryUI();
+            } else {
+                playSound('win');
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                showModal("¡Genial!", "Has completado el Viaje del Tomate. Ahora sabes cómo se conectan los sectores.", "🌟", "text-purple-500");
+                currentStoryStep = 1;
+                updateStoryUI();
+            }
+        }
+
+        function storyPrev() {
+            if(currentStoryStep > 1) {
+                playSound('pop');
+                currentStoryStep--;
+                updateStoryUI();
+            }
+        }
+
+        // --- QUIZ LOGIC (Practicar) ---
+        const questions = [
+            {
+                q: "¿A qué sector pertenece un médico del hospital?",
+                options: ["Sector Primario", "Sector Secundario", "Sector Terciario"],
+                answer: 2
+            },
+            {
+                q: "Un pescador saca peces del mar. ¿Qué sector es?",
+                options: ["Sector Primario", "Sector Secundario", "Sector Terciario"],
+                answer: 0
+            },
+            {
+                q: "Una fábrica de juguetes que usa plástico para hacer muñecos es del...",
+                options: ["Sector Primario", "Sector Secundario", "Sector Terciario"],
+                answer: 1
+            },
+            {
+                q: "¿Dónde trabaja un maestro que enseña matemáticas?",
+                options: ["Sector Primario", "Sector Secundario", "Sector Terciario"],
+                answer: 2
+            },
+            {
+                q: "El trigo crece en la granja. Esto es...",
+                options: ["Sector Primario", "Sector Secundario", "Sector Terciario"],
+                answer: 0
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function initQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('quiz-score').innerText = score;
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('quiz-end').classList.add('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex];
+            document.getElementById('question-text').innerText = `${currentQuestionIndex + 1}. ${q.q}`;
+            
+            const grid = document.getElementById('answers-grid');
+            grid.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white hover:bg-pink-100 text-pink-700 font-bold py-4 px-6 rounded-xl border-2 border-pink-200 text-left text-lg transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-between";
+                btn.innerHTML = `<span>${opt}</span> <i class="fa-regular fa-circle"></i>`;
+                btn.onclick = () => checkAnswer(index, btn);
+                grid.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const correctIndex = questions[currentQuestionIndex].answer;
+            const isCorrect = selectedIndex === correctIndex;
+            
+            const icon = btnElement.querySelector('i');
+            
+            // Disable all buttons
+            const allBtns = document.getElementById('answers-grid').querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                playSound('success');
+                btnElement.classList.replace('bg-white', 'bg-green-100');
+                btnElement.classList.replace('border-pink-200', 'border-green-500');
+                btnElement.classList.replace('text-pink-700', 'text-green-800');
+                icon.className = "fa-solid fa-check-circle text-green-500 text-2xl";
+                score += 10;
+                document.getElementById('quiz-score').innerText = score;
+                confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 }, colors: ['#4ADE80'] });
+            } else {
+                playSound('error');
+                btnElement.classList.replace('bg-white', 'bg-red-100');
+                btnElement.classList.replace('border-pink-200', 'border-red-500');
+                btnElement.classList.replace('text-pink-700', 'text-red-800');
+                icon.className = "fa-solid fa-circle-xmark text-red-500 text-2xl";
+                document.getElementById('quiz-container').classList.add('shake');
+                setTimeout(() => document.getElementById('quiz-container').classList.remove('shake'), 500);
+                
+                // Show correct one
+                allBtns[correctIndex].classList.replace('bg-white', 'bg-green-50');
+                allBtns[correctIndex].classList.replace('border-pink-200', 'border-green-300');
+                allBtns[correctIndex].querySelector('i').className = "fa-solid fa-check text-green-400";
+            }
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    endQuiz();
+                }
+            }, 1500);
+        }
+
+        function endQuiz() {
+            playSound('win');
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-end').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+            if(score === 50) {
+                confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 } });
+            }
+        }
+
+        // --- MINIGAME LOGIC (Tap to sort) ---
+        const gameItemsData = [
+            { id: 'm1', emoji: '👩‍🌾', text: 'Granjera', sector: 'primario' },
+            { id: 'm2', emoji: '👮', text: 'Policía', sector: 'terciario' },
+            { id: 'm3', emoji: '🏭', text: 'Fábrica', sector: 'secundario' },
+            { id: 'm4', emoji: '⛏️', text: 'Minero', sector: 'primario' },
+            { id: 'm5', emoji: '🪑', text: 'Carpintero', sector: 'secundario' },
+            { id: 'm6', emoji: '👩‍⚕️', text: 'Doctora', sector: 'terciario' }
+        ];
+
+        let selectedItem = null;
+        let itemsRemaining = 0;
+
+        function initGame() {
+            const container = document.getElementById('game-items');
+            container.innerHTML = '';
+            document.getElementById('zone-primario').innerHTML = '';
+            document.getElementById('zone-secundario').innerHTML = '';
+            document.getElementById('zone-terciario').innerHTML = '';
+            document.getElementById('game-won').classList.add('hidden');
+            
+            selectedItem = null;
+            
+            // Shuffle array
+            const shuffled = [...gameItemsData].sort(() => 0.5 - Math.random());
+            itemsRemaining = shuffled.length;
+
+            shuffled.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "game-item bg-white border-2 border-gray-300 rounded-xl p-3 text-center shadow-sm flex flex-col items-center min-w-[80px]";
+                div.id = item.id;
+                div.dataset.sector = item.sector;
+                div.innerHTML = `<span class="text-4xl mb-1">${item.emoji}</span><span class="text-sm font-bold text-gray-700">${item.text}</span>`;
+                div.onclick = () => selectItem(div);
+                container.appendChild(div);
+            });
+        }
+
+        function selectItem(element) {
+            playSound('pop');
+            // Deselect previous
+            if(selectedItem) {
+                selectedItem.classList.remove('selected');
+            }
+            // If clicking the same item, just deselect
+            if(selectedItem === element) {
+                selectedItem = null;
+                return;
+            }
+            // Select new
+            selectedItem = element;
+            selectedItem.classList.add('selected');
+        }
+
+        function attemptDrop(zoneSector) {
+            if(!selectedItem) return; // No item selected
+
+            const itemSector = selectedItem.dataset.sector;
+
+            if(itemSector === zoneSector) {
+                // Correct!
+                playSound('success');
+                selectedItem.classList.remove('selected');
+                selectedItem.classList.add('pop-in'); // animate entrance
+                selectedItem.onclick = null; // remove click
+                selectedItem.style.cursor = 'default';
+                
+                // Move element visually
+                document.getElementById(`zone-${zoneSector}`).appendChild(selectedItem);
+                selectedItem = null;
+                
+                // Small confetti in zone
+                const zoneEl = document.getElementById(`zone-${zoneSector}`);
+                const rect = zoneEl.getBoundingClientRect();
+                const x = (rect.left + rect.width / 2) / window.innerWidth;
+                const y = (rect.top + rect.height / 2) / window.innerHeight;
+                confetti({ particleCount: 20, spread: 40, origin: { x, y } });
+
+                itemsRemaining--;
+                checkGameWin();
+            } else {
+                // Wrong!
+                playSound('error');
+                selectedItem.classList.add('shake');
+                setTimeout(() => {
+                    if(selectedItem) selectedItem.classList.remove('shake');
+                }, 500);
+            }
+        }
+
+        function checkGameWin() {
+            if(itemsRemaining === 0) {
+                playSound('win');
+                document.getElementById('game-won').classList.remove('hidden');
+                confetti({ particleCount: 200, spread: 160, origin: { y: 0.5 } });
+            }
+        }
+
+        // --- CUSTOM MODAL ---
+        function showModal(title, text, icon, iconColorClass) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            const iconEl = document.getElementById('modal-icon');
+            iconEl.innerText = icon;
+            iconEl.className = `text-6xl mb-4 ${iconColorClass}`;
+            
+            const modal = document.getElementById('custom-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            playSound('pop');
+            const modal = document.getElementById('custom-modal');
+            const content = document.getElementById('modal-content');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+    </script>
+</body>
+</html>
