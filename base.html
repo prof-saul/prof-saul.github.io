@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL & DB Academy - Espacio Interactivo de Aprendizaje</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"Fira Code"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos personalizados para animaciones y scroll */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .sql-highlight {
+            color: #f43f5e;
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .pulse-effect {
+            animation: pulse-soft 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans h-full flex flex-col overflow-hidden">
+
+    <!-- HEADER PRINCIPAL -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-500/20 flex items-center justify-center">
+                <i class="fa-solid fa-database text-xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                    SQL & DB Academy
+                    <span class="bg-indigo-500/10 text-indigo-400 text-xs px-2 py-0.5 rounded-full border border-indigo-500/20">Aprende Jugando</span>
+                </h1>
+                <p class="text-xs text-slate-400">Entorno interactivo para el dominio de Bases de Datos</p>
+            </div>
+        </div>
+
+        <!-- Barra de Progreso General -->
+        <div class="hidden md:flex items-center space-x-6">
+            <div class="flex items-center space-x-3 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+                <div class="text-right">
+                    <span class="block text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Tu Progreso</span>
+                    <span id="progress-text" class="text-sm font-bold text-indigo-400">0% Completado</span>
+                </div>
+                <div class="w-24 bg-slate-700 rounded-full h-2 overflow-hidden">
+                    <div id="progress-bar" class="bg-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-lg border border-amber-500/20 text-sm font-semibold">
+                <i class="fa-solid fa-trophy"></i>
+                <span id="streak-count">Logros: 0/6</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- CUERPO PRINCIPAL CON DISTRIBUCIÓN SIDEBAR + CONTENIDO -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- SIDEBAR DE NAVEGACIÓN -->
+        <aside class="w-64 bg-slate-900/85 border-r border-slate-800 flex flex-col justify-between shrink-0 hidden lg:flex">
+            <div class="p-4 space-y-6">
+                <div>
+                    <span class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Ruta de Aprendizaje</span>
+                    <nav class="space-y-1">
+                        <button onclick="switchTab('inicio')" id="btn-tab-inicio" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all bg-indigo-600 text-white">
+                            <i class="fa-solid fa-house text-base"></i>
+                            <span>Inicio y Dashboard</span>
+                        </button>
+                        <button onclick="switchTab('teoria')" id="btn-tab-teoria" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/60">
+                            <i class="fa-solid fa-book-open text-base"></i>
+                            <span>1. Lecciones de Teoría</span>
+                        </button>
+                        <button onclick="switchTab('sandbox')" id="btn-tab-sandbox" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/60">
+                            <i class="fa-solid fa-terminal text-base text-emerald-400"></i>
+                            <span>2. Consola SQL (Práctica)</span>
+                        </button>
+                        <button onclick="switchTab('desafios')" id="btn-tab-desafios" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/60">
+                            <i class="fa-solid fa-circle-check text-base"></i>
+                            <span>3. Retos Interactivos</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <div>
+                    <span class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Ludoteca</span>
+                    <nav class="space-y-1">
+                        <button onclick="switchTab('juegos')" id="btn-tab-juegos" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/60">
+                            <i class="fa-solid fa-gamepad text-base text-pink-400"></i>
+                            <span>Minijuegos Evaluativos</span>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Footer Sidebar de Recursos -->
+            <div class="p-4 border-t border-slate-800 space-y-2">
+                <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-800">
+                    <h4 class="text-xs font-bold text-white mb-1"><i class="fa-solid fa-shield-halved text-indigo-400 mr-1.5"></i>Ayuda Rápida</h4>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">¿Atascado? Usa los retos para ver pistas o reinicia la Base de Datos si la alteras.</p>
+                </div>
+                <div class="text-[10px] text-slate-500 text-center">
+                    Hecho con fines educativos • v1.0
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL (CONTAINER DINÁMICO) -->
+        <main class="flex-1 overflow-y-auto bg-slate-950 p-6 md:p-8 relative">
+            
+            <!-- ALERTA PERSISTENTE INTERNA (TOAST DE ACCIÓN) -->
+            <div id="toast-message" class="fixed bottom-6 right-6 z-50 transform translate-y-10 opacity-0 pointer-events-none transition-all duration-300 bg-slate-900 border border-emerald-500 text-slate-100 px-5 py-4 rounded-xl shadow-2xl flex items-center space-x-3 max-w-md">
+                <div id="toast-icon-bg" class="bg-emerald-500/20 p-2 rounded-lg text-emerald-400">
+                    <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <h5 id="toast-title" class="text-sm font-bold text-white">Éxito</h5>
+                    <p id="toast-body" class="text-xs text-slate-300"></p>
+                </div>
+                <button onclick="hideToast()" class="text-slate-400 hover:text-white ml-auto">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- TAB 1: INICIO / DASHBOARD -->
+            <section id="tab-inicio" class="space-y-8 block">
+                <div class="bg-gradient-to-r from-indigo-900/60 to-slate-900 rounded-3xl p-6 md:p-8 border border-indigo-500/20 relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+                    <div class="max-w-2xl relative z-10">
+                        <span class="bg-indigo-500/20 text-indigo-300 text-xs px-3 py-1 rounded-full font-semibold border border-indigo-500/30">¡Bienvenido Alumno!</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-3 leading-tight">Domina el corazón de las aplicaciones modernas: Las Bases de Datos</h2>
+                        <p class="text-slate-300 mt-2 text-base leading-relaxed">
+                            Desde las redes sociales hasta las cuentas bancarias, todo corre sobre bases de datos. Aquí aprenderás el lenguaje SQL, diagramación Entidad-Relación y estructuras de datos de forma interactiva.
+                        </p>
+                        <div class="flex flex-wrap gap-4 mt-6">
+                            <button onclick="switchTab('teoria')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2">
+                                <i class="fa-solid fa-play"></i> Empezar Ruta
+                            </button>
+                            <button onclick="switchTab('sandbox')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all border border-slate-700 flex items-center gap-2">
+                                <i class="fa-solid fa-code"></i> Consola SQL Libre
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjetas de Acceso de Módulos -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-900/60 border border-slate-800 hover:border-indigo-500/30 rounded-2xl p-6 transition-all group">
+                        <div class="bg-indigo-500/10 text-indigo-400 w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-book text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">1. Aprender Teoría</h3>
+                        <p class="text-sm text-slate-400 mb-4 leading-relaxed">Conoce qué es un gestor (DBMS), la diferencia entre SQL y NoSQL, y cómo normalizar tablas sin dolor.</p>
+                        <button onclick="switchTab('teoria')" class="text-xs text-indigo-400 group-hover:text-indigo-300 font-bold flex items-center gap-2">
+                            Entrar a Lecciones <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-900/60 border border-slate-800 hover:border-emerald-500/30 rounded-2xl p-6 transition-all group">
+                        <div class="bg-emerald-500/10 text-emerald-400 w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-terminal text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">2. Consola de Consultas</h3>
+                        <p class="text-sm text-slate-400 mb-4 leading-relaxed">Pon a prueba tus sentencias SELECT, INSERT, UPDATE y DELETE. Simulador integrado rápido y visual.</p>
+                        <button onclick="switchTab('sandbox')" class="text-xs text-emerald-400 group-hover:text-emerald-300 font-bold flex items-center gap-2">
+                            Abrir Consola SQL <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-900/60 border border-slate-800 hover:border-pink-500/30 rounded-2xl p-6 transition-all group">
+                        <div class="bg-pink-500/10 text-pink-400 w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:bg-pink-600 group-hover:text-white transition-all">
+                            <i class="fa-solid fa-gamepad text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">3. Zona de Juegos</h3>
+                        <p class="text-sm text-slate-400 mb-4 leading-relaxed">Resuelve el misterio de la base de datos corrupta con minijuegos dinámicos y divertidos.</p>
+                        <button onclick="switchTab('juegos')" class="text-xs text-pink-400 group-hover:text-pink-300 font-bold flex items-center gap-2">
+                            Ir a la Ludoteca <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Logros y Misiones -->
+                <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-award text-amber-400"></i> Logros y Objetivos Pendientes
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="achievements-container">
+                        <!-- Se generarán dinámicamente con JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: TEORÍA Y LECCIONES -->
+            <section id="tab-teoria" class="space-y-8 hidden">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Lecciones de Teoría Interactiva</h2>
+                        <p class="text-sm text-slate-400">Domina los conceptos clave antes de programar</p>
+                    </div>
+                    <!-- Selector de Lecciones en Pestañas -->
+                    <div class="flex space-x-2 bg-slate-900 p-1 rounded-xl border border-slate-800 overflow-x-auto">
+                        <button onclick="switchLesson(1)" id="btn-lesson-1" class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all bg-indigo-600 text-white">L1: Conceptos Básicos</button>
+                        <button onclick="switchLesson(2)" id="btn-lesson-2" class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-white">L2: El Modelo Relacional</button>
+                        <button onclick="switchLesson(3)" id="btn-lesson-3" class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-white">L3: Normalización y Llaves</button>
+                    </div>
+                </div>
+
+                <!-- CONTENIDO LECCIÓN 1 -->
+                <div id="lesson-content-1" class="space-y-6 lesson-panel">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="bg-indigo-500/20 text-indigo-400 w-8 h-8 rounded-lg flex items-center justify-center text-sm">1</span>
+                                    ¿Qué es una Base de Datos?
+                                </h3>
+                                <p class="text-sm text-slate-300 leading-relaxed">
+                                    Una <strong class="text-indigo-400">Base de Datos (BD)</strong> es una colección organizada y estructurada de información o datos que se almacena electrónicamente en un sistema informático. Permite guardar información a largo plazo y acceder a ella rápidamente.
+                                </p>
+                                <p class="text-sm text-slate-300 leading-relaxed">
+                                    Imagina una hoja de cálculo gigante de Excel, pero optimizada para ser leída por miles de personas y servidores al mismo tiempo sin colapsar.
+                                </p>
+                                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Ejemplo Visual de una Tabla (Clientes)</h4>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-xs text-left">
+                                            <thead>
+                                                <tr class="border-b border-slate-800 text-slate-400">
+                                                    <th class="pb-2">ID (Llave Primaria)</th>
+                                                    <th class="pb-2">Nombre (Columna)</th>
+                                                    <th class="pb-2">Correo (Columna)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="border-b border-slate-900 text-slate-300">
+                                                    <td class="py-2 font-mono text-indigo-400">1</td>
+                                                    <td class="py-2">Carlos López</td>
+                                                    <td class="py-2">carlos@mail.com</td>
+                                                </tr>
+                                                <tr class="text-slate-300">
+                                                    <td class="py-2 font-mono text-indigo-400">2</td>
+                                                    <td class="py-2">Sofía Castro</td>
+                                                    <td class="py-2">sofia@mail.com</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <span class="block text-[10px] text-slate-500 mt-2 text-right">Cada fila completa representa un Registro (o Tupla)</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="bg-indigo-500/20 text-indigo-400 w-8 h-8 rounded-lg flex items-center justify-center text-sm">2</span>
+                                    ¿Qué es un DBMS / SGBD?
+                                </h3>
+                                <p class="text-sm text-slate-300 leading-relaxed">
+                                    Un **Sistema de Gestión de Bases de Datos (SGBD)** o **DBMS** (Database Management System) es el software que sirve de interfaz entre la base de datos física y los usuarios o aplicaciones.
+                                </p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="bg-slate-950 p-4 rounded-xl border border-indigo-500/20">
+                                        <h5 class="text-xs font-bold text-white mb-2"><i class="fa-solid fa-code-branch text-indigo-400 mr-2"></i>SGBD Relacionales (SQL)</h5>
+                                        <p class="text-[11px] text-slate-400 leading-relaxed">Almacenan información en tablas conectadas entre sí mediante llaves. Son robustas y estructuradas.</p>
+                                        <span class="block text-[10px] text-indigo-300 mt-2">Ejemplos: PostgreSQL, MySQL, SQLite</span>
+                                    </div>
+                                    <div class="bg-slate-950 p-4 rounded-xl border border-pink-500/20">
+                                        <h5 class="text-xs font-bold text-white mb-2"><i class="fa-solid fa-shapes text-pink-400 mr-2"></i>SGBD No Relacionales (NoSQL)</h5>
+                                        <p class="text-[11px] text-slate-400 leading-relaxed">Almacenan información en formatos flexibles como JSON, grafos u objetos clave-valor.</p>
+                                        <span class="block text-[10px] text-pink-300 mt-2">Ejemplos: MongoDB, Redis, Cassandra</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panel de Mini-Quiz de Lección -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-fit space-y-4">
+                            <span class="text-amber-400 font-bold text-xs uppercase tracking-wider block"><i class="fa-solid fa-circle-question mr-2"></i>Comprueba lo aprendido</span>
+                            <h4 class="text-base font-bold text-white">¿Cuál de los siguientes NO es un tipo de Base de Datos Relacional?</h4>
+                            <div class="space-y-2">
+                                <button onclick="checkQuizAnswer(1, 'A')" class="w-full text-left text-xs bg-slate-950 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 text-slate-300 transition-all flex items-center justify-between">
+                                    <span>A) PostgreSQL</span>
+                                    <i class="fa-regular fa-circle text-slate-500"></i>
+                                </button>
+                                <button onclick="checkQuizAnswer(1, 'B')" class="w-full text-left text-xs bg-slate-950 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 text-slate-300 transition-all flex items-center justify-between">
+                                    <span>B) MongoDB</span>
+                                    <i class="fa-regular fa-circle text-slate-500"></i>
+                                </button>
+                                <button onclick="checkQuizAnswer(1, 'C')" class="w-full text-left text-xs bg-slate-950 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 text-slate-300 transition-all flex items-center justify-between">
+                                    <span>C) SQLite</span>
+                                    <i class="fa-regular fa-circle text-slate-500"></i>
+                                </button>
+                            </div>
+                            <div id="quiz-feedback-1" class="hidden text-xs p-3 rounded-lg"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTENIDO LECCIÓN 2 -->
+                <div id="lesson-content-2" class="space-y-6 lesson-panel hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="bg-indigo-500/20 text-indigo-400 w-8 h-8 rounded-lg flex items-center justify-center text-sm">2</span>
+                                    El Modelo Relacional y el lenguaje SQL
+                                </h3>
+                                <p class="text-sm text-slate-300 leading-relaxed">
+                                    El **Modelo Relacional** organiza los datos en tablas estructuradas (relaciones). Para interactuar con estas tablas usamos un lenguaje estándar llamado <strong class="text-indigo-400">SQL (Structured Query Language)</strong> o Lenguaje de Consulta Estructurada.
+                                </p>
+                                <p class="text-sm text-slate-300 leading-relaxed">
+                                    Las operaciones se dividen comúnmente en dos tipos de sentencias principales:
+                                </p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                    <div>
+                                        <h5 class="text-xs font-bold text-white mb-2 uppercase tracking-wide text-indigo-400">DML (Manipulación de Datos)</h5>
+                                        <ul class="text-xs space-y-1.5 text-slate-300">
+                                            <li><code class="text-pink-400">SELECT</code> - Consultar/Buscar datos</li>
+                                            <li><code class="text-pink-400">INSERT</code> - Insertar nuevos registros</li>
+                                            <li><code class="text-pink-400">UPDATE</code> - Modificar datos existentes</li>
+                                            <li><code class="text-pink-400">DELETE</code> - Borrar registros</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h5 class="text-xs font-bold text-white mb-2 uppercase tracking-wide text-amber-400">DDL (Definición de Datos)</h5>
+                                        <ul class="text-xs space-y-1.5 text-slate-300">
+                                            <li><code class="text-pink-400">CREATE TABLE</code> - Crear nuevas tablas</li>
+                                            <li><code class="text-pink-400">ALTER TABLE</code> - Modificar estructuras</li>
+                                            <li><code class="text-pink-400">DROP TABLE</code> - Eliminar una tabla completa</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panel de Mini-Quiz de Lección -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-fit space-y-4">
+                            <span class="text-amber-400 font-bold text-xs uppercase tracking-wider block"><i class="fa-solid fa-circle-question mr-2"></i>Comprueba lo aprendido</span>
+                            <h4 class="text-base font-bold text-white">¿Qué sentencia se utiliza para modificar datos existentes en una tabla?</h4>
+                            <div class="space-y-2">
+                                <button onclick="checkQuizAnswer(2, 'A')" class="w-full text-left text-xs bg-slate-950 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 text-slate-300 transition-all flex items-center justify-between">
+                                    <span>A) ALTER</span>
+                                    <i class="fa-regular fa-circle text-slate-500"></i>
+                                </button>
+                                <button onclick="checkQuizAnswer(2, 'B')" class="w-full text-left text-xs bg-slate-950 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 text-slate-300 transition-all flex items-center justify-between">
+                                    <span>B) UPDATE</span>
+                                    <i class="fa-regular fa-circle text-slate-500"></i>
+                                </button>
+                                <button onclick="checkQuizAnswer(2, 'C')" class="w-full text-left text-xs bg-slate-950 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 text-slate-300 transition-all flex items-center justify-between">
+                                    <span>C) INSERT</span>
+                                    <i class="fa-regular fa-circle text-slate-500"></i>
+                                </button>
+                            </div>
+                            <div id="quiz-feedback-2" class="hidden text-xs p-3 rounded-lg"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTENIDO LECCIÓN 3 -->
+                <div id="lesson-content-3" class="space-y-6 lesson-panel hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="bg-indigo-500/20 text-indigo-400 w-8 h-8 rounded-lg flex items-center justify-center text-sm">3</span>
+                                    Claves (Keys) e Integridad Referencial
+                                </h3>
+                                <p class="text-sm text-slate-300 leading-relaxed">
+                                    Para evitar la inconsistencia de los datos, las tablas del modelo relacional se vinculan entre sí por medio de columnas especiales denominadas **llaves**:
+                                </p>
+                                <div class="space-y-3">
+                                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                        <h5 class="text-xs font-bold text-emerald-400 mb-1 flex items-center gap-2">
+                                            <i class="fa-solid fa-key"></i> Llave Primaria (Primary Key - PK)
+                                        </h5>
+                                        <p class="text-xs text-slate-300 leading-relaxed">
+                                            Un identificador único para cada registro en una tabla. No puede repetirse y no puede ser nulo. Por ejemplo: `id` o `cedula`.
+                                        </p>
+                                    </div>
+                                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                                        <h5 class="text-xs font-bold text-indigo-400 mb-1 flex items-center gap-2">
+                                            <i class="fa-solid fa-link"></i> Llave Foránea (Foreign Key - FK)
+                                        </h5>
+                                        <p class="text-xs text-slate-300 leading-relaxed">
+                                            Una columna de una tabla que hace referencia a la Llave Primaria de otra tabla. Es la responsable de crear las relaciones de datos (Ejemplo: `cliente_id` en una tabla de `Pedidos`).
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panel de Mini-Quiz de Lección -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-fit space-y-4">
+                            <span class="text-amber-400 font-bold text-xs uppercase tracking-wider block"><i class="fa-solid fa-circle-question mr-2"></i>Comprueba lo aprendido</span>
+                            <h4 class="text-base font-bold text-white">¿Qué propiedad debe cumplir estrictamente una Llave Primaria?</h4>
+                            <div class="space-y-2">
+                                <button onclick="checkQuizAnswer(3, 'A')" class="w-full text-left text-xs bg-slate-950 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 text-slate-300 transition-all flex items-center justify-between">
+                                    <span>A) Debe ser única y no nula</span>
+                                    <i class="fa-regular fa-circle text-slate-500"></i>
+                                </button>
+                                <button onclick="checkQuizAnswer(3, 'B')" class="w-full text-left text-xs bg-slate-950 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 text-slate-300 transition-all flex items-center justify-between">
+                                    <span>B) Debe poder contener valores repetidos</span>
+                                    <i class="fa-regular fa-circle text-slate-500"></i>
+                                </button>
+                                <button onclick="checkQuizAnswer(3, 'C')" class="w-full text-left text-xs bg-slate-950 hover:bg-slate-800 p-3 rounded-xl border border-slate-800 text-slate-300 transition-all flex items-center justify-between">
+                                    <span>C) Puede dejarse en blanco o nula</span>
+                                    <i class="fa-regular fa-circle text-slate-500"></i>
+                                </button>
+                            </div>
+                            <div id="quiz-feedback-3" class="hidden text-xs p-3 rounded-lg"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: CONSOLA SQL SANDBOX -->
+            <section id="tab-sandbox" class="space-y-6 hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-terminal text-emerald-400"></i> Consola SQL Sandbox
+                        </h2>
+                        <p class="text-sm text-slate-400">Ejecuta consultas en tiempo real sobre una base de datos simulada en memoria.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="resetMockDatabase()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-4 py-2 rounded-xl border border-slate-700 transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> Reiniciar DB
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    
+                    <!-- LADO IZQUIERDO: EXPLORADOR DE ESQUEMA / TABLAS DISPONIBLES -->
+                    <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2 uppercase tracking-wide">
+                                <i class="fa-solid fa-table-list text-indigo-400"></i> Esquema de la DB
+                            </h3>
+                            <p class="text-xs text-slate-400 leading-relaxed">Puedes consultar estas tablas en tu sandbox:</p>
+                            
+                            <div class="space-y-3" id="schema-accordion">
+                                <!-- Tabla Clientes -->
+                                <div class="bg-slate-950/80 rounded-xl border border-slate-800 overflow-hidden">
+                                    <button onclick="toggleSchemaDetails('schema-clientes')" class="w-full text-left px-4 py-2.5 text-xs font-bold text-indigo-300 bg-slate-900/40 hover:bg-slate-900/80 flex items-center justify-between transition-all">
+                                        <span><i class="fa-solid fa-table mr-2"></i>Clientes</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-slate-500"></i>
+                                    </button>
+                                    <div id="schema-clientes" class="p-3 border-t border-slate-900 space-y-2 text-[11px] hidden">
+                                        <div class="flex justify-between border-b border-slate-900/60 pb-1"><span class="font-mono text-emerald-400">id</span> <span class="text-slate-500">INT (PK)</span></div>
+                                        <div class="flex justify-between border-b border-slate-900/60 pb-1"><span class="font-mono">nombre</span> <span class="text-slate-500">VARCHAR(50)</span></div>
+                                        <div class="flex justify-between border-b border-slate-900/60 pb-1"><span class="font-mono">email</span> <span class="text-slate-500">VARCHAR(100)</span></div>
+                                        <div class="flex justify-between"><span class="font-mono">pais</span> <span class="text-slate-500">VARCHAR(30)</span></div>
+                                    </div>
+                                </div>
+
+                                <!-- Tabla Pedidos -->
+                                <div class="bg-slate-950/80 rounded-xl border border-slate-800 overflow-hidden">
+                                    <button onclick="toggleSchemaDetails('schema-pedidos')" class="w-full text-left px-4 py-2.5 text-xs font-bold text-indigo-300 bg-slate-900/40 hover:bg-slate-900/80 flex items-center justify-between transition-all">
+                                        <span><i class="fa-solid fa-table mr-2"></i>Pedidos</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-slate-500"></i>
+                                    </button>
+                                    <div id="schema-pedidos" class="p-3 border-t border-slate-900 space-y-2 text-[11px] hidden">
+                                        <div class="flex justify-between border-b border-slate-900/60 pb-1"><span class="font-mono text-emerald-400">id</span> <span class="text-slate-500">INT (PK)</span></div>
+                                        <div class="flex justify-between border-b border-slate-900/60 pb-1"><span class="font-mono text-amber-400">cliente_id</span> <span class="text-slate-500">INT (FK)</span></div>
+                                        <div class="flex justify-between border-b border-slate-900/60 pb-1"><span class="font-mono">producto</span> <span class="text-slate-500">VARCHAR(50)</span></div>
+                                        <div class="flex justify-between"><span class="font-mono">total</span> <span class="text-slate-500">DECIMAL</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 bg-indigo-950/30 border border-indigo-500/20 p-4 rounded-xl space-y-1">
+                            <span class="text-xs font-bold text-indigo-300 block"><i class="fa-solid fa-circle-info mr-1.5"></i>Sintaxis recomendada:</span>
+                            <code class="text-[10px] text-slate-300 font-mono block">SELECT * FROM Clientes</code>
+                            <code class="text-[10px] text-slate-300 font-mono block">SELECT nombre FROM Clientes WHERE pais='México'</code>
+                        </div>
+                    </div>
+
+                    <!-- LADO DERECHO: CONSOLA DE ENTRADA Y TABLA DE SALIDA -->
+                    <div class="lg:col-span-8 flex flex-col gap-6">
+                        
+                        <!-- Panel de Consola / Editor -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col">
+                            <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                                    <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                                    <span class="text-xs font-semibold text-slate-400 font-mono ml-2">sandbox.sql</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500 font-mono">Simulador SQL v1.0</span>
+                            </div>
+
+                            <!-- Textarea Editor -->
+                            <div class="relative">
+                                <textarea id="sql-editor" rows="6" class="w-full bg-slate-950 text-emerald-400 font-mono text-sm p-4 focus:outline-none focus:ring-0 resize-none border-b border-slate-800" placeholder="Escribe tu consulta SQL aquí...&#10;Por ejemplo: SELECT * FROM Clientes;"></textarea>
+                            </div>
+
+                            <!-- Barra de Acciones de la Consola -->
+                            <div class="bg-slate-900/80 px-4 py-3 flex justify-between items-center">
+                                <span class="text-[11px] text-slate-400" id="sandbox-status">Listo para ejecutar</span>
+                                <div class="flex gap-2">
+                                    <button onclick="clearConsole()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium px-4 py-2 rounded-lg border border-slate-700 transition-all">Limpiar</button>
+                                    <button onclick="executeSandboxQuery()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-5 py-2 rounded-lg shadow-lg shadow-emerald-600/20 flex items-center gap-1.5 transition-all">
+                                        <i class="fa-solid fa-play text-[10px]"></i> Ejecutar Consulta
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panel de Resultados (Tabla o Mensajes de Error) -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex-1 flex flex-col min-h-[250px] justify-between">
+                            <div class="space-y-4">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-table"></i> Tabla de Resultados
+                                </h4>
+                                
+                                <div id="sandbox-results-container" class="overflow-x-auto">
+                                    <!-- Aquí se renderiza la tabla dinámicamente -->
+                                    <div class="text-center py-10 text-slate-500 text-sm">
+                                        <i class="fa-solid fa-database text-3xl text-slate-700 mb-3 block"></i>
+                                        Escribe una consulta y haz clic en "Ejecutar" para ver los resultados
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="sandbox-execution-info" class="text-[10px] text-slate-500 text-right mt-4 hidden">
+                                Consulta completada con éxito.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: RETOS INTERACTIVOS (DESAFÍOS) -->
+            <section id="tab-desafios" class="space-y-6 hidden">
+                <div class="border-b border-slate-800 pb-5">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-indigo-400"></i> Desafíos de Consulta SQL
+                    </h2>
+                    <p class="text-sm text-slate-400">Completa cada reto escribiendo la sentencia SQL correcta para avanzar de rango.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    
+                    <!-- MENU SELECCIÓN DE DESAFÍO -->
+                    <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-2">Lista de Retos</h3>
+                            <div class="space-y-2" id="challenges-list">
+                                <!-- Se generarán dinámicamente con JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANTALLA PRINCIPAL DE RETO SELECCIONADO -->
+                    <div class="lg:col-span-8 flex flex-col gap-6" id="active-challenge-container">
+                        <!-- El reto activo se inyectará dinámicamente -->
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-500">
+                            <i class="fa-solid fa-circle-info text-4xl text-slate-700 mb-3 block"></i>
+                            Selecciona un desafío de la lista lateral para empezar
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: MINIJUEGOS EVALUATIVOS -->
+            <section id="tab-juegos" class="space-y-6 hidden">
+                <div class="border-b border-slate-800 pb-5">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-gamepad text-pink-500"></i> Zona de Minijuegos Evaluativos
+                    </h2>
+                    <p class="text-sm text-slate-400">Aprende bases de datos sin aburrirte resolviendo acertijos y esquemas interactivos.</p>
+                </div>
+
+                <!-- SELECTOR DE JUEGOS -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="games-selection">
+                    <!-- Tarjeta Juego 1 -->
+                    <div class="bg-slate-900/80 border border-slate-800 hover:border-pink-500/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
+                        <div>
+                            <div class="bg-pink-500/10 text-pink-400 w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:bg-pink-600 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-link text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Conector del Esquema (ER Matcher)</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                Un reto visual donde debes asociar correctamente las columnas de origen con sus respectivas llaves foráneas para estructurar la base de datos de manera normalizada.
+                            </p>
+                        </div>
+                        <button onclick="startERMatcherGame()" class="bg-slate-850 hover:bg-pink-600 hover:text-white text-pink-400 text-xs font-bold py-2 px-4 rounded-xl border border-pink-500/20 group-hover:border-transparent transition-all flex items-center justify-center gap-2 w-full">
+                            <i class="fa-solid fa-play"></i> Jugar Ahora
+                        </button>
+                    </div>
+
+                    <!-- Tarjeta Juego 2 -->
+                    <div class="bg-slate-900/80 border border-slate-800 hover:border-indigo-500/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
+                        <div>
+                            <div class="bg-indigo-500/10 text-indigo-400 w-12 h-12 rounded-xl flex items-center justify-center mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-vault text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">La Cripta SQL</h3>
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                Un hacker ha bloqueado el sistema central. Resuelve preguntas teóricas contrarreloj para desactivar las bombas de lógica y recuperar la base de datos de la academia.
+                            </p>
+                        </div>
+                        <button onclick="startCriptaGame()" class="bg-slate-850 hover:bg-indigo-600 hover:text-white text-indigo-400 text-xs font-bold py-2 px-4 rounded-xl border border-indigo-500/20 group-hover:border-transparent transition-all flex items-center justify-center gap-2 w-full">
+                            <i class="fa-solid fa-play"></i> Jugar Ahora
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONTENEDOR DINÁMICO DE JUEGO ACTIVO -->
+                <div id="active-game-arena" class="hidden">
+                    <!-- El juego inicializado se renderiza aquí -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- NOTIFICACIONES CON CONSOLA DE MENSAJES CUSTOMIZADA (NO ALERTS) -->
+    <div id="modal-notif" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-slate-900 border border-slate-850 max-w-sm w-full rounded-2xl p-6 shadow-2xl text-center space-y-4">
+            <div id="modal-notif-icon-container" class="mx-auto w-12 h-12 rounded-full flex items-center justify-center text-xl bg-amber-500/10 text-amber-400">
+                <i id="modal-notif-icon" class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 id="modal-notif-title" class="text-lg font-bold text-white">Atención</h3>
+                <p id="modal-notif-body" class="text-xs text-slate-400 mt-2 leading-relaxed">Mensaje del sistema.</p>
+            </div>
+            <button onclick="closeModalNotif()" class="w-full bg-slate-800 hover:bg-slate-750 text-white font-semibold text-sm py-2.5 rounded-xl transition-all">Aceptar</button>
+        </div>
+    </div>
+
+    <!-- JS PRINCIPAL Y LÓGICA DE SIMULACIÓN DE CONSULTAS -->
+    <script>
+        // ==========================================
+        // BASE DE DATOS MOCK EN MEMORIA
+        // ==========================================
+        let mockDB = {
+            Clientes: [
+                { id: 1, nombre: 'Juan Pérez', email: 'juan@mail.com', pais: 'México' },
+                { id: 2, nombre: 'Ana Gómez', email: 'ana@mail.com', pais: 'España' },
+                { id: 3, nombre: 'Carlos Ruiz', email: 'carlos@mail.com', pais: 'Argentina' },
+                { id: 4, nombre: 'Diana Silva', email: 'diana@mail.com', pais: 'Colombia' },
+                { id: 5, nombre: 'Elena Torres', email: 'elena@mail.com', pais: 'México' }
+            ],
+            Pedidos: [
+                { id: 101, cliente_id: 1, producto: 'Laptop Dell', total: 1200 },
+                { id: 102, cliente_id: 2, producto: 'Mouse Gamer', total: 45 },
+                { id: 103, cliente_id: 1, producto: 'Teclado Mecánico', total: 85 },
+                { id: 104, cliente_id: 4, producto: 'Monitor 4K', total: 350 },
+                { id: 105, cliente_id: 3, producto: 'Audífonos Pro', total: 120 }
+            ]
+        };
+
+        // Respaldo de Base de Datos para el reset
+        const initialDBBackup = JSON.stringify(mockDB);
+
+        // ==========================================
+        // PROGRESO Y LOGROS
+        // ==========================================
+        let userProgress = {
+            completedQuizzes: [false, false, false], // Lección 1, 2, 3
+            completedChallenges: {}, // ID de Reto => true
+            erMatcherSolved: false,
+            criptaHighscore: 0
+        };
+
+        const achievementsList = [
+            { id: 'quiz1', title: 'Teórico Novato', desc: 'Resuelve el quiz de la Lección 1', check: () => userProgress.completedQuizzes[0] },
+            { id: 'quiz2', title: 'Comandante SQL', desc: 'Resuelve el quiz de la Lección 2', check: () => userProgress.completedQuizzes[1] },
+            { id: 'quiz3', title: 'Modelador Experto', desc: 'Resuelve el quiz de la Lección 3', check: () => userProgress.completedQuizzes[2] },
+            { id: 'challenge1', title: 'Primer Script exitoso', desc: 'Completa cualquier desafío SQL', check: () => Object.keys(userProgress.completedChallenges).length >= 1 },
+            { id: 'allchallenges', title: 'SQL Master', desc: 'Completa todos los desafíos de consulta', check: () => Object.keys(userProgress.completedChallenges).length >= challenges.length },
+            { id: 'games', title: 'Hackers Vencidos', desc: 'Salva la Cripta SQL con éxito', check: () => userProgress.criptaHighscore > 0 }
+        ];
+
+        // ==========================================
+        // DEFINICIÓN DE DESAFÍOS (SQL CHALLENGES)
+        // ==========================================
+        const challenges = [
+            {
+                id: 1,
+                title: "Traer todo el padrón",
+                category: "Fácil",
+                desc: "Selecciona todas las columnas y filas disponibles en la tabla de <strong class='text-indigo-400'>Clientes</strong>.",
+                hint: "Usa SELECT * FROM nombre_tabla",
+                expectedQuery: "SELECT * FROM Clientes",
+                check: (resultQuery) => {
+                    const parsed = parseSQL(resultQuery);
+                    return parsed && parsed.type === 'SELECT' && parsed.table === 'clientes' && parsed.fields.includes('*') && !parsed.where;
+                }
+            },
+            {
+                id: 2,
+                title: "Clientes en México",
+                category: "Fácil",
+                desc: "Necesitamos identificar a los usuarios ubicados únicamente en <strong class='text-indigo-400'>México</strong>. Extrae todos sus datos.",
+                hint: "Usa SELECT * FROM Clientes WHERE pais = 'México'",
+                expectedQuery: "SELECT * FROM Clientes WHERE pais = 'México'",
+                check: (resultQuery) => {
+                    const parsed = parseSQL(resultQuery);
+                    return parsed && parsed.type === 'SELECT' && parsed.table === 'clientes' && parsed.where && parsed.where.column === 'pais' && parsed.where.value === 'méxico';
+                }
+            },
+            {
+                id: 3,
+                title: "Listado de correos",
+                category: "Medio",
+                desc: "El equipo de marketing necesita enviar un boletín masivo. Obtén solo la columna <strong class='text-indigo-400'>nombre</strong> y la columna <strong class='text-indigo-400'>email</strong> de todos los registros de la tabla Clientes.",
+                hint: "Usa SELECT nombre, email FROM Clientes",
+                expectedQuery: "SELECT nombre, email FROM Clientes",
+                check: (resultQuery) => {
+                    const parsed = parseSQL(resultQuery);
+                    return parsed && parsed.type === 'SELECT' && parsed.table === 'clientes' && parsed.fields.includes('nombre') && parsed.fields.includes('email') && !parsed.where;
+                }
+            },
+            {
+                id: 4,
+                title: "Pedidos de gran valor",
+                category: "Medio",
+                desc: "Identifica aquellos pedidos cuyo total facturado supere el valor de <strong class='text-emerald-400'>100</strong>.",
+                hint: "Usa SELECT * FROM Pedidos WHERE total > 100",
+                expectedQuery: "SELECT * FROM Pedidos WHERE total > 100",
+                check: (resultQuery) => {
+                    const parsed = parseSQL(resultQuery);
+                    return parsed && parsed.type === 'SELECT' && parsed.table === 'pedidos' && parsed.where && parsed.where.column === 'total' && parsed.where.operator === '>' && parseFloat(parsed.where.value) === 100;
+                }
+            },
+            {
+                id: 5,
+                title: "Nueva incorporación",
+                category: "Avanzado",
+                desc: "Ingresa un nuevo cliente en la tabla <strong class='text-indigo-400'>Clientes</strong> con los siguientes datos: id: 6, nombre: 'Andrés Mendoza', email: 'andres@mail.com', pais: 'Perú'.",
+                hint: "Sintaxis: INSERT INTO Clientes (id, nombre, email, pais) VALUES (6, 'Andrés Mendoza', 'andres@mail.com', 'Perú')",
+                expectedQuery: "INSERT INTO Clientes (id, nombre, email, pais) VALUES (6, 'Andrés Mendoza', 'andres@mail.com', 'Perú')",
+                check: (resultQuery, dbState) => {
+                    return dbState.Clientes.some(c => c.id === 6 && c.nombre.toLowerCase().includes('andrés') && c.pais.toLowerCase() === 'perú');
+                }
+            }
+        ];
+
+        let activeChallengeId = 1;
+
+        // ==========================================
+        // MOTOR PARSER SQL BÁSICO INTERNO (REGEX)
+        // ==========================================
+        function parseSQL(query) {
+            query = query.trim().replace(/;+$/, ""); // quitar punto y coma final
+            const queryLower = query.toLowerCase();
+
+            // CASO SELECT
+            if (queryLower.startsWith('select')) {
+                // Regex para extraer campos, tabla, WHERE y ORDER BY
+                const selectRegex = /^select\s+(.+?)\s+from\s+(\w+)(?:\s+where\s+(.+?))?(?:\s+order\s+by\s+(.+?))?$/i;
+                const match = query.match(selectRegex);
+                if (!match) return null;
+
+                const fields = match[1].split(',').map(f => f.trim().toLowerCase());
+                const table = match[2].trim().toLowerCase();
+                const whereClause = match[3] ? match[3].trim() : null;
+                const orderByClause = match[4] ? match[4].trim() : null;
+
+                let where = null;
+                if (whereClause) {
+                    // Soporte para operadores b&aacute;sicos =, >, <, !=
+                    const whereRegex = /(\w+)\s*([=><!]+)\s*(.+)/i;
+                    const wMatch = whereClause.match(whereRegex);
+                    if (wMatch) {
+                        where = {
+                            column: wMatch[1].trim().toLowerCase(),
+                            operator: wMatch[2].trim(),
+                            value: wMatch[3].trim().replace(/['"]/g, '').toLowerCase() // remover comillas
+                        };
+                    }
+                }
+
+                return { type: 'SELECT', fields, table, where, orderBy: orderByClause };
+            }
+
+            // CASO INSERT
+            if (queryLower.startsWith('insert into')) {
+                const insertRegex = /^insert\s+into\s+(\w+)\s*\((.+?)\)\s*values\s*\((.+?)\)$/i;
+                const match = query.match(insertRegex);
+                if (!match) return null;
+
+                const table = match[1].trim().toLowerCase();
+                const columns = match[2].split(',').map(c => c.trim().toLowerCase());
+                const values = match[3].split(',').map(v => v.trim().replace(/['"]/g, '')); // Remover comillas simples/dobles
+
+                return { type: 'INSERT', table, columns, values };
+            }
+
+            // CASO UPDATE
+            if (queryLower.startsWith('update')) {
+                const updateRegex = /^update\s+(\w+)\s+set\s+(.+?)(?:\s+where\s+(.+?))?$/i;
+                const match = query.match(updateRegex);
+                if (!match) return null;
+
+                const table = match[1].trim().toLowerCase();
+                const setString = match[2].trim();
+                const whereClause = match[3] ? match[3].trim() : null;
+
+                // parse SET col = val
+                const setMatch = setString.match(/(\w+)\s*=\s*(.+)/);
+                let set = null;
+                if (setMatch) {
+                    set = {
+                        column: setMatch[1].trim().toLowerCase(),
+                        value: setMatch[2].trim().replace(/['"]/g, '')
+                    };
+                }
+
+                let where = null;
+                if (whereClause) {
+                    const whereMatch = whereClause.match(/(\w+)\s*([=><!]+)\s*(.+)/);
+                    if (whereMatch) {
+                        where = {
+                            column: whereMatch[1].trim().toLowerCase(),
+                            operator: whereMatch[2].trim(),
+                            value: whereMatch[3].trim().replace(/['"]/g, '').toLowerCase()
+                        };
+                    }
+                }
+
+                return { type: 'UPDATE', table, set, where };
+            }
+
+            // CASO DELETE
+            if (queryLower.startsWith('delete from')) {
+                const deleteRegex = /^delete\s+from\s+(\w+)(?:\s+where\s+(.+?))?$/i;
+                const match = query.match(deleteRegex);
+                if (!match) return null;
+
+                const table = match[1].trim().toLowerCase();
+                const whereClause = match[2] ? match[2].trim() : null;
+
+                let where = null;
+                if (whereClause) {
+                    const whereMatch = whereClause.match(/(\w+)\s*([=><!]+)\s*(.+)/);
+                    if (whereMatch) {
+                        where = {
+                            column: whereMatch[1].trim().toLowerCase(),
+                            operator: whereMatch[2].trim(),
+                            value: whereMatch[3].trim().replace(/['"]/g, '').toLowerCase()
+                        };
+                    }
+                }
+
+                return { type: 'DELETE', table, where };
+            }
+
+            return null;
+        }
+
+        // Ejecutor de Consultas SQL Simulado
+        function executeSQLQuery(rawQuery) {
+            const parsed = parseSQL(rawQuery);
+            if (!parsed) {
+                return { success: false, error: 'Sintaxis SQL inválida o no soportada. Asegúrate de estructurar bien tu SELECT, INSERT, UPDATE o DELETE.' };
+            }
+
+            // Mapeo del nombre real de la tabla respetando mayúsculas
+            let matchedTableName = Object.keys(mockDB).find(t => t.toLowerCase() === parsed.table);
+            if (!matchedTableName) {
+                return { success: false, error: `La tabla "${parsed.table}" no existe en el esquema.` };
+            }
+
+            let tableData = mockDB[matchedTableName];
+
+            // --- LÓGICA SELECT ---
+            if (parsed.type === 'SELECT') {
+                let rows = [...tableData];
+
+                // Filtro WHERE básico
+                if (parsed.where) {
+                    const { column, operator, value } = parsed.where;
+                    
+                    // Verificar si la columna existe
+                    if (rows.length > 0 && !rows[0].hasOwnProperty(column)) {
+                        return { success: false, error: `La columna "${column}" no existe en la tabla "${matchedTableName}".` };
+                    }
+
+                    rows = rows.filter(row => {
+                        let rowVal = String(row[column]).toLowerCase();
+                        let filterVal = String(value).toLowerCase();
+
+                        if (operator === '=') return rowVal == filterVal;
+                        if (operator === '>') return parseFloat(rowVal) > parseFloat(filterVal);
+                        if (operator === '<') return parseFloat(rowVal) < parseFloat(filterVal);
+                        if (operator === '!=') return rowVal != filterVal;
+                        return false;
+                    });
+                }
+
+                // Filtrar Columnas solicitadas
+                let resultRows = [];
+                if (parsed.fields.includes('*')) {
+                    resultRows = rows;
+                } else {
+                    // Validar columnas
+                    for (let field of parsed.fields) {
+                        if (rows.length > 0 && !rows[0].hasOwnProperty(field)) {
+                            return { success: false, error: `La columna "${field}" no existe en la tabla "${matchedTableName}".` };
+                        }
+                    }
+                    resultRows = rows.map(row => {
+                        let obj = {};
+                        parsed.fields.forEach(field => {
+                            obj[field] = row[field];
+                        });
+                        return obj;
+                    });
+                }
+
+                return { success: true, data: resultRows, affected: 0 };
+            }
+
+            // --- LÓGICA INSERT ---
+            if (parsed.type === 'INSERT') {
+                if (parsed.columns.length !== parsed.values.length) {
+                    return { success: false, error: 'La cantidad de columnas no coincide con la cantidad de valores proporcionados.' };
+                }
+
+                let newRow = {};
+                parsed.columns.forEach((col, idx) => {
+                    let val = parsed.values[idx];
+                    // Conversión rápida a número si es numérico
+                    if (!isNaN(val) && val.trim() !== '') {
+                        val = Number(val);
+                    }
+                    newRow[col] = val;
+                });
+
+                // Añadir fila a base de datos de memoria
+                mockDB[matchedTableName].push(newRow);
+                return { success: true, data: null, affected: 1, message: `Insertado con éxito. Registro añadido en "${matchedTableName}".` };
+            }
+
+            // --- LÓGICA UPDATE ---
+            if (parsed.type === 'UPDATE') {
+                if (!parsed.set) {
+                    return { success: false, error: 'Sintaxis SET incorrecta. Ejemplo: SET nombre = "Juan"' };
+                }
+
+                let affectedCount = 0;
+                mockDB[matchedTableName] = mockDB[matchedTableName].map(row => {
+                    let matchesWhere = true;
+                    if (parsed.where) {
+                        const { column, operator, value } = parsed.where;
+                        let rowVal = String(row[column]).toLowerCase();
+                        let filterVal = String(value).toLowerCase();
+
+                        if (operator === '=') matchesWhere = rowVal == filterVal;
+                        else if (operator === '>') matchesWhere = parseFloat(rowVal) > parseFloat(filterVal);
+                        else if (operator === '<') matchesWhere = parseFloat(rowVal) < parseFloat(filterVal);
+                    }
+
+                    if (matchesWhere) {
+                        let updatedRow = { ...row };
+                        let finalVal = parsed.set.value;
+                        if (!isNaN(finalVal) && finalVal.trim() !== '') {
+                            finalVal = Number(finalVal);
+                        }
+                        updatedRow[parsed.set.column] = finalVal;
+                        affectedCount++;
+                        return updatedRow;
+                    }
+                    return row;
+                });
+
+                return { success: true, data: null, affected: affectedCount, message: `Actualizado correctamente. Filas afectadas: ${affectedCount}` };
+            }
+
+            // --- LÓGICA DELETE ---
+            if (parsed.type === 'DELETE') {
+                let previousLength = mockDB[matchedTableName].length;
+                
+                if (!parsed.where) {
+                    // Borrado completo de la tabla (Trunca)
+                    mockDB[matchedTableName] = [];
+                    return { success: true, data: null, affected: previousLength, message: `Tabla truncada completamente. Filas eliminadas: ${previousLength}` };
+                }
+
+                mockDB[matchedTableName] = mockDB[matchedTableName].filter(row => {
+                    const { column, operator, value } = parsed.where;
+                    let rowVal = String(row[column]).toLowerCase();
+                    let filterVal = String(value).toLowerCase();
+
+                    let match = false;
+                    if (operator === '=') match = rowVal == filterVal;
+                    else if (operator === '>') match = parseFloat(rowVal) > parseFloat(filterVal);
+                    else if (operator === '<') match = parseFloat(rowVal) < parseFloat(filterVal);
+
+                    // Nos quedamos con los registros que NO coinciden para filtrarlos (eliminarlos)
+                    return !match;
+                });
+
+                let deletedCount = previousLength - mockDB[matchedTableName].length;
+                return { success: true, data: null, affected: deletedCount, message: `Eliminación completada. Filas removidas: ${deletedCount}` };
+            }
+
+            return { success: false, error: 'Consulta no soportada.' };
+        }
+
+        // ==========================================
+        // MANEJO DE VISTAS (TABS)
+        // ==========================================
+        function switchTab(tabId) {
+            // Ocultar todas las secciones principales
+            document.querySelectorAll('main > section').forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('block');
+            });
+
+            // Mostrar sección activa
+            const activeSection = document.getElementById(`tab-${tabId}`);
+            if (activeSection) {
+                activeSection.classList.remove('hidden');
+                activeSection.classList.add('block');
+            }
+
+            // Actualizar apariencia en el Sidebar
+            document.querySelectorAll('aside nav button').forEach(button => {
+                button.classList.remove('bg-indigo-600', 'text-white');
+                button.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-800/60');
+            });
+
+            const activeBtn = document.getElementById(`btn-tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-800/60');
+                activeBtn.classList.add('bg-indigo-600', 'text-white');
+            }
+
+            // Cargas específicas por Tab
+            if (tabId === 'inicio') {
+                renderAchievements();
+            } else if (tabId === 'desafios') {
+                renderChallengesList();
+                renderActiveChallenge();
+            }
+        }
+
+        // ==========================================
+        // CONTROL DE LECCIONES TEÓRICAS
+        // ==========================================
+        function switchLesson(lessonNum) {
+            document.querySelectorAll('.lesson-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`lesson-content-${lessonNum}`).classList.remove('hidden');
+
+            // Actualizar pestañas
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`btn-lesson-${i}`);
+                if (i === lessonNum) {
+                    btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg transition-all bg-indigo-600 text-white";
+                } else {
+                    btn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-white";
+                }
+            }
+        }
+
+        function checkQuizAnswer(lessonIdx, selectedOption) {
+            const feedback = document.getElementById(`quiz-feedback-${lessonIdx}`);
+            feedback.classList.remove('hidden', 'bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/30', 'bg-rose-500/10', 'text-rose-400', 'border-rose-500/30');
+            feedback.classList.add('border');
+
+            let isCorrect = false;
+            let explanation = "";
+
+            if (lessonIdx === 1) {
+                if (selectedOption === 'B') {
+                    isCorrect = true;
+                    explanation = "¡Excelente! MongoDB es una base de datos documental (NoSQL), mientras que PostgreSQL y SQLite son Sistemas Relacionales (SQL).";
+                } else {
+                    explanation = "Incorrecto. Recuerda que PostgreSQL y SQLite sí son relacionales estructurados por tablas.";
+                }
+            } else if (lessonIdx === 2) {
+                if (selectedOption === 'B') {
+                    isCorrect = true;
+                    explanation = "¡Correcto! UPDATE es la sentencia del lenguaje de manipulación de datos (DML) para alterar registros existentes.";
+                } else {
+                    explanation = "Incorrecto. INSERT sirve para crear nuevos registros y ALTER modifica la estructura física de la tabla (como añadir columnas).";
+                }
+            } else if (lessonIdx === 3) {
+                if (selectedOption === 'A') {
+                    isCorrect = true;
+                    explanation = "¡Perfecto! Una llave primaria identifica únicamente cada fila de la tabla de forma inequívoca y obligatoriamente contiene datos.";
+                } else {
+                    explanation = "Incorrecto. Si pudiera repetirse o ser nulo, rompería la integridad referencial básica.";
+                }
+            }
+
+            if (isCorrect) {
+                feedback.classList.add('bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/30');
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i><strong>¡Correcto!</strong> ${explanation}`;
+                userProgress.completedQuizzes[lessonIdx - 1] = true;
+                showToast("Quiz Superado", `Completaste exitosamente el cuestionario de la Lección ${lessonIdx}`, "success");
+                updateProgressUI();
+            } else {
+                feedback.classList.add('bg-rose-500/10', 'text-rose-400', 'border-rose-500/30');
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i><strong>Intenta de nuevo.</strong> ${explanation}`;
+            }
+        }
+
+        // ==========================================
+        // CONSOLA SANDBOX SQL INTERACTIVA
+        // ==========================================
+        function toggleSchemaDetails(detailsId) {
+            const el = document.getElementById(detailsId);
+            el.classList.toggle('hidden');
+        }
+
+        function clearConsole() {
+            document.getElementById('sql-editor').value = '';
+            showToast("Consola Limpia", "Editor SQL vaciado con éxito", "info");
+        }
+
+        function resetMockDatabase() {
+            mockDB = JSON.parse(initialDBBackup);
+            showToast("Base de Datos Reiniciada", "Los valores de las tablas Clientes y Pedidos han vuelto a su estado de fábrica.", "info");
+            executeSandboxQuery(); // Actualiza si hay consulta escrita
+        }
+
+        function executeSandboxQuery() {
+            const rawQuery = document.getElementById('sql-editor').value.trim();
+            const resultsContainer = document.getElementById('sandbox-results-container');
+            const executionInfo = document.getElementById('sandbox-execution-info');
+            const statusEl = document.getElementById('sandbox-status');
+
+            if (!rawQuery) {
+                resultsContainer.innerHTML = `
+                    <div class="text-center py-10 text-slate-500 text-sm">
+                        <i class="fa-solid fa-database text-3xl text-slate-700 mb-3 block"></i>
+                        Escribe una consulta y haz clic en "Ejecutar" para ver los resultados.
+                    </div>
+                `;
+                executionInfo.classList.add('hidden');
+                statusEl.innerText = "Ninguna consulta ingresada";
+                return;
+            }
+
+            const startTime = performance.now();
+            const result = executeSQLQuery(rawQuery);
+            const endTime = performance.now();
+            const timeTaken = (endTime - startTime).toFixed(2);
+
+            if (!result.success) {
+                // Render Error
+                resultsContainer.innerHTML = `
+                    <div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4 text-rose-400 text-xs font-mono space-y-2">
+                        <div class="font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-circle-xmark text-sm"></i> ERROR DE COMPILACIÓN SQL
+                        </div>
+                        <p class="leading-relaxed">${result.error}</p>
+                    </div>
+                `;
+                executionInfo.classList.add('hidden');
+                statusEl.innerText = "Fallo en ejecución";
+                return;
+            }
+
+            // Éxito de Ejecución
+            statusEl.innerText = "Operación exitosa";
+            executionInfo.classList.remove('hidden');
+            executionInfo.innerHTML = `Ejecutado con éxito en <strong class="text-emerald-400">${timeTaken} ms</strong>. ${result.affected > 0 ? `Filas afectadas: ${result.affected}` : ''}`;
+
+            // Si es SELECT, mostramos tabla de resultados
+            if (result.data) {
+                if (result.data.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <div class="text-center py-8 text-slate-400 text-xs bg-slate-950 rounded-xl border border-slate-800">
+                            <i class="fa-solid fa-triangle-exclamation text-xl text-amber-500 mb-2 block"></i>
+                            El query compiló, pero devolvió 0 resultados.
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Generar encabezados dinámicamente de las propiedades del primer registro
+                const columns = Object.keys(result.data[0]);
+                let headerHtml = columns.map(col => `<th class="px-4 py-3 uppercase tracking-wider text-[10px] font-bold text-slate-400 border-b border-slate-800">${col}</th>`).join('');
+                
+                let bodyHtml = result.data.map(row => {
+                    let rowHtml = columns.map(col => `<td class="px-4 py-2.5 text-slate-300 font-mono">${row[col]}</td>`).join('');
+                    return `<tr class="border-b border-slate-850 hover:bg-slate-800/20">${rowHtml}</tr>`;
+                }).join('');
+
+                resultsContainer.innerHTML = `
+                    <table class="w-full text-left text-xs text-slate-200">
+                        <thead>
+                            <tr>${headerHtml}</tr>
+                        </thead>
+                        <tbody>
+                            ${bodyHtml}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                // Operación de modificación (INSERT, UPDATE, DELETE) exitosa
+                resultsContainer.innerHTML = `
+                    <div class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl p-5 text-center text-xs space-y-2">
+                        <i class="fa-solid fa-circle-check text-2xl mb-1 block"></i>
+                        <h5 class="font-bold text-white">Transacción de Datos Completada</h5>
+                        <p>${result.message || 'La mutación se aplicó de forma segura sobre la base de datos en memoria.'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ==========================================
+        // GESTIÓN DE DESAFÍOS (SQL CHALLENGES)
+        // ==========================================
+        function renderChallengesList() {
+            const listEl = document.getElementById('challenges-list');
+            listEl.innerHTML = '';
+
+            challenges.forEach((ch) => {
+                const isSolved = userProgress.completedChallenges[ch.id];
+                const activeClass = ch.id === activeChallengeId ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-950/50 hover:bg-slate-800/40 border-slate-800';
+                
+                let statusIcon = '<i class="fa-regular fa-circle text-slate-600"></i>';
+                if (isSolved) {
+                    statusIcon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+                }
+
+                let badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                if (ch.category === "Medio") badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                if (ch.category === "Avanzado") badgeColor = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+
+                listEl.innerHTML += `
+                    <button onclick="selectChallenge(${ch.id})" class="w-full text-left p-3.5 rounded-xl border transition-all flex items-start space-x-3 ${activeClass}">
+                        <div class="mt-0.5">${statusIcon}</div>
+                        <div class="flex-1 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-white">${ch.title}</span>
+                                <span class="text-[9px] font-semibold border px-1.5 py-0.5 rounded-full ${badgeColor}">${ch.category}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 line-clamp-1">${ch.desc.replace(/<[^>]*>/g, '')}</p>
+                        </div>
+                    </button>
+                `;
+            });
+        }
+
+        function selectChallenge(id) {
+            activeChallengeId = id;
+            renderChallengesList();
+            renderActiveChallenge();
+        }
+
+        function renderActiveChallenge() {
+            const container = document.getElementById('active-challenge-container');
+            const ch = challenges.find(c => c.id === activeChallengeId);
+            if (!ch) return;
+
+            const isSolved = userProgress.completedChallenges[ch.id];
+
+            container.innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                        <div>
+                            <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Desafío #${ch.id}</span>
+                            <h3 class="text-xl font-bold text-white">${ch.title}</h3>
+                        </div>
+                        ${isSolved ? '<span class="bg-emerald-500/10 text-emerald-400 text-xs px-3 py-1 rounded-full border border-emerald-500/20 font-bold"><i class="fa-solid fa-check mr-1"></i> Resuelto</span>' : '<span class="bg-amber-500/10 text-amber-400 text-xs px-3 py-1 rounded-full border border-amber-500/20 font-bold"><i class="fa-regular fa-clock mr-1"></i> Pendiente</span>'}
+                    </div>
+
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-850">
+                        <p class="text-sm text-slate-300 leading-relaxed">${ch.desc}</p>
+                    </div>
+
+                    <!-- Editor del Desafío -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+                                <i class="fa-solid fa-keyboard"></i> Tu código SQL:
+                            </label>
+                            <button onclick="toggleChallengeHint(${ch.id})" class="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-lightbulb"></i> Ver Pista
+                            </button>
+                        </div>
+                        <div id="challenge-hint-${ch.id}" class="hidden bg-amber-500/5 border border-amber-500/20 text-amber-300 text-xs p-3.5 rounded-xl leading-relaxed">
+                            💡 <strong>Pista de sintaxis:</strong> ${ch.hint}
+                        </div>
+                        <textarea id="challenge-sql-editor" rows="4" class="w-full bg-slate-950 text-indigo-400 font-mono text-sm p-4 rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500/50 border border-slate-800" placeholder="Escribe tu sentencia SQL aquí para pasar la prueba..."></textarea>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] text-slate-500">Haz clic en Ejecutar para validar tu respuesta frente al sistema</span>
+                        <button onclick="submitChallengeAnswer(${ch.id})" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-check"></i> Validar Respuesta
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel de Validación de Resultados -->
+                <div id="challenge-validation-result" class="hidden">
+                    <!-- Respuestas de error o éxito inyectadas por JS -->
+                </div>
+            `;
+        }
+
+        function toggleChallengeHint(id) {
+            const hintBox = document.getElementById(`challenge-hint-${id}`);
+            hintBox.classList.toggle('hidden');
+        }
+
+        function submitChallengeAnswer(challengeId) {
+            const userQuery = document.getElementById('challenge-sql-editor').value.trim();
+            const resultBox = document.getElementById('challenge-validation-result');
+            const ch = challenges.find(c => c.id === challengeId);
+
+            if (!userQuery) {
+                showToast("Editor vacío", "Por favor, escribe una sentencia SQL antes de validar.", "warning");
+                return;
+            }
+
+            // Simulamos ejecución
+            const simulation = executeSQLQuery(userQuery);
+            resultBox.classList.remove('hidden');
+
+            if (!simulation.success) {
+                // Falló ejecución general
+                resultBox.innerHTML = `
+                    <div class="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-5 text-rose-400 text-xs font-mono space-y-1">
+                        <h4 class="font-bold flex items-center gap-1.5 text-sm"><i class="fa-solid fa-bug"></i> Error de sintaxis SQL</h4>
+                        <p>${simulation.error}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Validación por criterio del reto
+            let challengePassed = false;
+            try {
+                challengePassed = ch.check(userQuery, mockDB);
+            } catch (err) {
+                challengePassed = false;
+            }
+
+            if (challengePassed) {
+                userProgress.completedChallenges[ch.id] = true;
+                showToast("¡Reto Superado!", `Has completado con éxito el desafío: ${ch.title}`, "success");
+                updateProgressUI();
+                renderChallengesList();
+                renderActiveChallenge();
+
+                resultBox.innerHTML = `
+                    <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-5 text-emerald-400 text-xs space-y-2">
+                        <h4 class="font-bold flex items-center gap-1.5 text-sm text-white"><i class="fa-solid fa-thumbs-up text-emerald-400"></i> ¡FELICIDADES! RESPUESTA CORRECTA</h4>
+                        <p>Tu consulta SQL arrojó de manera idéntica los registros previstos en el caso de prueba.</p>
+                        ${simulation.data ? `<p class="font-semibold text-white mt-2">Registros de salida:</p><pre class="bg-slate-950 p-2.5 rounded-lg border border-slate-900 mt-1 max-h-32 overflow-y-auto">${JSON.stringify(simulation.data, null, 2)}</pre>` : ''}
+                    </div>
+                `;
+            } else {
+                resultBox.innerHTML = `
+                    <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 text-amber-400 text-xs space-y-2">
+                        <h4 class="font-bold flex items-center gap-1.5 text-sm text-white"><i class="fa-solid fa-triangle-exclamation text-amber-400"></i> RESPUESTA INCORRECTA</h4>
+                        <p>La consulta se ejecutó, pero no devolvió los datos requeridos para completar el objetivo del reto. Revisa las columnas solicitadas o la condición del WHERE.</p>
+                        ${simulation.data ? `<p class="font-semibold mt-2">Tus datos obtenidos:</p><pre class="bg-slate-950 p-2.5 rounded-lg border border-slate-900 mt-1 text-slate-400 max-h-24 overflow-y-auto">${JSON.stringify(simulation.data, null, 2)}</pre>` : ''}
+                    </div>
+                `;
+            }
+        }
+
+        // ==========================================
+        // SECCIÓN DE MINIJUEGOS (LUDOTECA)
+        // ==========================================
+        
+        // --- JUEGO 1: ER MATCHER ---
+        let erMatcherState = {
+            selectedSource: null,
+            connections: {} // origen_id => destino_id
+        };
+
+        function startERMatcherGame() {
+            // Ocultar selección de juegos, mostrar Arena de Juego
+            document.getElementById('games-selection').classList.add('hidden');
+            const arena = document.getElementById('active-game-arena');
+            arena.classList.remove('hidden');
+
+            erMatcherState.selectedSource = null;
+            erMatcherState.connections = {};
+
+            arena.innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-850 pb-4">
+                        <div>
+                            <span class="text-xs text-pink-400 font-bold uppercase tracking-widest">MINIJUEGO 1</span>
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-diagram-project"></i> Relacionador de Llaves ER</h3>
+                        </div>
+                        <button onclick="exitActiveGame()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> Volver a Juegos</button>
+                    </div>
+
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-850">
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            <strong>Objetivo:</strong> Conecta las columnas de origen con sus respectivas Llaves Foráneas (FK) o Llaves Primarias (PK) correctas. Haz clic en una columna de la tabla izquierda y luego en la columna destino correspondiente en la tabla derecha.
+                        </p>
+                    </div>
+
+                    <!-- Layout de Tablas para relacionar -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative p-4 bg-slate-950 rounded-2xl border border-slate-850">
+                        
+                        <!-- TABLA: CLIENTES (ORIGEN) -->
+                        <div class="bg-slate-900 p-5 rounded-xl border border-indigo-500/20">
+                            <h4 class="text-sm font-bold text-indigo-300 mb-3 flex items-center justify-between">
+                                <span><i class="fa-solid fa-table"></i> Clientes (Tabla 1)</span>
+                                <span class="text-[10px] bg-indigo-500/10 px-2 py-0.5 rounded-full font-normal">Contiene Clave PK</span>
+                            </h4>
+                            <div class="space-y-2">
+                                <button onclick="selectERNode('clientes.id', 'source')" id="er-node-clientes-id" class="w-full text-left p-3 rounded-lg text-xs bg-slate-950 border border-slate-800 hover:border-indigo-500 transition-all flex items-center justify-between">
+                                    <span class="font-mono text-emerald-400"><i class="fa-solid fa-key text-[10px]"></i> id (PK)</span>
+                                    <span class="text-[10px] text-slate-500">Haz clic para conectar</span>
+                                </button>
+                                <div class="p-3 rounded-lg text-xs bg-slate-950/40 border border-slate-900 text-slate-500 font-mono">nombre (VARCHAR)</div>
+                                <div class="p-3 rounded-lg text-xs bg-slate-950/40 border border-slate-900 text-slate-500 font-mono">email (VARCHAR)</div>
+                            </div>
+                        </div>
+
+                        <!-- TABLA: PEDIDOS (DESTINO) -->
+                        <div class="bg-slate-900 p-5 rounded-xl border border-emerald-500/20">
+                            <h4 class="text-sm font-bold text-emerald-300 mb-3 flex items-center justify-between">
+                                <span><i class="fa-solid fa-table"></i> Pedidos (Tabla 2)</span>
+                                <span class="text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded-full font-normal">Contiene Clave FK</span>
+                            </h4>
+                            <div class="space-y-2">
+                                <div class="p-3 rounded-lg text-xs bg-slate-950/40 border border-slate-900 text-slate-500 font-mono">id (PK)</div>
+                                <button onclick="selectERNode('pedidos.cliente_id', 'target')" id="er-node-pedidos-cliente_id" class="w-full text-left p-3 rounded-lg text-xs bg-slate-950 border border-slate-800 hover:border-emerald-500 transition-all flex items-center justify-between">
+                                    <span class="font-mono text-amber-400"><i class="fa-solid fa-link text-[10px]"></i> cliente_id (FK)</span>
+                                    <span class="text-[10px] text-slate-500">Destino de conexión</span>
+                                </button>
+                                <div class="p-3 rounded-lg text-xs bg-slate-950/40 border border-slate-900 text-slate-500 font-mono">producto (VARCHAR)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Feedback ER -->
+                    <div id="er-game-feedback" class="text-center py-4 text-xs text-slate-400">
+                        Selecciona primero la llave primaria de Clientes para iniciar la relación de datos.
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectERNode(nodeId, type) {
+            const feedback = document.getElementById('er-game-feedback');
+
+            if (type === 'source') {
+                erMatcherState.selectedSource = nodeId;
+                // Resaltar nodo origen
+                document.getElementById('er-node-clientes-id').className = "w-full text-left p-3 rounded-lg text-xs bg-indigo-600/20 border-indigo-500 transition-all flex items-center justify-between text-indigo-300";
+                feedback.innerHTML = `<span class="text-indigo-400">Nodo origen seleccionado.</span> Ahora haz clic en el destino correcto de la tabla Pedidos.`;
+            } else if (type === 'target') {
+                if (!erMatcherState.selectedSource) {
+                    showModalNotif("Alerta de conexión", "Por favor, selecciona primero un nodo de origen (Llave Primaria) en la tabla izquierda.", "warning");
+                    return;
+                }
+
+                // Resolver Conexión
+                if (erMatcherState.selectedSource === 'clientes.id' && nodeId === 'pedidos.cliente_id') {
+                    // ÉXITO
+                    document.getElementById('er-node-pedidos-cliente_id').className = "w-full text-left p-3 rounded-lg text-xs bg-emerald-600/20 border-emerald-500 transition-all flex items-center justify-between text-emerald-300";
+                    feedback.innerHTML = `
+                        <div class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-4 rounded-xl space-y-1">
+                            <h5 class="font-bold text-white"><i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i>¡Relación Completada Correctamente!</h5>
+                            <p>Has vinculado Clientes.id con Pedidos.cliente_id de forma idónea. Esto crea una relación de Uno a Muchos (1:N).</p>
+                        </div>
+                    `;
+                    userProgress.erMatcherSolved = true;
+                    showToast("Esquema Normalizado", "Lograste interconectar las llaves con éxito", "success");
+                    updateProgressUI();
+                } else {
+                    // FALLO
+                    feedback.innerHTML = `
+                        <div class="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-4 rounded-xl">
+                            ❌ Conexión de llaves errónea. Asegúrate de vincular la ID primaria con la llave foránea correspondiente.
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // --- JUEGO 2: LA CRIPTA SQL (Trivial / Defensa Cibernética) ---
+        let criptaState = {
+            currentQuestionIdx: 0,
+            score: 0,
+            timeLeft: 30,
+            timerInterval: null
+        };
+
+        const criptaQuestions = [
+            {
+                q: "¿Qué sentencia SQL elimina por completo una tabla y todos sus datos del disco?",
+                options: ["A) DELETE TABLE", "B) DROP TABLE", "C) TRUNCATE TABLE"],
+                correct: "B"
+            },
+            {
+                q: "¿Cuál de los siguientes no es un motor relacional estándar de bases de datos?",
+                options: ["A) MySQL", "B) PostgreSQL", "C) Redis"],
+                correct: "C"
+            },
+            {
+                q: "¿Qué significa la sigla ACID en el contexto de bases de datos relacionales?",
+                options: ["A) Automatización, Control, Integración y Datos", "B) Atomisidad, Consistencia, Aislamiento y Durabilidad", "C) Asociación, Cifrado, Indexación y Distribución"],
+                correct: "B"
+            }
+        ];
+
+        function startCriptaGame() {
+            document.getElementById('games-selection').classList.add('hidden');
+            const arena = document.getElementById('active-game-arena');
+            arena.classList.remove('hidden');
+
+            criptaState.currentQuestionIdx = 0;
+            criptaState.score = 0;
+            criptaState.timeLeft = 35;
+
+            renderCriptaQuestion();
+
+            // Configurar Timer
+            clearInterval(criptaState.timerInterval);
+            criptaState.timerInterval = setInterval(() => {
+                criptaState.timeLeft--;
+                const timerEl = document.getElementById('cripta-timer');
+                if (timerEl) {
+                    timerEl.innerText = `${criptaState.timeLeft}s`;
+                    if (criptaState.timeLeft <= 10) {
+                        timerEl.className = "text-rose-500 font-bold pulse-effect";
+                    }
+                }
+
+                if (criptaState.timeLeft <= 0) {
+                    endCriptaGame(false);
+                }
+            }, 1000);
+        }
+
+        function renderCriptaQuestion() {
+            const arena = document.getElementById('active-game-arena');
+            const q = criptaQuestions[criptaState.currentQuestionIdx];
+
+            arena.innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6">
+                    <div class="flex justify-between items-center border-b border-slate-850 pb-4">
+                        <div>
+                            <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest">MINIJUEGO 2: LA CRIPTA</span>
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved text-indigo-400"></i> Desactivación del Cortafuegos
+                            </h3>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-xs bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">Pregunta ${criptaState.currentQuestionIdx + 1}/3</span>
+                            <span id="cripta-timer" class="text-sm bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-lg font-bold">${criptaState.timeLeft}s</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950/80 border border-slate-850 rounded-2xl p-6 relative overflow-hidden">
+                        <p class="text-sm text-slate-200 font-semibold leading-relaxed relative z-10">${q.q}</p>
+                    </div>
+
+                    <!-- OPCIONES -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button onclick="answerCriptaQuestion('A')" class="p-4 bg-slate-950 hover:bg-indigo-600/10 border border-slate-800 rounded-xl text-xs text-slate-300 font-semibold transition-all hover:border-indigo-500 text-left">
+                            ${q.options[0]}
+                        </button>
+                        <button onclick="answerCriptaQuestion('B')" class="p-4 bg-slate-950 hover:bg-indigo-600/10 border border-slate-800 rounded-xl text-xs text-slate-300 font-semibold transition-all hover:border-indigo-500 text-left">
+                            ${q.options[1]}
+                        </button>
+                        <button onclick="answerCriptaQuestion('C')" class="p-4 bg-slate-950 hover:bg-indigo-600/10 border border-slate-800 rounded-xl text-xs text-slate-300 font-semibold transition-all hover:border-indigo-500 text-left">
+                            ${q.options[2]}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function answerCriptaQuestion(ans) {
+            const q = criptaQuestions[criptaState.currentQuestionIdx];
+            if (ans === q.correct) {
+                criptaState.score++;
+                showToast("Pregunta Acertada", "Sistemas restablecidos parcialmente.", "success");
+            } else {
+                showToast("Fallo de Respuesta", "El cortafuegos ha repelido tu intento.", "warning");
+                criptaState.timeLeft -= 5; // Penalización de tiempo
+            }
+
+            criptaState.currentQuestionIdx++;
+            if (criptaState.currentQuestionIdx >= criptaQuestions.length) {
+                endCriptaGame(true);
+            } else {
+                renderCriptaQuestion();
+            }
+        }
+
+        function endCriptaGame(completedSuccessfully) {
+            clearInterval(criptaState.timerInterval);
+            const arena = document.getElementById('active-game-arena');
+
+            if (completedSuccessfully && criptaState.score >= 2) {
+                userProgress.criptaHighscore = criptaState.score;
+                updateProgressUI();
+                showToast("Sistemas Restaurados", "Has desbloqueado la base de datos de la academia.", "success");
+
+                arena.innerHTML = `
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-5">
+                        <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 text-2xl rounded-full flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-lock-open"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-bold text-white">¡Misión Cumplida! Bóveda Abierta</h3>
+                            <p class="text-xs text-slate-400 max-w-sm mx-auto">
+                                Desactivaste con éxito el cortafuegos central acertando ${criptaState.score} preguntas críticas. ¡El sistema de la academia está a salvo!
+                            </p>
+                        </div>
+                        <button onclick="exitActiveGame()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs py-2.5 px-6 rounded-xl border border-slate-700 transition-all">
+                            Salir al Lobby de Juegos
+                        </button>
+                    </div>
+                `;
+            } else {
+                arena.innerHTML = `
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-5">
+                        <div class="w-16 h-16 bg-rose-500/10 text-rose-400 text-2xl rounded-full flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-bold text-white">Tiempo Agotado o Intentos Insuficientes</h3>
+                            <p class="text-xs text-slate-400 max-w-sm mx-auto">
+                                No pudiste descifrar las capas del cortafuegos a tiempo. El sistema sigue encriptado.
+                            </p>
+                        </div>
+                        <div class="flex justify-center gap-3">
+                            <button onclick="startCriptaGame()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2.5 px-5 rounded-xl transition-all">
+                                Reintentar Misión
+                            </button>
+                            <button onclick="exitActiveGame()" class="bg-slate-850 hover:bg-slate-800 text-slate-400 text-xs py-2.5 px-5 rounded-xl border border-slate-800 transition-all">
+                                Volver
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function exitActiveGame() {
+            clearInterval(criptaState.timerInterval);
+            document.getElementById('active-game-arena').classList.add('hidden');
+            document.getElementById('games-selection').classList.remove('hidden');
+        }
+
+        // ==========================================
+        // SISTEMA DE NOTIFICACIONES Y UI PRINCIPAL
+        // ==========================================
+        function showToast(title, body, type = 'success') {
+            const toast = document.getElementById('toast-message');
+            const tTitle = document.getElementById('toast-title');
+            const tBody = document.getElementById('toast-body');
+            const tIcon = document.getElementById('toast-icon');
+            const tBg = document.getElementById('toast-icon-bg');
+
+            tTitle.innerText = title;
+            tBody.innerText = body;
+
+            // Configurar color de acuerdo al tipo
+            if (type === 'success') {
+                toast.className = toast.className.replace(/border-\w+-\d+/g, 'border-emerald-500');
+                tBg.className = "bg-emerald-500/20 p-2 rounded-lg text-emerald-400";
+                tIcon.className = "fa-solid fa-circle-check";
+            } else if (type === 'warning') {
+                toast.className = toast.className.replace(/border-\w+-\d+/g, 'border-amber-500');
+                tBg.className = "bg-amber-500/20 p-2 rounded-lg text-amber-400";
+                tIcon.className = "fa-solid fa-triangle-exclamation";
+            } else {
+                toast.className = toast.className.replace(/border-\w+-\d+/g, 'border-indigo-500');
+                tBg.className = "bg-indigo-500/20 p-2 rounded-lg text-indigo-400";
+                tIcon.className = "fa-solid fa-info-circle";
+            }
+
+            // Animar entrada
+            toast.classList.remove('translate-y-10', 'opacity-0', 'pointer-events-none');
+            
+            // Auto ocultar
+            setTimeout(() => {
+                hideToast();
+            }, 4500);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast-message');
+            toast.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none');
+        }
+
+        function showModalNotif(title, text, type = 'info') {
+            const modal = document.getElementById('modal-notif');
+            const mTitle = document.getElementById('modal-notif-title');
+            const mBody = document.getElementById('modal-notif-body');
+            const mIcon = document.getElementById('modal-notif-icon');
+            const mIconCont = document.getElementById('modal-notif-icon-container');
+
+            mTitle.innerText = title;
+            mBody.innerText = text;
+
+            if (type === 'warning') {
+                mIconCont.className = "mx-auto w-12 h-12 rounded-full flex items-center justify-center text-xl bg-amber-500/10 text-amber-400";
+                mIcon.className = "fa-solid fa-triangle-exclamation";
+            } else {
+                mIconCont.className = "mx-auto w-12 h-12 rounded-full flex items-center justify-center text-xl bg-indigo-500/10 text-indigo-400";
+                mIcon.className = "fa-solid fa-info-circle";
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModalNotif() {
+            document.getElementById('modal-notif').classList.add('hidden');
+        }
+
+        // ==========================================
+        // CONTROL DE PROGRESO Y LOGROS INTERNOS
+        // ==========================================
+        function updateProgressUI() {
+            // Calcular porcentaje global
+            let totalSteps = 6; // 3 quizzes + 1 reto resuelto + erMatcher + cripta
+            let completedSteps = 0;
+
+            if (userProgress.completedQuizzes[0]) completedSteps++;
+            if (userProgress.completedQuizzes[1]) completedSteps++;
+            if (userProgress.completedQuizzes[2]) completedSteps++;
+            if (Object.keys(userProgress.completedChallenges).length >= 1) completedSteps++;
+            if (userProgress.erMatcherSolved) completedSteps++;
+            if (userProgress.criptaHighscore > 0) completedSteps++;
+
+            const percentage = Math.round((completedSteps / totalSteps) * 100);
+
+            // Actualizar elementos HTML
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            document.getElementById('progress-text').innerText = `${percentage}% Completado`;
+            document.getElementById('streak-count').innerText = `Logros: ${completedSteps}/${totalSteps}`;
+        }
+
+        function renderAchievements() {
+            const container = document.getElementById('achievements-container');
+            container.innerHTML = '';
+
+            achievementsList.forEach(ach => {
+                const checked = ach.check();
+                const iconColor = checked ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-slate-600 bg-slate-800/50 border-slate-800';
+                
+                container.innerHTML += `
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-sm border shrink-0 ${iconColor}">
+                            <i class="${checked ? 'fa-solid fa-trophy' : 'fa-solid fa-lock'}"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold ${checked ? 'text-white' : 'text-slate-500'}">${ach.title}</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5 leading-relaxed">${ach.desc}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ==========================================
+        // INICIALIZACIÓN
+        // ==========================================
+        window.onload = function() {
+            updateProgressUI();
+            renderAchievements();
+        };
+    </script>
+</body>
+</html>
