@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Guía Cósmica del Átomo</title>
+    <!-- Tailwind CSS para diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka para un diseño amigable e infantil, e Inter para textos legibles -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, h4, .font-fun {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Estilos personalizados para animaciones */
+        @keyframes orbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .orbiting-1 {
+            animation: orbit 4s linear infinite;
+        }
+        .orbiting-2 {
+            animation: orbit 8s linear infinite reverse;
+        }
+        .orbiting-3 {
+            animation: orbit 12s linear infinite;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            20%, 60% { transform: translate(-2px, 2px); }
+            40%, 80% { transform: translate(2px, -2px); }
+        }
+        .shaking {
+            animation: shake 0.15s ease-in-out infinite;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+        .pulsing {
+            animation: pulse-slow 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-indigo-900 text-slate-100 min-h-screen flex flex-col selection:bg-pink-500 selection:text-white overflow-x-hidden">
+
+    <!-- BARRA DE NAVEGACIÓN PRINCIPAL -->
+    <header class="bg-indigo-950/80 backdrop-blur border-b border-indigo-800 sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="changeTab('welcome')">
+                <div class="bg-pink-500 p-2 rounded-xl text-2xl shadow-lg shadow-pink-500/20 active:scale-95 transition-transform">
+                    ⚛️
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold bg-gradient-to-r from-pink-400 via-amber-300 to-cyan-400 bg-clip-text text-transparent">
+                        Aventura Atómica
+                    </h1>
+                    <p class="text-xs text-indigo-300">¡Viaje al corazón de la materia!</p>
+                </div>
+            </div>
+            
+            <!-- Tabs / Secciones -->
+            <nav class="flex flex-wrap justify-center gap-1 md:gap-2">
+                <button onclick="changeTab('matter')" id="btn-matter" class="tab-btn px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 bg-indigo-800 text-indigo-200 hover:bg-indigo-700">
+                    🔬 <span>La Materia</span>
+                </button>
+                <button onclick="changeTab('history')" id="btn-history" class="tab-btn px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 bg-indigo-800 text-indigo-200 hover:bg-indigo-700">
+                    ⏳ <span>Modelos</span>
+                </button>
+                <button onclick="changeTab('builder')" id="btn-builder" class="tab-btn px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 bg-indigo-800 text-indigo-200 hover:bg-indigo-700">
+                    🛠️ <span>Creador</span>
+                </button>
+                <button onclick="changeTab('quiz')" id="btn-quiz" class="tab-btn px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 bg-indigo-800 text-indigo-200 hover:bg-indigo-700">
+                    🏆 <span>Reto</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ÁREA DE CONTENIDO -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
+
+        <!-- 1. BIENVENIDA -->
+        <section id="tab-welcome" class="tab-section flex flex-col lg:flex-row items-center justify-between gap-8 py-6">
+            <div class="lg:w-1/2 space-y-6">
+                <span class="bg-pink-500/10 text-pink-400 border border-pink-500/20 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase inline-block">
+                    🚀 ¡Inicia el viaje!
+                </span>
+                <h2 class="text-4xl md:text-5xl font-bold leading-tight">
+                    ¿Sabías que estás hecho de <span class="text-yellow-400">polvo de estrellas</span>? ✨
+                </h2>
+                <p class="text-indigo-200 text-lg leading-relaxed">
+                    Todo lo que te rodea: tu juguete favorito, el agua que bebes, este dispositivo y tu propio cuerpo, están construidos por unas piezas microscópicas mágicas llamadas <strong>Átomos</strong>.
+                </p>
+                <p class="text-indigo-300 text-md">
+                    ¡Acompáñanos a encogernos mil millones de veces para explorar el corazón de la materia! Hemos preparado simuladores, laboratorios y juegos para que seas un experto en física cuántica antes de terminar.
+                </p>
+                <div class="pt-4 flex flex-wrap gap-4">
+                    <button onclick="changeTab('matter')" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white font-fun font-bold px-8 py-4 rounded-2xl shadow-lg shadow-pink-500/30 hover:scale-105 active:scale-95 transition-all text-lg">
+                        ¡Comenzar Experimento! ➔
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Ilustración dinámica interactiva de bienvenida -->
+            <div class="lg:w-1/2 flex justify-center items-center relative">
+                <div class="absolute w-72 h-72 bg-purple-600/20 rounded-full blur-3xl -z-10 pulsing"></div>
+                <svg width="340" height="340" viewBox="0 0 340 340" class="drop-shadow-2xl">
+                    <!-- Nucleus -->
+                    <circle cx="170" cy="170" r="28" fill="#ec4899" class="animate-pulse" />
+                    <!-- Proton/Neutron details -->
+                    <circle cx="160" cy="165" r="12" fill="#ef4444" />
+                    <circle cx="180" cy="160" r="12" fill="#3b82f6" />
+                    <circle cx="172" cy="180" r="12" fill="#ef4444" />
+                    <circle cx="158" cy="178" r="12" fill="#3b82f6" />
+                    <circle cx="170" cy="170" r="10" fill="#a855f7" opacity="0.8"/>
+                    
+                    <!-- Electron orbits -->
+                    <ellipse cx="170" cy="170" rx="140" ry="45" fill="none" stroke="#6366f1" stroke-width="2.5" transform="rotate(30 170 170)" stroke-dasharray="6 4" opacity="0.6"/>
+                    <ellipse cx="170" cy="170" rx="140" ry="45" fill="none" stroke="#10b981" stroke-width="2.5" transform="rotate(-30 170 170)" stroke-dasharray="6 4" opacity="0.6"/>
+                    <ellipse cx="170" cy="170" rx="140" ry="45" fill="none" stroke="#f59e0b" stroke-width="2.5" transform="rotate(90 170 170)" stroke-dasharray="6 4" opacity="0.6"/>
+                    
+                    <!-- Spinning Electrons -->
+                    <g class="orbiting-1" style="transform-origin: 170px 170px;">
+                        <circle cx="30" cy="170" r="8" fill="#f59e0b" />
+                        <text x="30" y="173" font-family="'Fredoka'" font-size="10" fill="white" text-anchor="middle">-</text>
+                    </g>
+                    <g class="orbiting-2" style="transform-origin: 170px 170px;">
+                        <circle cx="170" cy="30" r="8" fill="#10b981" />
+                        <text x="170" y="33" font-family="'Fredoka'" font-size="10" fill="white" text-anchor="middle">-</text>
+                    </g>
+                    <g class="orbiting-3" style="transform-origin: 170px 170px;">
+                        <circle cx="310" cy="170" r="8" fill="#6366f1" />
+                        <text x="310" y="173" font-family="'Fredoka'" font-size="10" fill="white" text-anchor="middle">-</text>
+                    </g>
+                </svg>
+            </div>
+        </section>
+
+        <!-- 2. LA MATERIA (EL TELESCOPIO REVERSO / ZOOM INTERACTIVO) -->
+        <section id="tab-matter" class="tab-section hidden space-y-8 py-4">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span class="text-yellow-400 font-fun text-sm font-semibold uppercase tracking-wider">Módulo 1: La Materia</span>
+                <h2 class="text-3xl md:text-4xl font-bold">¿Qué es la materia? 🧱</h2>
+                <p class="text-indigo-200">La materia es todo lo que ocupa espacio y tiene peso. ¡Usa el súper microscopio zoom para desarmar el mundo visible!</p>
+            </div>
+
+            <div class="bg-indigo-950/40 border border-indigo-800 rounded-3xl p-6 flex flex-col lg:flex-row gap-8 items-center">
+                <!-- Controles del Zoom -->
+                <div class="w-full lg:w-5/12 space-y-6">
+                    <h3 class="text-xl font-bold text-yellow-300">🔍 El Súper-Microscopio Cósmico</h3>
+                    <p class="text-indigo-200 text-sm">
+                        Elige un objeto común y desliza el control para encogerte más y más rápido que un superhéroe.
+                    </p>
+
+                    <!-- Selección de Objetos -->
+                    <div>
+                        <label class="block text-indigo-300 text-xs font-semibold uppercase mb-2">Selecciona un objeto:</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="selectZoomObject('apple')" id="btn-obj-apple" class="bg-pink-600 border border-pink-400 p-3 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition-all text-xs font-fun">
+                                <span class="text-3xl">🍎</span> Manzana
+                            </button>
+                            <button onclick="selectZoomObject('water')" id="btn-obj-water" class="bg-indigo-900 border border-indigo-700 p-3 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition-all text-xs font-fun opacity-60">
+                                <span class="text-3xl">💧</span> Gota de Agua
+                            </button>
+                            <button onclick="selectZoomObject('iron')" id="btn-obj-iron" class="bg-indigo-900 border border-indigo-700 p-3 rounded-2xl flex flex-col items-center gap-1 active:scale-95 transition-all text-xs font-fun opacity-60">
+                                <span class="text-3xl">🔑</span> Llave de Hierro
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Deslizador de Zoom -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs text-indigo-300 font-bold">
+                            <span>Ojo Humano (1x)</span>
+                            <span>¡Máximo Zoom! (10,000,000,000x)</span>
+                        </div>
+                        <input type="range" id="zoom-range" min="1" max="4" value="1" step="1" oninput="updateZoomView()" class="w-full h-3 bg-indigo-900 rounded-lg appearance-none cursor-pointer accent-pink-500">
+                    </div>
+
+                    <!-- Estado del zoom e información didáctica -->
+                    <div class="bg-indigo-950/80 border border-indigo-800 p-4 rounded-2xl space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">🌟</span>
+                            <span id="zoom-title" class="text-lg font-fun text-yellow-400 font-bold">Nivel 1: Objeto Real</span>
+                        </div>
+                        <p id="zoom-desc" class="text-indigo-200 text-sm leading-relaxed">
+                            Una rica manzana jugosa. ¿Sabías que está formada por billones de pequeños bloques? Si la cortamos, sigue siendo manzana.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Visor Gráfico / Pantalla del Microscopio -->
+                <div class="w-full lg:w-7/12 flex flex-col items-center">
+                    <div class="relative w-full max-w-sm aspect-square bg-indigo-950 border-4 border-pink-500/80 rounded-full overflow-hidden shadow-2xl flex items-center justify-center p-6">
+                        <!-- Círculo de puntería o retícula -->
+                        <div class="absolute inset-4 border border-dashed border-indigo-700 rounded-full pointer-events-none opacity-40"></div>
+                        <div class="absolute inset-16 border border-dashed border-indigo-600 rounded-full pointer-events-none opacity-40"></div>
+                        <div class="absolute text-pink-500/10 font-mono text-xs top-4 left-1/2 -translate-x-1/2 uppercase tracking-widest">MICROSCOPE AUTO-SCAN</div>
+
+                        <!-- Gráfico de Zoom dinámico por JS -->
+                        <div id="microscope-viewport" class="w-full h-full flex items-center justify-center transition-all duration-300">
+                            <!-- Se inyecta por JS el SVG según el nivel y objeto -->
+                        </div>
+                    </div>
+                    <div class="mt-4 bg-indigo-900/60 px-4 py-1.5 rounded-full border border-indigo-800 text-xs font-mono text-pink-400 flex items-center gap-1.5">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+                        AUMENTO ESTIMADO: <span id="zoom-factor">1x</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datos divertidos / Didáctica -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-purple-950/30 border border-purple-800/60 p-5 rounded-2xl">
+                    <span class="text-2xl">🌍</span>
+                    <h4 class="text-md font-bold text-purple-300 mt-2">¿De qué está hecho el aire?</h4>
+                    <p class="text-xs text-indigo-200 mt-1">¡Aunque no lo veas, el aire está lleno de materia! Son millones de moléculas de Oxígeno y Nitrógeno flotando a toda velocidad.</p>
+                </div>
+                <div class="bg-cyan-950/30 border border-cyan-800/60 p-5 rounded-2xl">
+                    <span class="text-2xl">💧</span>
+                    <h4 class="text-md font-bold text-cyan-300 mt-2">La molécula de Agua</h4>
+                    <p class="text-xs text-indigo-200 mt-1">El agua es un equipo: una molécula hecha de un átomo de Oxígeno gigante y dos átomos de Hidrógeno pequeños unidos. ¡Parece la cabeza de Mickey Mouse!</p>
+                </div>
+                <div class="bg-yellow-950/30 border border-yellow-800/60 p-5 rounded-2xl">
+                    <span class="text-2xl">⚡</span>
+                    <h4 class="text-md font-bold text-yellow-300 mt-2">¿Se puede romper un átomo?</h4>
+                    <p class="text-xs text-indigo-200 mt-1">"Átomo" significa "sin división" en griego, pero hoy sabemos que sí podemos dividirlos en piezas aún más diminutas que conocerás en el Creador.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. MODELOS ATÓMICOS (MÁQUINA DEL TIEMPO & RATHERFORD EXPERIMENT) -->
+        <section id="tab-history" class="tab-section hidden space-y-8 py-4">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span class="text-pink-400 font-fun text-sm font-semibold uppercase tracking-wider">Módulo 2: Historia y Ciencia</span>
+                <h2 class="text-3xl md:text-4xl font-bold">¿Cómo descubrimos el átomo? ⏳</h2>
+                <p class="text-indigo-200">Nadie ha visto un átomo directamente, pero brillantes científicos idearon ingeniosos experimentos para "dibujarlos". ¡Viaja por la historia!</p>
+            </div>
+
+            <!-- Línea de tiempo de Modelos Atómicos -->
+            <div class="bg-indigo-950/40 border border-indigo-800 rounded-3xl p-6">
+                <h3 class="text-lg font-bold text-yellow-300 mb-4 flex items-center gap-2">
+                    🛸 Línea de Tiempo Interactiva
+                </h3>
+                
+                <!-- Selector de científico -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="selectModel(0)" class="model-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-pink-600 text-white" id="btn-model-0">Demócrito (-400 AC)</button>
+                    <button onclick="selectModel(1)" class="model-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-indigo-900 text-indigo-200 hover:bg-indigo-800" id="btn-model-1">Dalton (1803)</button>
+                    <button onclick="selectModel(2)" class="model-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-indigo-900 text-indigo-200 hover:bg-indigo-800" id="btn-model-2">Thomson (1904)</button>
+                    <button onclick="selectModel(3)" class="model-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-indigo-900 text-indigo-200 hover:bg-indigo-800" id="btn-model-3">Rutherford (1911)</button>
+                    <button onclick="selectModel(4)" class="model-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-indigo-900 text-indigo-200 hover:bg-indigo-800" id="btn-model-4">Bohr-Actual (1913+)</button>
+                </div>
+
+                <!-- Detalle del científico seleccionado -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl" id="model-icon">🤯</span>
+                            <div>
+                                <h4 class="text-xl font-bold text-white" id="model-name">Demócrito: El filósofo filósofo</h4>
+                                <p class="text-xs text-indigo-300 font-mono" id="model-year">Hace más de 2400 años</p>
+                            </div>
+                        </div>
+                        <p class="text-indigo-200 text-sm leading-relaxed" id="model-desc">
+                            Se sentó en una playa griega y pensó: "Si rompo esta arena a la mitad una y otra vez, llegará un punto donde no pueda romperla más". Llamó a esa pieza final "Átomo" (indivisible).
+                        </p>
+                        <div class="bg-indigo-900/40 p-3 rounded-xl border border-indigo-800 text-xs flex gap-2">
+                            <span class="text-lg">💡</span>
+                            <span class="text-indigo-200" id="model-metaphor">Metáfora: ¡La piedra de Lego que no puedes romper!</span>
+                        </div>
+                    </div>
+
+                    <!-- Representación Gráfica del Modelo -->
+                    <div class="bg-indigo-950/80 aspect-video rounded-2xl border border-indigo-800 flex items-center justify-center relative overflow-hidden p-4">
+                        <div class="absolute top-2 right-2 text-[10px] text-pink-400 font-mono tracking-widest uppercase bg-indigo-900/80 px-2 py-0.5 rounded">VISTA SIMULADOR</div>
+                        <div id="model-visual" class="w-full h-full flex items-center justify-center">
+                            <!-- Se inyecta SVG dinámico -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULADOR EXPERIMENTO DE RUTHERFORD (GAMIFICACIÓN/PRÁCTICA) -->
+            <div class="bg-indigo-950/40 border border-indigo-800 rounded-3xl p-6 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-cyan-300 flex items-center gap-2">
+                            🎯 Simulador: El Experimento de la Lámina de Oro (1911)
+                        </h3>
+                        <p class="text-xs text-indigo-200">
+                            Ernest Rutherford disparó partículas positivas ("alfa") contra una delgada lámina de oro. ¿Qué pasó? ¡Descúbrelo disparándolas tú mismo!
+                        </p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="shootRutherfordParticles()" class="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-fun font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 active:scale-95 transition-all">
+                            💥 ¡Disparar Partículas Alfa!
+                        </button>
+                        <button onclick="resetRutherford()" class="bg-indigo-900 hover:bg-indigo-800 border border-indigo-700 text-xs px-3 py-2 rounded-xl">
+                            Reiniciar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <!-- Tablero de Datos -->
+                    <div class="lg:col-span-1 bg-indigo-950 border border-indigo-800 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                        <div class="space-y-2">
+                            <div class="text-xs text-indigo-300 uppercase tracking-widest font-mono">Contadores de Impacto</div>
+                            <div class="bg-green-500/10 border border-green-500/20 p-2 rounded-xl flex justify-between items-center">
+                                <span class="text-xs text-green-300 flex items-center gap-1">🟢 Siguen Recto:</span>
+                                <span id="rutherford-straight" class="font-mono text-sm font-bold text-green-400">0</span>
+                            </div>
+                            <div class="bg-red-500/10 border border-red-500/20 p-2 rounded-xl flex justify-between items-center">
+                                <span class="text-xs text-red-300 flex items-center gap-1">🔴 Rebotan/Desvían:</span>
+                                <span id="rutherford-bounced" class="font-mono text-sm font-bold text-red-400">0</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-900/40 p-3 rounded-xl border border-indigo-800 text-[11px] leading-relaxed text-indigo-200">
+                            <strong>¿Qué descubrió?</strong> Que el átomo está casi <span class="text-cyan-300 font-bold">VACÍO</span> por dentro. Solo algunas rebotan porque golpean un diminuto pero pesado <span class="text-yellow-300 font-bold">núcleo positivo</span> en el centro.
+                        </div>
+                    </div>
+
+                    <!-- Canvas del Experimento -->
+                    <div class="lg:col-span-3 bg-slate-950 rounded-2xl border border-indigo-800 relative overflow-hidden min-h-[220px]">
+                        <!-- Leyenda -->
+                        <div class="absolute top-2 left-2 flex gap-4 text-[10px] text-indigo-300 bg-slate-900/80 px-2 py-1 rounded-md">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> Partícula Alfa (Positiva)</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-400"></span> Núcleo de Oro (Masivo)</span>
+                        </div>
+                        <canvas id="rutherford-canvas" class="w-full h-full block"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. EL CREADOR DE ÁTOMOS (LABORATORIO PRÁCTICO) -->
+        <section id="tab-builder" class="tab-section hidden space-y-8 py-4">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span class="text-green-400 font-fun text-sm font-semibold uppercase tracking-wider">Módulo 3: Construcción</span>
+                <h2 class="text-3xl md:text-4xl font-bold">🛠️ ¡El Laboratorio del Creador de Átomos!</h2>
+                <p class="text-indigo-200">Añade o quita partículas cuánticas y crea tus propios elementos de la Tabla Periódica. ¡Mira cómo cambian!</p>
+            </div>
+
+            <!-- Interfaz del simulador de partículas -->
+            <div class="bg-indigo-950/40 border border-indigo-800 rounded-3xl p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- PANEL IZQUIERDO: CONTROLES -->
+                <div class="lg:col-span-4 space-y-6">
+                    <h3 class="text-lg font-bold text-yellow-300">¡Agrega las Piezas!</h3>
+                    
+                    <!-- Protones -->
+                    <div class="bg-indigo-900/40 p-4 rounded-2xl border border-red-500/20 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-1.5 text-red-400 font-bold font-fun">
+                                <span class="w-4 h-4 rounded-full bg-red-500 inline-flex items-center justify-center text-[10px] text-white font-bold">+</span>
+                                Protones
+                            </span>
+                            <span class="font-mono text-sm bg-red-500/20 text-red-300 px-2.5 py-0.5 rounded-full font-bold" id="lbl-protons">1</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-tight">Viven en el núcleo y definen la identidad del átomo (¿Quién es él?). Carga: (+1)</p>
+                        <div class="flex gap-2">
+                            <button onclick="adjustParticle('p', -1)" class="flex-1 bg-red-600 hover:bg-red-500 p-2 rounded-xl text-sm font-bold active:scale-95 transition-all">- Quitar</button>
+                            <button onclick="adjustParticle('p', 1)" class="flex-1 bg-red-600 hover:bg-red-500 p-2 rounded-xl text-sm font-bold active:scale-95 transition-all">+ Añadir</button>
+                        </div>
+                    </div>
+
+                    <!-- Neutrones -->
+                    <div class="bg-indigo-900/40 p-4 rounded-2xl border border-blue-500/20 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-1.5 text-blue-400 font-bold font-fun">
+                                <span class="w-4 h-4 rounded-full bg-blue-500 inline-flex items-center justify-center text-[10px] text-white">o</span>
+                                Neutrones
+                            </span>
+                            <span class="font-mono text-sm bg-blue-500/20 text-blue-300 px-2.5 py-0.5 rounded-full font-bold" id="lbl-neutrons">0</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-tight">Son el pegamento nuclear para que los protones no se separen. Carga: (Neutro, 0)</p>
+                        <div class="flex gap-2">
+                            <button onclick="adjustParticle('n', -1)" class="flex-1 bg-blue-600 hover:bg-blue-500 p-2 rounded-xl text-sm font-bold active:scale-95 transition-all">- Quitar</button>
+                            <button onclick="adjustParticle('n', 1)" class="flex-1 bg-blue-600 hover:bg-blue-500 p-2 rounded-xl text-sm font-bold active:scale-95 transition-all">+ Añadir</button>
+                        </div>
+                    </div>
+
+                    <!-- Electrones -->
+                    <div class="bg-indigo-900/40 p-4 rounded-2xl border border-yellow-500/20 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-1.5 text-yellow-400 font-bold font-fun">
+                                <span class="w-4 h-4 rounded-full bg-yellow-500 inline-flex items-center justify-center text-[10px] text-slate-900 font-bold">-</span>
+                                Electrones
+                            </span>
+                            <span class="font-mono text-sm bg-yellow-500/20 text-yellow-300 px-2.5 py-0.5 rounded-full font-bold" id="lbl-electrons">1</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-tight">Cuerpos ligeros volando en órbitas lejanas. Carga: (-1)</p>
+                        <div class="flex gap-2">
+                            <button onclick="adjustParticle('e', -1)" class="flex-1 bg-yellow-600 hover:bg-yellow-500 p-2 text-slate-900 rounded-xl text-sm font-bold active:scale-95 transition-all">- Quitar</button>
+                            <button onclick="adjustParticle('e', 1)" class="flex-1 bg-yellow-600 hover:bg-yellow-500 p-2 text-slate-900 rounded-xl text-sm font-bold active:scale-95 transition-all">+ Añadir</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL CENTRAL: VISOR EN TIEMPO REAL -->
+                <div class="lg:col-span-5 bg-indigo-950 border border-indigo-800 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[360px] relative">
+                    <div class="absolute top-3 right-3 text-[10px] text-green-400 font-mono tracking-widest uppercase bg-indigo-900/60 px-2 py-0.5 rounded">SIMULADOR ACTIVO</div>
+                    
+                    <!-- SVG dinámico del átomo que responde a las cantidades de partículas -->
+                    <div class="w-full flex items-center justify-center relative">
+                        <!-- El átomo temblará si es inestable usando la clase shaking de css -->
+                        <div id="atom-canvas-wrapper" class="w-64 h-64 flex items-center justify-center transition-transform">
+                            <!-- Se genera por javascript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL DERECHO: CONSOLA DE DIAGNÓSTICO -->
+                <div class="lg:col-span-3 flex flex-col justify-between gap-4">
+                    <!-- Ficha Química -->
+                    <div class="bg-indigo-950 border border-indigo-800 rounded-2xl p-4 text-center space-y-3">
+                        <h4 class="text-xs font-mono uppercase text-indigo-400 tracking-wider">Carta de Identidad</h4>
+                        <!-- Gran Elemento Químico -->
+                        <div class="bg-gradient-to-tr from-indigo-900 to-indigo-800 border border-indigo-700 w-24 h-24 mx-auto rounded-3xl flex flex-col justify-center items-center shadow-lg relative">
+                            <!-- Masa -->
+                            <span id="card-mass" class="absolute top-1 right-2 text-xs font-mono text-indigo-300 font-bold">1</span>
+                            <!-- Atómico -->
+                            <span id="card-atomic" class="absolute bottom-1 left-2 text-xs font-mono text-indigo-300 font-bold">1</span>
+                            <!-- Símbolo -->
+                            <span id="card-symbol" class="text-3xl font-fun font-bold text-yellow-300">H</span>
+                            <!-- Nombre -->
+                            <span id="card-name" class="text-[10px] text-slate-300 uppercase tracking-wider font-semibold">Hidrógeno</span>
+                        </div>
+                    </div>
+
+                    <!-- Atributos -->
+                    <div class="space-y-2">
+                        <!-- Estabilidad del núcleo -->
+                        <div class="p-3 rounded-xl border flex flex-col gap-1 transition-colors" id="box-stability">
+                            <span class="text-[10px] uppercase font-mono text-slate-300">Estado del Núcleo</span>
+                            <span class="text-sm font-fun font-bold" id="lbl-stability">¡Estable! 🟢</span>
+                        </div>
+
+                        <!-- Carga Eléctrica -->
+                        <div class="p-3 rounded-xl border flex flex-col gap-1 transition-colors" id="box-charge">
+                            <span class="text-[10px] uppercase font-mono text-slate-300">Carga Eléctrica</span>
+                            <span class="text-sm font-fun font-bold" id="lbl-charge">Neutro (Cero) ⚖️</span>
+                        </div>
+                    </div>
+
+                    <!-- Guía rápida para construir -->
+                    <div class="bg-indigo-900/40 p-3 rounded-xl border border-indigo-800">
+                        <h5 class="text-xs font-bold text-yellow-300 flex items-center gap-1">📋 ¡Retos de Creación!</h5>
+                        <ul class="text-[10px] text-slate-300 mt-1.5 space-y-1">
+                            <li>🎈 <strong>Helio (Globo):</strong> 2 Protones, 2 Neutrones, 2 Electrones.</li>
+                            <li>🔋 <strong>Litio (Batería):</strong> 3 Protones, 4 Neutrones, 3 Electrones.</li>
+                            <li>✏️ <strong>Carbono (Lápiz):</strong> 6 Protones, 6 Neutrones, 6 Electrones.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. JUEGO: EL RETO DEL SABIO CUÁNTICO (GAMIFICACIÓN Y EVALUACIÓN) -->
+        <section id="tab-quiz" class="tab-section hidden space-y-6 py-4">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span class="text-yellow-400 font-fun text-sm font-semibold uppercase tracking-wider">Módulo 4: Evaluación Lúdica</span>
+                <h2 class="text-3xl md:text-4xl font-bold">🏆 ¡El Gran Torneo de Sabios Cuánticos!</h2>
+                <p class="text-indigo-200">Demuestra tus superpoderes científicos, responde las preguntas correctamente y gana tu Diploma.</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto">
+                <!-- Tarjeta de Juego -->
+                <div id="quiz-card" class="bg-indigo-950/40 border-2 border-indigo-800 rounded-3xl p-6 md:p-8 space-y-6 relative overflow-hidden">
+                    
+                    <!-- Barra de progreso -->
+                    <div class="w-full bg-indigo-900 h-2.5 rounded-full overflow-hidden">
+                        <div id="quiz-progress-bar" class="bg-gradient-to-r from-pink-500 to-yellow-400 h-full transition-all duration-300" style="width: 10%;"></div>
+                    </div>
+
+                    <!-- Datos superiores -->
+                    <div class="flex justify-between items-center text-xs text-indigo-300 font-bold">
+                        <span id="quiz-question-index">Pregunta 1 de 8</span>
+                        <span class="bg-indigo-900/80 px-3 py-1.5 rounded-full text-yellow-400">Puntaje: <span id="quiz-score" class="font-mono">0</span> pts</span>
+                    </div>
+
+                    <!-- Pregunta -->
+                    <div class="space-y-4">
+                        <h3 id="quiz-question-text" class="text-xl md:text-2xl font-bold text-white">
+                            ¿Qué es el átomo? 🤔
+                        </h3>
+                    </div>
+
+                    <!-- Opciones de Respuesta -->
+                    <div id="quiz-options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                        <!-- Botones de respuesta inyectados por JS -->
+                    </div>
+
+                    <!-- Caja de retroalimentación inmediata -->
+                    <div id="quiz-feedback-box" class="hidden p-4 rounded-2xl flex items-center gap-3 transition-all">
+                        <span id="quiz-feedback-icon" class="text-3xl">🎉</span>
+                        <p id="quiz-feedback-text" class="text-xs md:text-sm font-semibold leading-relaxed"></p>
+                    </div>
+
+                    <!-- Botón siguiente -->
+                    <button id="btn-quiz-next" onclick="nextQuizQuestion()" class="hidden w-full bg-pink-600 hover:bg-pink-500 text-white font-fun font-bold py-3.5 rounded-2xl shadow-lg transition-transform active:scale-95 text-center">
+                        ¡Continuar Aventura! ➔
+                    </button>
+                </div>
+
+                <!-- Tarjeta del Diploma (Inicialmente oculta hasta terminar con éxito) -->
+                <div id="quiz-diploma-card" class="hidden bg-slate-900 border-4 border-yellow-400 p-8 rounded-3xl shadow-2xl flex flex-col items-center justify-center text-center space-y-6 relative overflow-hidden">
+                    <div class="absolute -top-12 -left-12 w-48 h-48 bg-yellow-400/10 rounded-full blur-2xl"></div>
+                    <div class="absolute -bottom-12 -right-12 w-48 h-48 bg-pink-500/10 rounded-full blur-2xl"></div>
+                    
+                    <span class="text-6xl">🎓</span>
+                    <h3 class="text-3xl font-fun font-bold text-yellow-400">¡OFICIALMENTE EXPLORADOR ATÓMICO!</h3>
+                    <p class="text-indigo-200 text-sm max-w-md">
+                        ¡Has completado con éxito la aventura interactiva de la Guía Cósmica del Átomo y respondiste todas las preguntas de manera sobresaliente!
+                    </p>
+
+                    <!-- Caja para escribir el Nombre del Niño/a -->
+                    <div class="w-full max-w-sm space-y-2">
+                        <label class="block text-indigo-300 text-xs font-semibold uppercase">Escribe tu nombre para tu diploma:</label>
+                        <input type="text" id="diploma-name-input" value="Futuro/a Científico/a" oninput="drawDiploma()" class="w-full bg-indigo-950 border border-indigo-800 rounded-xl px-4 py-3 text-center text-yellow-300 font-fun font-bold outline-none focus:border-yellow-400">
+                    </div>
+
+                    <!-- Canvas para exportar / Visualizar el Diploma -->
+                    <div class="w-full overflow-hidden rounded-2xl border border-indigo-800 bg-slate-950 p-2">
+                        <canvas id="diploma-canvas" width="600" height="400" class="w-full h-auto max-w-lg mx-auto bg-slate-950 block"></canvas>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 justify-center">
+                        <button onclick="downloadDiploma()" class="bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 font-fun font-bold px-6 py-3 rounded-2xl shadow-lg active:scale-95 transition-all text-sm flex items-center gap-1.5">
+                            💾 Guardar Diploma (Imagen)
+                        </button>
+                        <button onclick="restartQuiz()" class="bg-indigo-900 hover:bg-indigo-800 border border-indigo-700 px-6 py-3 rounded-2xl text-sm font-semibold text-indigo-200">
+                            🔄 Jugar de nuevo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-indigo-950 border-t border-indigo-950 text-indigo-400 text-center py-6 text-xs mt-auto space-y-1">
+        <p>Aventura Interactiva Educativa — Diseñado para el aprendizaje activo en Ciencia, Tecnología e Ingeniería.</p>
+        <p class="text-[10px] text-indigo-500">¿Sabías que un vaso de agua contiene más átomos que vasos de agua hay en todo el planeta Tierra? 🌊</p>
+    </footer>
+
+    <!-- LÓGICA COMPLETA DE INTERACCIÓN Y SIMULACIONES -->
+    <script>
+        // --- 1. CONFIGURACIÓN INICIAL Y AUDIO SINTETIZADO ---
+        let currentTab = 'welcome';
+        
+        // Función de retroalimentación de sonidos sintetizados usando la API de Web Audio (sin archivos externos!)
+        function playAudioFeedback(type) {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.08);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.16); // G5
+                    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(140, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.25);
+                } else if (type === 'fanfare') {
+                    // Pequeña escala victoriosa
+                    const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const o = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        o.connect(g);
+                        g.connect(ctx.destination);
+                        o.type = 'sine';
+                        o.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.1));
+                        g.gain.setValueAtTime(0.08, ctx.currentTime + (idx * 0.1));
+                        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (idx * 0.1) + 0.2);
+                        o.start(ctx.currentTime + (idx * 0.1));
+                        o.stop(ctx.currentTime + (idx * 0.1) + 0.2);
+                    });
+                }
+            } catch (err) {
+                console.log("AudioContext no inicializado aún.");
+            }
+        }
+
+        // Navegación entre pestañas
+        function changeTab(tabName) {
+            playAudioFeedback('click');
+            
+            // Ocultar todas las secciones
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+            
+            // Mostrar la seleccionada
+            const targetSection = document.getElementById(`tab-${tabName}`);
+            if (targetSection) targetSection.classList.remove('hidden');
+
+            // Actualizar botones de navegación
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-pink-600', 'text-white');
+                btn.classList.add('bg-indigo-800', 'text-indigo-200');
+            });
+            const activeBtn = document.getElementById(`btn-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-pink-600', 'text-white');
+                activeBtn.classList.remove('bg-indigo-800', 'text-indigo-200');
+            }
+
+            currentTab = tabName;
+
+            // Iniciar simulaciones específicas de cada pestaña
+            if (tabName === 'matter') {
+                updateZoomView();
+            } else if (tabName === 'history') {
+                selectModel(0);
+                initRutherfordCanvas();
+            } else if (tabName === 'builder') {
+                renderBuilderAtom();
+            } else if (tabName === 'quiz') {
+                initQuiz();
+            }
+        }
+
+
+        // --- 2. LÓGICA DEL MICROSCOPIO DE ZOOM INTERACTIVO ---
+        let currentZoomObject = 'apple';
+        const zoomLevels = {
+            apple: [
+                {
+                    title: "Manzana Completa (1x)",
+                    factor: "1x",
+                    desc: "¡Una deliciosa fruta roja! Crujiente y cargada de vitaminas. Si la picamos o la masticamos, sigue siendo manzana.",
+                    svg: `<g>
+                            <circle cx="170" cy="170" r="80" fill="#f43f5e"/>
+                            <ellipse cx="140" cy="120" rx="30" ry="10" fill="#f43f5e" transform="rotate(-15 140 120)"/>
+                            <ellipse cx="200" cy="120" rx="30" ry="10" fill="#f43f5e" transform="rotate(15 200 120)"/>
+                            <!-- Tallo -->
+                            <path d="M170,95 Q175,60 195,50" fill="none" stroke="#a16207" stroke-width="8" stroke-linecap="round"/>
+                            <!-- Hoja -->
+                            <path d="M190,55 Q215,45 220,65 Q195,75 190,55" fill="#22c55e" />
+                            <!-- Brillo -->
+                            <ellipse cx="210" cy="140" rx="15" ry="30" fill="#ffffff" opacity="0.2" transform="rotate(-20 210 140)"/>
+                          </g>`
+                },
+                {
+                    title: "Células Vegetales (2,000x)",
+                    factor: "2,000x",
+                    desc: "Haciendo zoom, vemos que está formada por pequeños ladrillos transparentes llamados células, con paredes de celulosa que le dan dureza.",
+                    svg: `<g stroke="#4ade80" stroke-width="3" fill="none">
+                            <path d="M20,60 L120,30 L220,50 L200,160 L100,180 L20,160 Z" fill="#22c55e" fill-opacity="0.1"/>
+                            <circle cx="120" cy="100" r="15" fill="#15803d" stroke="none" opacity="0.6"/>
+                            
+                            <path d="M220,50 L310,30 L320,140 L200,160 Z" fill="#22c55e" fill-opacity="0.15"/>
+                            <circle cx="260" cy="90" r="15" fill="#15803d" stroke="none" opacity="0.6"/>
+
+                            <path d="M20,160 L100,180 L80,290 L10,270 Z" fill="#22c55e" fill-opacity="0.1"/>
+                            <circle cx="50" cy="220" r="12" fill="#15803d" stroke="none" opacity="0.6"/>
+
+                            <path d="M100,180 L200,160 L240,280 L120,300 Z" fill="#22c55e" fill-opacity="0.2"/>
+                            <circle cx="160" cy="230" r="16" fill="#15803d" stroke="none" opacity="0.7"/>
+                          </g>`
+                },
+                {
+                    title: "Moléculas de Fructosa (200,000,000x)",
+                    factor: "200,000,000x",
+                    desc: "¡Henos aquí dentro de la célula! Vemos las moléculas de fructosa (el azúcar de la manzana) hechas de átomos de carbono, hidrógeno y oxígeno organizados.",
+                    svg: `<g>
+                            <!-- Dibujo de un anillo molecular esquemático divertido -->
+                            <polygon points="170,100 230,130 230,200 170,230 110,200 110,130" fill="none" stroke="#a855f7" stroke-width="4" stroke-linejoin="round"/>
+                            <!-- Átomos de la molécula -->
+                            <circle cx="170" cy="100" r="14" fill="#ef4444"/><text x="170" y="104" font-family="'Fredoka'" font-size="12" fill="white" text-anchor="middle">O</text>
+                            <circle cx="230" cy="130" r="14" fill="#3b82f6"/><text x="230" y="134" font-family="'Fredoka'" font-size="12" fill="white" text-anchor="middle">H</text>
+                            <circle cx="230" cy="200" r="14" fill="#10b981"/><text x="230" y="204" font-family="'Fredoka'" font-size="12" fill="white" text-anchor="middle">C</text>
+                            <circle cx="170" cy="230" r="14" fill="#3b82f6"/><text x="170" y="234" font-family="'Fredoka'" font-size="12" fill="white" text-anchor="middle">H</text>
+                            <circle cx="110" cy="200" r="14" fill="#10b981"/><text x="110" y="204" font-family="'Fredoka'" font-size="12" fill="white" text-anchor="middle">C</text>
+                            <circle cx="110" cy="130" r="14" fill="#ef4444"/><text x="110" y="134" font-family="'Fredoka'" font-size="12" fill="white" text-anchor="middle">O</text>
+                            <!-- Enlaces a hidrógeno extra -->
+                            <line x1="230" y1="130" x2="270" y2="100" stroke="#a855f7" stroke-width="3"/>
+                            <circle cx="270" cy="100" r="10" fill="#3b82f6"/><text x="270" y="103" font-family="'Fredoka'" font-size="8" fill="white" text-anchor="middle">H</text>
+                          </g>`
+                },
+                {
+                    title: "Átomo de Oxígeno (10,000,000,000x)",
+                    factor: "10,000,000,000x",
+                    desc: "¡Llegamos al final! Este es un átomo de Oxígeno. Tiene un núcleo central lleno de protones (+) y neutrones, con un veloz escudo de electrones (-) girando.",
+                    svg: `<g>
+                            <!-- Núcleo en el centro -->
+                            <circle cx="170" cy="170" r="22" fill="#ef4444" opacity="0.3" class="animate-ping"/>
+                            <circle cx="170" cy="170" r="18" fill="#e11d48"/>
+                            <circle cx="164" cy="164" r="7" fill="#ef4444"/>
+                            <circle cx="176" cy="166" r="7" fill="#2563eb"/>
+                            <circle cx="168" cy="176" r="7" fill="#2563eb"/>
+                            <circle cx="174" cy="172" r="7" fill="#ef4444"/>
+                            <!-- Órbitas -->
+                            <circle cx="170" cy="170" r="60" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4 4"/>
+                            <circle cx="170" cy="170" r="110" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4 4"/>
+                            <!-- Electrones -->
+                            <g class="orbiting-1" style="transform-origin: 170px 170px;">
+                                <circle cx="110" cy="170" r="6" fill="#fbbf24"/>
+                            </g>
+                            <g class="orbiting-2" style="transform-origin: 170px 170px;">
+                                <circle cx="170" cy="60" r="6" fill="#fbbf24"/>
+                            </g>
+                          </g>`
+                }
+            ],
+            water: [
+                {
+                    title: "Gota de Agua (1x)",
+                    factor: "1x",
+                    desc: "Una simple y refrescante gota de agua. Se desliza, moja y fluye. ¿Puedes imaginar de qué está armada?",
+                    svg: `<g>
+                            <path d="M170,60 Q240,190 230,220 Q210,260 170,260 Q130,260 110,220 Q100,190 170,60 Z" fill="#38bdf8" />
+                            <path d="M155,100 Q195,190 190,210" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity="0.25"/>
+                          </g>`
+                },
+                {
+                    title: "Bacterias e Impurezas (1,000x)",
+                    factor: "1,000x",
+                    desc: "¡Al microscopio óptico vemos que el agua corriente no está sola! Encontramos microscópicos microorganismos amigables o motas de polvo.",
+                    svg: `<g>
+                            <!-- Bacteria 1 -->
+                            <rect x="70" y="100" width="100" height="40" rx="20" fill="#22c55e" opacity="0.8" transform="rotate(15 120 120)"/>
+                            <path d="M170,115 C190,120 210,110 215,120" fill="none" stroke="#16a34a" stroke-width="3"/>
+                            <path d="M170,125 C195,135 205,125 215,135" fill="none" stroke="#16a34a" stroke-width="3"/>
+                            
+                            <!-- Organismo 2 -->
+                            <circle cx="210" cy="210" r="25" fill="#eab308" opacity="0.8"/>
+                            <circle cx="195" cy="200" r="3" fill="#ffffff"/>
+                            <circle cx="215" cy="220" r="4" fill="#ffffff"/>
+                            <path d="M210,185 L210,175 M225,195 L235,190 M195,220 L185,225" stroke="#ca8a04" stroke-width="2"/>
+                          </g>`
+                },
+                {
+                    title: "Moléculas de H2O (500,000,000x)",
+                    factor: "500,000,000x",
+                    desc: "¡Llegamos a las moléculas! Cada partícula de agua parece la cabeza de Mickey Mouse. Un átomo de Oxígeno gigante y dos de Hidrógeno chiquitos.",
+                    svg: `<g>
+                            <!-- Molécula 1 -->
+                            <g transform="translate(10, -20)">
+                                <line x1="160" y1="170" x2="115" y2="135" stroke="#0284c7" stroke-width="4"/>
+                                <line x1="160" y1="170" x2="205" y2="135" stroke="#0284c7" stroke-width="4"/>
+                                <circle cx="160" cy="170" r="35" fill="#ef4444"/><text x="160" y="174" font-family="'Fredoka'" font-size="16" fill="white" text-anchor="middle">O</text>
+                                <circle cx="115" cy="135" r="20" fill="#3b82f6"/><text x="115" y="139" font-family="'Fredoka'" font-size="10" fill="white" text-anchor="middle">H</text>
+                                <circle cx="205" cy="135" r="20" fill="#3b82f6"/><text x="205" y="139" font-family="'Fredoka'" font-size="10" fill="white" text-anchor="middle">H</text>
+                            </g>
+                          </g>`
+                },
+                {
+                    title: "Átomo de Hidrógeno (10,000,000,000x)",
+                    factor: "10,000,000,000x",
+                    desc: "¡Es el átomo más pequeño e importante del universo! El Hidrógeno tiene un único protón en su núcleo y un solo electrón dándole vueltas.",
+                    svg: `<g>
+                            <!-- Núcleo con 1 protón -->
+                            <circle cx="170" cy="170" r="15" fill="#ef4444"/>
+                            <text x="170" y="174" font-family="'Fredoka'" font-size="10" fill="white" text-anchor="middle">+</text>
+                            <!-- Órbita única -->
+                            <circle cx="170" cy="170" r="85" fill="none" stroke="#6366f1" stroke-width="2" stroke-dasharray="4 4"/>
+                            <!-- Un electrón -->
+                            <g class="orbiting-1" style="transform-origin: 170px 170px;">
+                                <circle cx="85" cy="170" r="7" fill="#fbbf24"/>
+                                <text x="85" y="173" font-family="'Fredoka'" font-size="8" fill="slate-900" text-anchor="middle">-</text>
+                            </g>
+                          </g>`
+                }
+            ],
+            iron: [
+                {
+                    title: "Llave de Hierro (1x)",
+                    factor: "1x",
+                    desc: "Un metal muy duro, pesado y frío al tacto. Se usa para construir puentes, rascacielos y herramientas fuertes.",
+                    svg: `<g>
+                            <!-- Mango de llave -->
+                            <circle cx="110" cy="170" r="45" fill="#94a3b8" stroke="#475569" stroke-width="6"/>
+                            <circle cx="110" cy="170" r="20" fill="#312e81"/>
+                            <!-- Cuerpo llave -->
+                            <rect x="150" y="155" width="120" height="30" fill="#94a3b8" stroke="#475569" stroke-width="6"/>
+                            <!-- Dientes -->
+                            <rect x="220" y="180" width="15" height="25" fill="#94a3b8" stroke="#475569" stroke-width="5"/>
+                            <rect x="245" y="180" width="15" height="15" fill="#94a3b8" stroke="#475569" stroke-width="5"/>
+                          </g>`
+                },
+                {
+                    title: "Estructura Microcristalina (500x)",
+                    factor: "500x",
+                    desc: "Al ampliar un metal, descubrimos que no es una masa lisa. Está hecho de millones de 'cristales' o bloques de granos metálicos soldados entre sí.",
+                    svg: `<g stroke="#64748b" stroke-width="3" fill="none">
+                            <polygon points="40,40 120,30 150,110 80,140" fill="#475569" opacity="0.8"/>
+                            <polygon points="120,30 240,40 210,120 150,110" fill="#334155" opacity="0.8"/>
+                            <polygon points="80,140 150,110 180,240 70,220" fill="#1e293b" opacity="0.8"/>
+                            <polygon points="150,110 210,120 280,210 180,240" fill="#475569" opacity="0.8"/>
+                          </g>`
+                },
+                {
+                    title: "Red Atómica Metálica (400,000,000x)",
+                    factor: "400,000,000x",
+                    desc: "Los átomos de metal se toman de la mano formando una red ultra ordenada. ¡Por eso los metales son tan fuertes y rígidos!",
+                    svg: `<g stroke="#94a3b8" stroke-width="2">
+                            <!-- Enlaces de la red -->
+                            <line x1="100" y1="100" x2="240" y2="100"/>
+                            <line x1="100" y1="240" x2="240" y2="240"/>
+                            <line x1="100" y1="100" x2="100" y2="240"/>
+                            <line x1="240" y1="100" x2="240" y2="240"/>
+                            <line x1="100" y1="100" x2="240" y2="240"/>
+                            <line x1="240" y1="100" x2="100" y2="240"/>
+                            
+                            <!-- Átomos en las esquinas -->
+                            <circle cx="100" cy="100" r="20" fill="#cbd5e1" stroke="#475569" stroke-width="3"/>
+                            <text x="100" y="104" font-family="'Fredoka'" font-size="12" fill="#334155" text-anchor="middle" font-weight="bold">Fe</text>
+                            
+                            <circle cx="240" cy="100" r="20" fill="#cbd5e1" stroke="#475569" stroke-width="3"/>
+                            <text x="240" y="104" font-family="'Fredoka'" font-size="12" fill="#334155" text-anchor="middle" font-weight="bold">Fe</text>
+                            
+                            <circle cx="100" cy="240" r="20" fill="#cbd5e1" stroke="#475569" stroke-width="3"/>
+                            <text x="100" y="244" font-family="'Fredoka'" font-size="12" fill="#334155" text-anchor="middle" font-weight="bold">Fe</text>
+                            
+                            <circle cx="240" cy="240" r="20" fill="#cbd5e1" stroke="#475569" stroke-width="3"/>
+                            <text x="240" y="244" font-family="'Fredoka'" font-size="12" fill="#334155" text-anchor="middle" font-weight="bold">Fe</text>
+
+                            <circle cx="170" cy="170" r="20" fill="#cbd5e1" stroke="#475569" stroke-width="3"/>
+                            <text x="170" y="174" font-family="'Fredoka'" font-size="12" fill="#334155" text-anchor="middle" font-weight="bold">Fe</text>
+                          </g>`
+                },
+                {
+                    title: "Átomo de Hierro (10,000,000,000x)",
+                    factor: "10,000,000,000x",
+                    desc: "¡El átomo de Hierro (Fe) es una fortaleza! Tiene la increíble cantidad de 26 protones en su núcleo y un ejército de 26 electrones volando.",
+                    svg: `<g>
+                            <!-- Gran Núcleo complejo -->
+                            <circle cx="170" cy="170" r="30" fill="#ef4444" opacity="0.2" class="animate-pulse"/>
+                            <circle cx="170" cy="170" r="24" fill="#64748b"/>
+                            <!-- Un montón de subpartículas encimadas -->
+                            <circle cx="162" cy="165" r="8" fill="#ef4444"/>
+                            <circle cx="178" cy="160" r="8" fill="#2563eb"/>
+                            <circle cx="170" cy="178" r="8" fill="#ef4444"/>
+                            <circle cx="158" cy="174" r="8" fill="#2563eb"/>
+                            <circle cx="176" cy="174" r="8" fill="#ef4444"/>
+                            
+                            <!-- Órbitas Múltiples -->
+                            <circle cx="170" cy="170" r="65" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="2 4"/>
+                            <circle cx="170" cy="170" r="95" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="2 4"/>
+                            <circle cx="170" cy="170" r="125" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="2 4"/>
+
+                            <!-- Electrones veloces -->
+                            <g class="orbiting-1" style="transform-origin: 170px 170px;">
+                                <circle cx="105" cy="170" r="5" fill="#fbbf24"/>
+                            </g>
+                            <g class="orbiting-2" style="transform-origin: 170px 170px;">
+                                <circle cx="170" cy="75" r="5" fill="#fbbf24"/>
+                            </g>
+                            <g class="orbiting-3" style="transform-origin: 170px 170px;">
+                                <circle cx="295" cy="170" r="5" fill="#fbbf24"/>
+                            </g>
+                          </g>`
+                }
+            ]
+        };
+
+        function selectZoomObject(objName) {
+            playAudioFeedback('click');
+            currentZoomObject = objName;
+            
+            // Actualizar botones de objetos
+            ['apple', 'water', 'iron'].forEach(o => {
+                const btn = document.getElementById(`btn-obj-${o}`);
+                if (o === objName) {
+                    btn.classList.remove('opacity-60', 'border-indigo-700', 'bg-indigo-900');
+                    btn.classList.add('opacity-100', 'border-pink-400', 'bg-pink-600');
+                } else {
+                    btn.classList.add('opacity-60', 'border-indigo-700', 'bg-indigo-900');
+                    btn.classList.remove('opacity-100', 'border-pink-400', 'bg-pink-600');
+                }
+            });
+
+            updateZoomView();
+        }
+
+        function updateZoomView() {
+            const range = document.getElementById('zoom-range');
+            const levelIdx = parseInt(range.value) - 1;
+            const data = zoomLevels[currentZoomObject][levelIdx];
+
+            // Inyectar textos
+            document.getElementById('zoom-title').innerText = data.title;
+            document.getElementById('zoom-desc').innerText = data.desc;
+            document.getElementById('zoom-factor').innerText = data.factor;
+
+            // Inyectar el SVG dentro del marco del microscopio con animación de transición suave
+            const viewport = document.getElementById('microscope-viewport');
+            viewport.innerHTML = `
+                <svg width="340" height="340" viewBox="0 0 340 340" class="w-full h-full">
+                    ${data.svg}
+                </svg>
+            `;
+        }
+
+
+        // --- 3. LÓGICA DE LA HISTORIA Y MODELOS ATÓMICOS ---
+        const historyModels = [
+            {
+                name: "Demócrito (Grecia Antigua)",
+                year: "Hace más de 2400 años (400 a.C.)",
+                desc: "Se sentó en una playa griega y dedujo: 'Si rompo esta arena a la mitad una y otra vez, llegará un punto donde no pueda romperla más'. Llamó a esa pieza final 'Átomo' (que significa: sin división en griego). ¡Pensó que eran piezas macizas con ganchos!",
+                metaphor: "Metáfora: ¡Las piezas de LEGO fundamentales e indivisibles!",
+                icon: "🏛️",
+                svg: `<g>
+                        <!-- Una piedra indestructible de lego en 3D o silueta -->
+                        <rect x="110" y="130" width="120" height="80" rx="15" fill="#f43f5e" stroke="#be123c" stroke-width="4"/>
+                        <circle cx="140" cy="115" r="15" fill="#f43f5e" stroke="#be123c" stroke-width="4"/>
+                        <circle cx="200" cy="115" r="15" fill="#f43f5e" stroke="#be123c" stroke-width="4"/>
+                        <!-- Líneas decorativas de piedra dura -->
+                        <line x1="125" y1="180" x2="215" y2="180" stroke="#991b1b" stroke-width="4" stroke-linecap="round"/>
+                        <text x="170" y="240" font-family="'Fredoka'" font-size="14" fill="#fda4af" text-anchor="middle" font-weight="bold">¡INrompible!</text>
+                      </g>`
+            },
+            {
+                name: "John Dalton (La Esfera)",
+                year: "Año 1803",
+                desc: "Primer modelo con bases científicas. Dalton imaginó que los átomos eran diminutas esferas sólidas, duras y pesadas, como bolas de billar muy resistentes. Dijo que los átomos de un mismo elemento son idénticos.",
+                metaphor: "Metáfora: ¡Bolas de billar microscópicas de colores!",
+                icon: "🎱",
+                svg: `<g>
+                        <!-- Bola de billar brillante -->
+                        <circle cx="170" cy="160" r="65" fill="url(#billiardGrad)" stroke="#1e293b" stroke-width="4"/>
+                        <!-- Brillo de la esfera -->
+                        <ellipse cx="145" cy="130" rx="15" ry="8" fill="#ffffff" opacity="0.6" transform="rotate(-25 145 130)"/>
+                        <!-- El número 1 de la bola cuántica -->
+                        <circle cx="170" cy="165" r="22" fill="#ffffff" />
+                        <text x="170" y="174" font-family="'Fredoka'" font-size="24" fill="#0f172a" text-anchor="middle" font-weight="bold">1</text>
+                        
+                        <defs>
+                            <radialGradient id="billiardGrad" cx="30%" cy="30%" r="70%">
+                                <stop offset="0%" stop-color="#3b82f6"/>
+                                <stop offset="100%" stop-color="#1d4ed8"/>
+                            </radialGradient>
+                        </defs>
+                      </g>`
+            },
+            {
+                name: "J.J. Thomson (El Pudín de Pasas)",
+                year: "Año 1904",
+                desc: "¡Thomson descubrió que el átomo tenía sorpresas! Encontró que dentro había partículas negativas super ligeras llamadas electrones. Se imaginó el átomo como un pudín de pasas: una gran masa positiva esponjosa llena de chispas negativas flotando.",
+                metaphor: "Metáfora: ¡Un delicioso muffin de chispas de chocolate!",
+                icon: "🧁",
+                svg: `<g>
+                        <!-- Masa positiva del muffin -->
+                        <circle cx="170" cy="160" r="70" fill="#f59e0b" stroke="#b45309" stroke-width="4" opacity="0.9"/>
+                        <text x="170" y="125" font-family="'Fredoka'" font-size="16" fill="#78350f" text-anchor="middle" font-weight="bold">Masa Positiva (+)</text>
+                        
+                        <!-- Las Pasas / Electrones negativos -->
+                        <g transform="translate(130, 150)">
+                            <circle cx="0" cy="0" r="12" fill="#ef4444"/>
+                            <text x="0" y="4" font-family="'Fredoka'" font-size="14" fill="white" text-anchor="middle">-</text>
+                        </g>
+                        <g transform="translate(200, 140)">
+                            <circle cx="0" cy="0" r="12" fill="#ef4444"/>
+                            <text x="0" y="4" font-family="'Fredoka'" font-size="14" fill="white" text-anchor="middle">-</text>
+                        </g>
+                        <g transform="translate(170, 185)">
+                            <circle cx="0" cy="0" r="12" fill="#ef4444"/>
+                            <text x="0" y="4" font-family="'Fredoka'" font-size="14" fill="white" text-anchor="middle">-</text>
+                        </g>
+                        <g transform="translate(140, 190)">
+                            <circle cx="0" cy="0" r="12" fill="#ef4444"/>
+                            <text x="0" y="4" font-family="'Fredoka'" font-size="14" fill="white" text-anchor="middle">-</text>
+                        </g>
+                        <g transform="translate(210, 180)">
+                            <circle cx="0" cy="0" r="12" fill="#ef4444"/>
+                            <text x="0" y="4" font-family="'Fredoka'" font-size="14" fill="white" text-anchor="middle">-</text>
+                        </g>
+                      </g>`
+            },
+            {
+                name: "Ernest Rutherford (Sistema Planetario)",
+                year: "Año 1911",
+                desc: "Rutherford hizo un experimento de locura. Descubrió que el átomo no era una bola sólida, sino que estaba un 99.9% VACÍO. Encontró un núcleo central súper denso positivo y dijo que los electrones giran alrededor de él como planetas al Sol.",
+                metaphor: "Metáfora: ¡Un sistema solar en miniatura con mucho espacio libre!",
+                icon: "🌌",
+                svg: `<g>
+                        <!-- Órbitas -->
+                        <ellipse cx="170" cy="160" rx="110" ry="35" fill="none" stroke="#4f46e5" stroke-width="2" transform="rotate(30 170 160)"/>
+                        <ellipse cx="170" cy="160" rx="110" ry="35" fill="none" stroke="#4f46e5" stroke-width="2" transform="rotate(-30 170 160)"/>
+                        
+                        <!-- Núcleo positivo diminuto pero pesado -->
+                        <circle cx="170" cy="160" r="16" fill="#ec4899" class="animate-pulse"/>
+                        <text x="170" y="164" font-family="'Fredoka'" font-size="14" fill="white" text-anchor="middle" font-weight="bold">+</text>
+
+                        <!-- Electrones girando -->
+                        <g class="orbiting-1" style="transform-origin: 170px 160px;">
+                            <circle cx="60" cy="160" r="8" fill="#f59e0b" />
+                        </g>
+                        <g class="orbiting-2" style="transform-origin: 170px 160px;">
+                            <circle cx="280" cy="160" r="8" fill="#10b981" />
+                        </g>
+                      </g>`
+            },
+            {
+                name: "Bohr y Modelo Mecanocuántico",
+                year: "Año 1913 - Actualidad",
+                desc: "Niels Bohr propuso que los electrones viajan por 'estaciones' fijas (niveles de energía). El modelo actual describe que los electrones se mueven tan locamente rápido que forman una 'nube cuántica' de probabilidad a su alrededor.",
+                metaphor: "Metáfora: ¡Un enjambre de abejas zumbando sobre el panal!",
+                icon: "🐝",
+                svg: `<g>
+                        <!-- Nube de electrones probabilística (Efecto difuminado radial) -->
+                        <circle cx="170" cy="160" r="100" fill="url(#cloudGrad)" opacity="0.65"/>
+                        
+                        <!-- Núcleo central con protones y neutrones -->
+                        <g transform="translate(170, 160)">
+                            <circle cx="0" cy="0" r="12" fill="#ef4444"/>
+                            <circle cx="-5" cy="5" r="7" fill="#2563eb"/>
+                            <circle cx="5" cy="-5" r="7" fill="#ef4444"/>
+                            <circle cx="5" cy="5" r="7" fill="#2563eb"/>
+                        </g>
+                        
+                        <!-- Electrones esquemáticos flotando rápidos -->
+                        <circle cx="100" cy="110" r="5" fill="#fbbf24" opacity="0.9" class="animate-pulse"/>
+                        <circle cx="240" cy="200" r="4" fill="#fbbf24" opacity="0.8" class="animate-pulse"/>
+                        <circle cx="120" cy="210" r="6" fill="#fbbf24" opacity="0.75" class="animate-pulse"/>
+                        <circle cx="210" cy="100" r="5" fill="#fbbf24" opacity="0.9" class="animate-pulse"/>
+
+                        <defs>
+                            <radialGradient id="cloudGrad" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.8"/>
+                                <stop offset="60%" stop-color="#a855f7" stop-opacity="0.3"/>
+                                <stop offset="100%" stop-color="#4f46e5" stop-opacity="0"/>
+                            </radialGradient>
+                        </defs>
+                      </g>`
+            }
+        ];
+
+        function selectModel(idx) {
+            playAudioFeedback('click');
+            const data = historyModels[idx];
+
+            // Actualizar botones
+            for (let i = 0; i < historyModels.length; i++) {
+                const btn = document.getElementById(`btn-model-${i}`);
+                if (i === idx) {
+                    btn.classList.add('bg-pink-600', 'text-white');
+                    btn.classList.remove('bg-indigo-900', 'text-indigo-200');
+                } else {
+                    btn.classList.remove('bg-pink-600', 'text-white');
+                    btn.classList.add('bg-indigo-900', 'text-indigo-200');
+                }
+            }
+
+            // Actualizar interfaz
+            document.getElementById('model-icon').innerText = data.icon;
+            document.getElementById('model-name').innerText = data.name;
+            document.getElementById('model-year').innerText = data.year;
+            document.getElementById('model-desc').innerText = data.desc;
+            document.getElementById('model-metaphor').innerText = data.metaphor;
+
+            // Inyectar gráfico del modelo
+            document.getElementById('model-visual').innerHTML = `
+                <svg width="340" height="320" viewBox="0 0 340 320" class="w-full h-full">
+                    ${data.svg}
+                </svg>
+            `;
+        }
+
+        // --- SIMULADOR RUTHERFORD DE FÍSICA ---
+        let rutherfordCanvas, rutherfordCtx;
+        let rutherfordParticles = [];
+        let rutherfordNuclei = [];
+        let rutherfordStraightCount = 0;
+        let rutherfordBouncedCount = 0;
+        let rutherfordAnimationId = null;
+
+        function initRutherfordCanvas() {
+            rutherfordCanvas = document.getElementById('rutherford-canvas');
+            if (!rutherfordCanvas) return;
+            rutherfordCtx = rutherfordCanvas.getContext('2d');
+            
+            // Adaptar tamaño al contenedor
+            const container = rutherfordCanvas.parentElement;
+            rutherfordCanvas.width = container.clientWidth;
+            rutherfordCanvas.height = 220;
+
+            // Generar los núcleos de oro estáticos alineados en el medio vertical
+            rutherfordNuclei = [];
+            const middleX = rutherfordCanvas.width / 2;
+            const spacing = 50;
+            const startY = 30;
+            
+            for (let y = startY; y < rutherfordCanvas.height; y += spacing) {
+                rutherfordNuclei.push({ x: middleX, y: y, r: 10 });
+            }
+
+            rutherfordParticles = [];
+            rutherfordStraightCount = 0;
+            rutherfordBouncedCount = 0;
+            updateRutherfordCounters();
+
+            // Dibujar cuadro inicial estático
+            drawRutherfordFrame();
+
+            // Cancelar animaciones previas
+            if (rutherfordAnimationId) {
+                cancelAnimationFrame(rutherfordAnimationId);
+            }
+            // Iniciar bucle de animación
+            animateRutherford();
+        }
+
+        function shootRutherfordParticles() {
+            playAudioFeedback('click');
+            const totalParticles = 40;
+            const h = rutherfordCanvas.height;
+
+            for (let i = 0; i < totalParticles; i++) {
+                // Disparar desde el borde izquierdo en intervalos aleatorios de tiempo y alturas y = 0 a h
+                rutherfordParticles.push({
+                    x: -20 - (Math.random() * 180), // Escalona la salida en el eje X
+                    y: Math.random() * h,
+                    vx: 4 + Math.random() * 1.5,
+                    vy: 0,
+                    r: 3,
+                    deflected: false,
+                    state: 'active' // active, bounced, straight
+                });
+            }
+        }
+
+        function resetRutherford() {
+            playAudioFeedback('click');
+            initRutherfordCanvas();
+        }
+
+        function updateRutherfordCounters() {
+            document.getElementById('rutherford-straight').innerText = rutherfordStraightCount;
+            document.getElementById('rutherford-bounced').innerText = rutherfordBouncedCount;
+        }
+
+        function drawRutherfordFrame() {
+            const ctx = rutherfordCtx;
+            const canvas = rutherfordCanvas;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar los núcleos pesados de Oro (amarillos, brillantes)
+            rutherfordNuclei.forEach(n => {
+                // Halo de repulsión
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, 25, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(234, 179, 8, 0.08)';
+                ctx.fill();
+
+                // Núcleo duro
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                ctx.fillStyle = '#facc15';
+                ctx.strokeStyle = '#eab308';
+                ctx.lineWidth = 2;
+                ctx.fill();
+                ctx.stroke();
+
+                // Símbolo de más (+) de positivo
+                ctx.fillStyle = '#78350f';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('+', n.x, n.y);
+            });
+
+            // Dibujar las partículas alfa volando
+            rutherfordParticles.forEach(p => {
+                if (p.x < 0) return; // No dibujar las que no han salido
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = '#22d3ee';
+                ctx.shadowColor = '#22d3ee';
+                ctx.shadowBlur = p.deflected ? 6 : 0;
+                ctx.fill();
+                ctx.shadowBlur = 0; // reset
+            });
+        }
+
+        function animateRutherford() {
+            const canvas = rutherfordCanvas;
+            if (!canvas) return;
+
+            // Actualizar posiciones de las partículas
+            rutherfordParticles.forEach(p => {
+                if (p.state !== 'active') return;
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Detectar colisiones con cualquiera de los núcleos de Oro
+                rutherfordNuclei.forEach(n => {
+                    const dx = p.x - n.x;
+                    const dy = p.y - n.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    // Repulsión electrostática (Rutherford): si se acerca a la "zona de influencia" positiva
+                    if (dist < 26) {
+                        // Calcular fuerza de repulsión invertida
+                        const angle = Math.atan2(dy, dx);
+                        const force = (26 - dist) * 0.45; // Entre más cerca, más fuerza de empuje
+
+                        p.vx += Math.cos(angle) * force;
+                        p.vy += Math.sin(angle) * force;
+                        p.deflected = true;
+                    }
+                });
+
+                // Límites y clasificación de las partículas que cruzan o rebotan
+                if (p.x > canvas.width) {
+                    p.state = 'done';
+                    if (Math.abs(p.vy) > 1.2) {
+                        rutherfordBouncedCount++;
+                    } else {
+                        rutherfordStraightCount++;
+                    }
+                    updateRutherfordCounters();
+                } else if (p.x < -200 || p.y < -20 || p.y > canvas.height + 20) {
+                    // Si rebotó hacia atrás y se salió
+                    p.state = 'done';
+                    rutherfordBouncedCount++;
+                    updateRutherfordCounters();
+                }
+            });
+
+            // Filtrar y eliminar las que terminaron para que no consuman memoria
+            rutherfordParticles = rutherfordParticles.filter(p => p.state === 'active');
+
+            // Renderizar cuadro
+            drawRutherfordFrame();
+
+            // Siguiente frame
+            rutherfordAnimationId = requestAnimationFrame(animateRutherford);
+        }
+
+        // Redimensionar el canvas adaptativamente
+        window.addEventListener('resize', () => {
+            if (currentTab === 'history') {
+                initRutherfordCanvas();
+            }
+        });
+
+
+        // --- 4. LÓGICA DEL CREADOR DE ÁTOMOS (LABORATORIO) ---
+        // Estado del creador
+        let atomBuilder = {
+            protons: 1,
+            neutrons: 0,
+            electrons: 1
+        };
+
+        // Base de datos de elementos ligeros de la Tabla Periódica para niños
+        const elementsDB = [
+            { z: 0, symbol: "?", name: "Vacío", stableN: [] },
+            { z: 1, symbol: "H", name: "Hidrógeno", stableN: [0, 1] }, // Hidrógeno-1 y Deuterio
+            { z: 2, symbol: "He", name: "Helio", stableN: [2, 1] },
+            { z: 3, symbol: "Li", name: "Litio", stableN: [4, 3] },
+            { z: 4, symbol: "Be", name: "Berilio", stableN: [5] },
+            { z: 5, symbol: "B", name: "Boro", stableN: [6, 5] },
+            { z: 6, symbol: "C", name: "Carbono", stableN: [6, 7] },
+            { z: 7, symbol: "N", name: "Nitrógeno", stableN: [7, 8] },
+            { z: 8, symbol: "O", name: "Oxígeno", stableN: [8, 9, 10] },
+            { z: 9, symbol: "F", name: "Flúor", stableN: [10] },
+            { z: 10, symbol: "Ne", name: "Neón", stableN: [10, 11, 12] }
+        ];
+
+        function adjustParticle(type, qty) {
+            playAudioFeedback('click');
+            
+            if (type === 'p') {
+                atomBuilder.protons = Math.max(0, Math.min(10, atomBuilder.protons + qty));
+            } else if (type === 'n') {
+                atomBuilder.neutrons = Math.max(0, Math.min(12, atomBuilder.neutrons + qty));
+            } else if (type === 'e') {
+                atomBuilder.electrons = Math.max(0, Math.min(10, atomBuilder.electrons + qty));
+            }
+
+            // Actualizar etiquetas en pantalla
+            document.getElementById('lbl-protons').innerText = atomBuilder.protons;
+            document.getElementById('lbl-neutrons').innerText = atomBuilder.neutrons;
+            document.getElementById('lbl-electrons').innerText = atomBuilder.electrons;
+
+            renderBuilderAtom();
+        }
+
+        function renderBuilderAtom() {
+            const wrapper = document.getElementById('atom-canvas-wrapper');
+            if (!wrapper) return;
+
+            const p = atomBuilder.protons;
+            const n = atomBuilder.neutrons;
+            const e = atomBuilder.electrons;
+
+            // 1. Obtener Elemento
+            const element = elementsDB[p] || { symbol: "??", name: "Desconocido", stableN: [] };
+            
+            // 2. Calcular Estabilidad
+            let isStable = false;
+            if (p === 0) {
+                isStable = true; // El vacío es estable
+            } else {
+                isStable = element.stableN.includes(n);
+            }
+
+            // Aplicar temblor al contenedor si es inestable
+            if (!isStable && p > 0) {
+                wrapper.classList.add('shaking');
+            } else {
+                wrapper.classList.remove('shaking');
+            }
+
+            // 3. Calcular Carga
+            const netCharge = p - e;
+            let chargeText = "";
+            let chargeColorClass = "";
+            let chargeBorderClass = "";
+
+            if (netCharge === 0) {
+                chargeText = "Neutro (Cero) ⚖️";
+                chargeColorClass = "text-green-400 bg-green-500/10";
+                chargeBorderClass = "border-green-500/30";
+            } else if (netCharge > 0) {
+                chargeText = `Ion Positivo (+${netCharge}) 🔵`;
+                chargeColorClass = "text-cyan-400 bg-cyan-500/10";
+                chargeBorderClass = "border-cyan-500/30";
+            } else {
+                chargeText = `Ion Negativo (${netCharge}) 🟠`;
+                chargeColorClass = "text-amber-400 bg-amber-500/10";
+                chargeBorderClass = "border-amber-500/30";
+            }
+
+            // Actualizar la interfaz diagnóstica
+            document.getElementById('lbl-stability').innerText = p === 0 ? "¡Vacío completo!" : (isStable ? "¡Estable! 🟢" : "¡Inestable! 🔴 (Se rompe)");
+            const stabilityBox = document.getElementById('box-stability');
+            stabilityBox.className = `p-3 rounded-xl border flex flex-col gap-1 transition-colors ${p === 0 ? 'border-indigo-800' : (isStable ? 'border-green-500/30 bg-green-500/5 text-green-300' : 'border-red-500/40 bg-red-500/5 text-red-300')}`;
+
+            document.getElementById('lbl-charge').innerText = chargeText;
+            const chargeBox = document.getElementById('box-charge');
+            chargeBox.className = `p-3 rounded-xl border flex flex-col gap-1 transition-colors ${chargeBorderClass} ${chargeColorClass}`;
+
+            document.getElementById('card-symbol').innerText = element.symbol;
+            document.getElementById('card-name').innerText = element.name;
+            document.getElementById('card-mass').innerText = p + n;
+            document.getElementById('card-atomic').innerText = p;
+
+            // 4. GENERAR EL SVG DEL ÁTOMO
+            // Empacado dinámico del núcleo: generamos círculos con coordenadas semi-aleatorias agrupadas en espiral para el núcleo
+            let nucleusCircles = "";
+            const numPartículas = p + n;
+            
+            // Generamos una semilla fija de posiciones para evitar parpadeos caóticos al actualizar
+            // Usamos un algoritmo simple que posiciona partículas en espiral matemática alrededor del centro (120, 120)
+            const particles = [];
+            for (let i = 0; i < p; i++) particles.push({ type: 'proton' });
+            for (let i = 0; i < n; i++) particles.push({ type: 'neutron' });
+
+            // Barajar usando un algoritmo determinista para mezclar protones y neutrones estéticamente
+            const center = 120;
+            const radiusSpacing = 11;
+            particles.forEach((part, index) => {
+                const angle = index * 2.39996; // Ángulo de oro en radianes para distribución natural
+                const r = Math.sqrt(index) * radiusSpacing;
+                const x = center + r * Math.cos(angle);
+                const y = center + r * Math.sin(angle);
+
+                if (part.type === 'proton') {
+                    // Protón Rojo con símbolo '+'
+                    nucleusCircles += `
+                        <g>
+                            <circle cx="${x}" cy="${y}" r="11" fill="#f43f5e" stroke="#be123c" stroke-width="1.5"/>
+                            <text x="${x}" y="${y + 3.5}" font-family="'Fredoka'" font-size="12" fill="white" text-anchor="middle" font-weight="bold">+</text>
+                        </g>
+                    `;
+                } else {
+                    // Neutrón Azul
+                    nucleusCircles += `
+                        <g>
+                            <circle cx="${x}" cy="${y}" r="11" fill="#3b82f6" stroke="#1d4ed8" stroke-width="1.5"/>
+                            <circle cx="${x - 2}" cy="${y - 2}" r="3" fill="#60a5fa" opacity="0.6"/>
+                        </g>
+                    `;
+                }
+            });
+
+            // Órbitas y Electrones
+            // Regla de distribución: Máximo 2 electrones en órbita 1 (cercana). Hasta 8 en órbita 2.
+            let orbitsSVG = "";
+            let electronsSVG = "";
+
+            if (e > 0) {
+                const shell1_count = Math.min(e, 2);
+                const shell2_count = Math.max(0, e - 2);
+
+                // Dibujar órbita 1
+                orbitsSVG += `<circle cx="120" cy="120" r="60" fill="none" stroke="#6366f1" stroke-width="2" stroke-dasharray="6 4" opacity="0.5"/>`;
+                
+                // Electrones en órbita 1 girando
+                electronsSVG += `
+                    <g class="orbiting-1" style="transform-origin: 120px 120px;">
+                        ${shell1_count >= 1 ? `<g><circle cx="60" cy="120" r="8" fill="#eab308"/><text x="60" y="123" font-family="'Fredoka'" font-size="10" fill="slate-900" text-anchor="middle" font-weight="bold">-</text></g>` : ''}
+                        ${shell1_count >= 2 ? `<g><circle cx="180" cy="120" r="8" fill="#eab308"/><text x="180" y="123" font-family="'Fredoka'" font-size="10" fill="slate-900" text-anchor="middle" font-weight="bold">-</text></g>` : ''}
+                    </g>
+                `;
+
+                if (shell2_count > 0) {
+                    // Dibujar órbita 2
+                    orbitsSVG += `<circle cx="120" cy="120" r="105" fill="none" stroke="#6366f1" stroke-width="2" stroke-dasharray="6 4" opacity="0.5"/>`;
+                    
+                    // Electrones en órbita 2 girando
+                    let s2_nodes = "";
+                    for (let i = 0; i < shell2_count; i++) {
+                        const s2_angle = (i * (360 / shell2_count));
+                        // Posición trigonométrica inicial
+                        const s2_x = 120 + 105 * Math.cos(s2_angle * Math.PI / 180);
+                        const s2_y = 120 + 105 * Math.sin(s2_angle * Math.PI / 180);
+                        s2_nodes += `
+                            <g transform="rotate(${s2_angle} 120 120)">
+                                <circle cx="225" cy="120" r="8" fill="#eab308"/>
+                                <text x="225" y="123" font-family="'Fredoka'" font-size="10" fill="slate-900" text-anchor="middle" font-weight="bold">-</text>
+                            </g>
+                        `;
+                    }
+                    electronsSVG += `
+                        <g class="orbiting-2" style="transform-origin: 120px 120px;">
+                            ${s2_nodes}
+                        </g>
+                    `;
+                }
+            }
+
+            // Ensamblar todo el SVG
+            wrapper.innerHTML = `
+                <svg width="250" height="250" viewBox="0 0 240 240" class="w-full h-full drop-shadow-2xl">
+                    <!-- Efecto de brillo de fondo para núcleo -->
+                    <circle cx="120" cy="120" r="30" fill="#a855f7" opacity="0.1" class="animate-pulse"/>
+                    <!-- Dibujar Órbitas -->
+                    ${orbitsSVG}
+                    <!-- Dibujar Electrones -->
+                    ${electronsSVG}
+                    <!-- Dibujar Núcleo del Átomo (protones y neutrones juntos en centro) -->
+                    <g id="nucleus-group">
+                        ${p === 0 && n === 0 ? `<circle cx="120" cy="120" r="15" fill="none" stroke="#6366f1" stroke-dasharray="4 4"/><text x="120" y="124" font-family="'Fredoka'" font-size="10" fill="#818cf8" text-anchor="middle">Vacío</text>` : nucleusCircles}
+                    </g>
+                </svg>
+            `;
+        }
+
+
+        // --- 5. LÓGICA DEL RETO DEL SABIO CUÁNTICO (QUIZ Y DIPLOMA) ---
+        const quizQuestions = [
+            {
+                q: "¿Qué significa la palabra griega 'Átomo'?",
+                o: [
+                    "Pequeña pelota de billar",
+                    "Cosa indestructible o sin división",
+                    "Pieza mágica del espacio",
+                    "Fuerza magnética invisible"
+                ],
+                a: 1,
+                f: "¡Correcto! Hace 2400 años, Demócrito acuñó el término 'átomo' queriendo decir que es la pieza final que no se puede romper más."
+            },
+            {
+                q: "¿Cuál es la partícula que tiene carga eléctrica POSITIVA y vive en el núcleo?",
+                o: [
+                    "El Electrón",
+                    "El Neutrón",
+                    "El Protón",
+                    "El Fotón"
+                ],
+                a: 2,
+                f: "¡Eso es! El Protón (carga +) vive en el núcleo y es súper importante: ¡determina qué tipo de elemento químico es el átomo!"
+            },
+            {
+                q: "¿Cuál de estos científicos comparó su modelo atómico con un rico 'Pudín de Pasas'?",
+                o: [
+                    "Niels Bohr",
+                    "Ernest Rutherford",
+                    "J.J. Thomson",
+                    "John Dalton"
+                ],
+                a: 2,
+                f: "¡Excelente! J.J. Thomson pensó que el átomo era una gran masa gelatinosa positiva con los pequeños electrones incrustados como pasas en un panqué."
+            },
+            {
+                q: "¿Qué gran descubrimiento se hizo con el experimento de disparar contra la lámina de oro?",
+                o: [
+                    "Que el átomo es completamente sólido",
+                    "Que está casi todo vacío y tiene un pequeño núcleo denso",
+                    "Que todos los átomos son de color amarillo oro",
+                    "Que los electrones tienen forma de pasas"
+                ],
+                a: 1,
+                f: "¡Increíble! Ernest Rutherford descubrió que casi todo el átomo está vacío (espacio libre), por eso la mayoría de las balas alfa pasaron directo."
+            },
+            {
+                q: "Si un átomo tiene 3 Protones (+) y 3 Electrones (-), ¿cuál es su carga eléctrica neta?",
+                o: [
+                    "Carga Positiva (+3)",
+                    "Carga Negativa (-3)",
+                    "Carga Neutra (Cero)",
+                    "Depende de los neutrones"
+                ],
+                a: 2,
+                f: "¡Exacto! Tienes 3 positivos y 3 negativos que se cancelan perfectamente dando una carga Neutra (Cero). ¡Un átomo equilibrado!"
+            },
+            {
+                q: "¿Qué partícula cuántica no tiene carga eléctrica y ayuda a que los protones no se peleen en el núcleo?",
+                o: [
+                    "El Neutrón",
+                    "El Electrón",
+                    "La Fructosa",
+                    "El Gluón"
+                ],
+                a: 0,
+                f: "¡Magnífico! El Neutrón tiene carga neutra. Funciona como un pegamento amortiguador para que los protones positivos no se repelan en el núcleo."
+            },
+            {
+                q: "El elemento con número atómico 1, un solo protón y un electrón es el...",
+                o: [
+                    "Oxígeno de las plantas",
+                    "Hierro metálico",
+                    "Hidrógeno de las estrellas",
+                    "Helio de los globos"
+                ],
+                a: 2,
+                f: "¡Fantástico! El Hidrógeno (H) es el átomo más ligero y abundante del Universo entero, ¡combustible de las estrellas y del agua!"
+            },
+            {
+                q: "¿De dónde vienen realmente los átomos pesados que forman tu cuerpo (como el Carbono o el Hierro)?",
+                o: [
+                    "Fueron creados en fábricas terrestres",
+                    "Se formaron dentro del corazón de estrellas lejanas que explotaron",
+                    "Siempre estuvieron flotando solos sin origen",
+                    "Se producen al masticar alimentos"
+                ],
+                a: 1,
+                f: "¡Sí! Todos los átomos más pesados que el hidrógeno se forjaron a altísimas temperaturas en las estrellas. ¡Por eso somos polvo de estrellas!"
+            }
+        ];
+
+        let quizCurrentIndex = 0;
+        let quizScore = 0;
+        let answeredThisQuestion = false;
+
+        function initQuiz() {
+            quizCurrentIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-card').classList.remove('hidden');
+            document.getElementById('quiz-diploma-card').classList.add('hidden');
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            answeredThisQuestion = false;
+            const qData = quizQuestions[quizCurrentIndex];
+
+            // Ocultar retroalimentación y botón de continuar
+            document.getElementById('quiz-feedback-box').classList.add('hidden');
+            document.getElementById('btn-quiz-next').classList.add('hidden');
+
+            // Actualizar interfaz superior
+            document.getElementById('quiz-question-index').innerText = `Pregunta ${quizCurrentIndex + 1} de ${quizQuestions.length}`;
+            document.getElementById('quiz-score').innerText = quizScore;
+            
+            // Actualizar barra de progreso
+            const progressPercent = ((quizCurrentIndex) / quizQuestions.length) * 100;
+            document.getElementById('quiz-progress-bar').style.width = `${progressPercent}%`;
+
+            // Establecer el texto de la pregunta
+            document.getElementById('quiz-question-text').innerText = qData.q;
+
+            // Inyectar opciones de respuesta
+            const container = document.getElementById('quiz-options-container');
+            container.innerHTML = "";
+            
+            qData.o.forEach((optionText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "quiz-opt-btn text-left p-4 rounded-2xl bg-indigo-900/60 border-2 border-indigo-800 hover:border-pink-500 hover:bg-indigo-800/80 font-semibold text-sm transition-all active:scale-[0.98]";
+                btn.innerHTML = `<span class="inline-block w-6 h-6 text-center leading-6 rounded-full bg-indigo-800 text-indigo-300 font-bold text-xs mr-2">${String.fromCharCode(65 + idx)}</span> ${optionText}`;
+                btn.onclick = () => selectQuizOption(idx);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectQuizOption(selectedIdx) {
+            if (answeredThisQuestion) return; // Evitar responder dos veces
+            answeredThisQuestion = true;
+
+            const qData = quizQuestions[quizCurrentIndex];
+            const isCorrect = (selectedIdx === qData.a);
+
+            const feedbackBox = document.getElementById('quiz-feedback-box');
+            const feedbackIcon = document.getElementById('quiz-feedback-icon');
+            const feedbackText = document.getElementById('quiz-feedback-text');
+            const nextBtn = document.getElementById('btn-quiz-next');
+
+            // Colorear opciones según acierto/error
+            const buttons = document.querySelectorAll('.quiz-opt-btn');
+            buttons.forEach((btn, idx) => {
+                // Quitar efectos interactivos
+                btn.classList.remove('hover:border-pink-500', 'hover:bg-indigo-800/80', 'active:scale-[0.98]');
+                
+                if (idx === qData.a) {
+                    // La respuesta correcta se pinta verde
+                    btn.classList.add('border-green-500', 'bg-green-500/10', 'text-green-300');
+                } else if (idx === selectedIdx) {
+                    // El error se pinta rojo
+                    btn.classList.add('border-red-500', 'bg-red-500/10', 'text-red-300');
+                } else {
+                    btn.classList.add('opacity-40');
+                }
+            });
+
+            if (isCorrect) {
+                playAudioFeedback('correct');
+                quizScore += 100;
+                document.getElementById('quiz-score').innerText = quizScore;
+                
+                feedbackBox.className = "p-4 rounded-2xl flex items-center gap-3 bg-green-500/10 border border-green-500/20 text-green-300";
+                feedbackIcon.innerText = "🎉";
+                feedbackText.innerHTML = `<strong>¡EXCELENTE!</strong> ${qData.f}`;
+            } else {
+                playAudioFeedback('wrong');
+                feedbackBox.className = "p-4 rounded-2xl flex items-center gap-3 bg-red-500/10 border border-red-500/20 text-red-300";
+                feedbackIcon.innerText = "❌";
+                feedbackText.innerHTML = `<strong>¡Casi!</strong> La opción correcta era la <b>"${String.fromCharCode(65 + qData.a)}"</b>. ${qData.f}`;
+            }
+
+            feedbackBox.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            playAudioFeedback('click');
+            quizCurrentIndex++;
+
+            if (quizCurrentIndex < quizQuestions.length) {
+                showQuizQuestion();
+            } else {
+                // Torneo terminado! Mostrar Diploma
+                playAudioFeedback('fanfare');
+                document.getElementById('quiz-card').classList.add('hidden');
+                document.getElementById('quiz-diploma-card').classList.remove('hidden');
+                drawDiploma();
+            }
+        }
+
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        // --- DIBUJO DEL DIPLOMA EN CANVAS EXPORTABLE ---
+        function drawDiploma() {
+            const canvas = document.getElementById('diploma-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const name = document.getElementById('diploma-name-input').value || "Futuro/a Científico/a";
+
+            // Fondo espacial oscuro
+            ctx.fillStyle = "#0f172a"; // slate-900
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Marco Dorado brillante
+            ctx.strokeStyle = "#fbbf24"; // amber-400
+            ctx.lineWidth = 8;
+            ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
+
+            // Submarco interno delgado
+            ctx.strokeStyle = "#38bdf8"; // sky-400
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(25, 25, canvas.width - 50, canvas.height - 50);
+
+            // Dibujar estrellas/brillo de fondo
+            ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+            for (let i = 0; i < 20; i++) {
+                const x = 40 + (Math.sin(i * 45) * 200 + 260);
+                const y = 40 + (Math.cos(i * 12) * 140 + 160);
+                ctx.beginPath();
+                ctx.arc(x, y, i % 2 === 0 ? 1.5 : 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Textos del Diploma
+            ctx.fillStyle = "#fbbf24";
+            ctx.font = "bold 26px 'Fredoka', sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("DIPLOMA DE EXPLORADOR CÓSMICO", canvas.width / 2, 80);
+
+            ctx.fillStyle = "#94a3b8"; // slate-400
+            ctx.font = "italic 14px 'Inter', sans-serif";
+            ctx.fillText("Otorgado con orgullo por dominar el corazón de la materia a:", canvas.width / 2, 125);
+
+            // Nombre del Alumno
+            ctx.fillStyle = "#38bdf8"; // sky-400
+            ctx.font = "bold 32px 'Fredoka', sans-serif";
+            ctx.fillText(name.toUpperCase(), canvas.width / 2, 185);
+
+            // Línea del nombre
+            ctx.beginPath();
+            ctx.moveTo(120, 200);
+            ctx.lineTo(canvas.width - 120, 200);
+            ctx.strokeStyle = "#334155";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Texto descriptivo final
+            ctx.fillStyle = "#cbd5e1"; // slate-300
+            ctx.font = "12px 'Inter', sans-serif";
+            const wraps = [
+                "Por haber aprendido exitosamente sobre la materia, desarmar moléculas,",
+                "conocer los modelos atómicos de Dalton, Thomson, Rutherford, Bohr",
+                "y construir de forma estable sus propios átomos cuánticos."
+            ];
+            wraps.forEach((text, lineIdx) => {
+                ctx.fillText(text, canvas.width / 2, 235 + (lineIdx * 18));
+            });
+
+            // Sello redondo de logro cuántico
+            const sealX = canvas.width / 2;
+            const sealY = 325;
+            
+            ctx.beginPath();
+            ctx.arc(sealX, sealY, 25, 0, Math.PI * 2);
+            ctx.fillStyle = "#ec4899"; // pink-500
+            ctx.fill();
+            ctx.strokeStyle = "#fbbf24";
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "20px sans-serif";
+            ctx.fillText("⚛️", sealX, sealY + 7);
+        }
+
+        function downloadDiploma() {
+            playAudioFeedback('click');
+            const canvas = document.getElementById('diploma-canvas');
+            if (!canvas) return;
+
+            // Convertir canvas a URL de descarga
+            const imageURI = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.download = "Diploma_Explorador_Atomico.png";
+            link.href = imageURI;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+
+        // --- CARGA INICIAL DE LA APLICACIÓN ---
+        window.onload = function() {
+            // Inicializar la primera sección
+            changeTab('welcome');
+        };
+    </script>
+</body>
+</html>
