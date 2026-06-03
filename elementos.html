@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploradores Atómicos: Misión Tabla Periódica</title>
+    <!-- Importar fuentes divertidas de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Importar Three.js desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #4ECDC4;
+            --secondary-color: #FF6B6B;
+            --accent-color: #FFE66D;
+            --dark-color: #2C3E50;
+            --light-color: #F7F9FC;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --proton-color: #FF6B6B;
+            --neutron-color: #95A5A6;
+            --electron-color: #FFE66D;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--dark-color);
+            text-align: center;
+        }
+
+        h1 { font-size: 2.5rem; color: var(--primary-color); }
+        h2 { font-size: 2rem; margin-top: 0; }
+
+        section {
+            min-height: 90vh; /* Casi toda la altura de la pantalla */
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 5px solid rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        button {
+            font-family: 'Fredoka One', cursive;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-secondary { background-color: var(--secondary-color); color: white; }
+        .btn-accent { background-color: var(--accent-color); color: var(--dark-color); }
+
+        /* Navegación */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+
+        nav a:hover { background: var(--primary-color); color: white; }
+
+        /* --- SECCIÓN 1: INTRO (Three.js) --- */
+        #intro-canvas-container {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background: radial-gradient(circle at center, #2b4162 0%, #12100e 100%);
+        }
+
+        /* --- SECCIÓN 2: TEORÍA --- */
+        .particle-cards {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            width: 200px;
+            text-align: center;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .card-icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+        .p-icon { color: var(--proton-color); }
+        .n-icon { color: var(--neutron-color); }
+        .e-icon { color: var(--electron-color); }
+
+        .formula-box {
+            background: var(--accent-color);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            border: 3px dashed var(--dark-color);
+        }
+
+        /* --- SECCIÓN 3: PRÁCTICA --- */
+        .practice-area {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .element-tile-large {
+            width: 150px;
+            height: 150px;
+            background: white;
+            border: 4px solid var(--dark-color);
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 3rem;
+            box-shadow: 5px 5px 0 var(--dark-color);
+        }
+
+        .tile-A { position: absolute; top: 5px; left: 10px; font-size: 1.2rem; color: var(--secondary-color); }
+        .tile-Z { position: absolute; bottom: 5px; left: 10px; font-size: 1.2rem; color: var(--primary-color); }
+
+        .inputs-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 250px;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid var(--dark-color);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        #practice-feedback {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            height: 1.5em;
+        }
+
+        /* --- SECCIÓN 4: TABLA FINAL --- */
+        .final-table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 1.1rem;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-family: 'Fredoka One', cursive;
+            letter-spacing: 1px;
+        }
+
+        tr:hover { background-color: #f0faff; }
+
+        /* Estilos para los inputs dentro de la tabla */
+        .table-input {
+            width: 60px;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1rem;
+            font-family: 'Nunito', sans-serif;
+            font-weight: bold;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .table-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            background-color: #f0faff;
+        }
+
+        /* Clases para validación de la tabla */
+        .correct-cell {
+            border-color: var(--success-color) !important;
+            background-color: #d4edda !important;
+            color: #155724;
+        }
+
+        .incorrect-cell {
+            border-color: var(--error-color) !important;
+            background-color: #f8d7da !important;
+            color: #721c24;
+        }
+
+        /* Responsive básico */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .particle-cards { flex-direction: column; align-items: center; }
+            .practice-area { flex-direction: column; }
+            nav { font-size: 0.8rem; }
+            th, td { padding: 10px 5px; font-size: 0.9rem;}
+            .table-input { width: 40px; padding: 5px; font-size: 0.9rem;}
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navegación Superior -->
+<nav>
+    <a href="#inicio">🚀 Inicio</a>
+    <a href="#teoria">📚 Teoría</a>
+    <a href="#practica">🎮 Práctica</a>
+    <a href="#desafio">🏆 Desafío Final</a>
+</nav>
+
+<!-- SECCIÓN 1: INICIO (Bienvenida y Modelo 3D) -->
+<section id="inicio" style="padding-top: 80px;">
+    <div class="container" style="text-align: center;">
+        <h1>¡Bienvenido, Explorador Atómico!</h1>
+        <p class="lead">Todo lo que ves a tu alrededor está hecho de piezas diminutas llamadas <strong>átomos</strong>. ¡Prepárate para un viaje al centro de la materia!</p>
+        
+        <!-- Contenedor para la animación 3D de Three.js -->
+        <div id="intro-canvas-container"></div>
+        <p>👆 <em>¡Este es un modelo simplificado de un átomo! El núcleo está en el centro y los electrones giran alrededor.</em></p>
+        <a href="#teoria"><button class="btn-primary">¡Empezar la Misión! 👇</button></a>
+    </div>
+</section>
+
+<!-- SECCIÓN 2: TEORÍA (Conceptos Básicos) -->
+<section id="teoria" style="background-color: #E3F2FD;">
+    <div class="container">
+        <h2>📚 Las Piezas del Rompecabezas</h2>
+        <p>Un átomo tiene tres tipos de partículas súper pequeñas. ¡Conozcámoslas!</p>
+
+        <div class="particle-cards">
+            <!-- Protón -->
+            <div class="card" style="border-top-color: var(--proton-color);">
+                <span class="card-icon p-icon">🔴</span>
+                <h3>Protón (p⁺)</h3>
+                <p>Tiene carga <strong>positiva (+)</strong>. Vive en el centro (núcleo). ¡Es el que define qué elemento es!</p>
+            </div>
+            <!-- Neutrón -->
+            <div class="card" style="border-top-color: var(--neutron-color);">
+                <span class="card-icon n-icon">⚪</span>
+                <h3>Neutrón (n⁰)</h3>
+                <p>No tiene carga (es <strong>neutro</strong>). También vive en el núcleo. Ayuda a mantener todo pegado.</p>
+            </div>
+            <!-- Electrón -->
+            <div class="card" style="border-top-color: var(--electron-color);">
+                <span class="card-icon e-icon">🟡</span>
+                <h3>Electrón (e⁻)</h3>
+                <p>Tiene carga <strong>negativa (-)</strong>. ¡Es súper rápido y ligero! Gira alrededor del núcleo.</p>
+            </div>
+        </div>
+
+        <h2>🔑 Los Números Mágicos: Z y A</h2>
+        <p>En la tabla periódica, usamos dos números para identificar a cada átomo:</p>
+
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+             <div class="formula-box" style="flex: 1; min-width: 250px; background-color: #D1F2EB;">
+                <h3>Z = Número Atómico</h3>
+                <p>Es como el DNI del átomo.</p>
+                <p><strong>Z = Cantidad de Protones (p⁺)</strong></p>
+                <small>Si el átomo es neutro, también Z = Electrones (e⁻).</small>
+            </div>
+             <div class="formula-box" style="flex: 1; min-width: 250px; background-color: #FADBD8;">
+                <h3>A = Número Másico</h3>
+                <p>Es cuánto pesa el núcleo.</p>
+                <p><strong>A = Protones (p⁺) + Neutrones (n⁰)</strong></p>
+            </div>
+        </div>
+        
+        <div class="formula-box" style="background-color: var(--accent-color);">
+            💡 ¡Truco para calcular Neutrones! <br>
+            <strong>Neutrones (n⁰) = A - Z</strong>
+        </div>
+
+        <div style="text-align: center;">
+             <a href="#practica"><button class="btn-secondary">¡Vamos a Practicar! 👇</button></a>
+        </div>
+    </div>
+</section>
+
+<!-- SECCIÓN 3: PRÁCTICA INTERACTIVA -->
+<section id="practica">
+    <div class="container">
+        <h2>🎮 Zona de Entrenamiento</h2>
+        <p>¡Demuestra tus habilidades! Mira el elemento y calcula sus partículas.</p>
+        
+        <div class="practice-area">
+            <!-- La baldosa del elemento -->
+            <div>
+                <div class="element-tile-large" id="practice-tile">
+                    <span class="tile-A" id="practice-A-display">?</span>
+                    <span class="tile-Z" id="practice-Z-display">?</span>
+                    <span id="practice-symbol-display">?</span>
+                </div>
+                <p style="text-align: center; font-weight: bold;" id="practice-name-display">Elemento</p>
+            </div>
+
+            <!-- Los inputs para responder -->
+            <div class="inputs-area">
+                <div class="input-group">
+                    <label for="input-p"><span style="color: var(--proton-color)">🔴</span> Protones (p⁺):</label>
+                    <input type="number" id="input-p" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="input-e"><span style="color: var(--electron-color)">🟡</span> Electrones (e⁻):</label>
+                    <input type="number" id="input-e" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="input-n"><span style="color: var(--neutron-color)">⚪</span> Neutrones (n⁰):</label>
+                    <input type="number" id="input-n" min="0">
+                </div>
+                <button class="btn-primary" onclick="checkPractice()">¡Comprobar!</button>
+                <button class="btn-secondary" onclick="nextPracticeQuestion()">Siguiente Pregunta ➡️</button>
+            </div>
+        </div>
+        <div id="practice-feedback" style="text-align: center;"></div>
+    </div>
+    <div style="text-align: center; margin-top: 30px;">
+         <a href="#desafio"><button class="btn-accent">Ir al Desafío Final 👇</button></a>
+    </div>
+</section>
+
+<!-- SECCIÓN 4: DESAFÍO FINAL (La Tabla) -->
+<section id="desafio" style="background-color: #FFF9C4;">
+    <div class="container">
+        <h2>🏆 El Desafío Final: Completa la Tabla</h2>
+        <p>Usa todo lo que has aprendido para rellenar los huecos. ¡Imagina que esta es la hoja de tu cuaderno!</p>
+        <p><em>Recuerda: Z = p⁺. Si es neutro, p⁺ = e⁻. Y n⁰ = A - Z.</em></p>
+
+        <div class="final-table-container">
+            <table id="chemistry-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Átomo</th>
+                        <th>Símbolo</th>
+                        <th style="background-color: #2980b9;">Z</th>
+                        <th style="background-color: #c0392b;">A</th>
+                        <th>n⁰</th>
+                        <th>e⁻</th>
+                        <th>p⁺</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Fila 1: Sodio -->
+                    <tr data-row="1">
+                        <td>1</td>
+                        <td><input type="text" class="table-input" data-field="atomo"></td>
+                        <td>Na</td>
+                        <td>11</td>
+                        <td>23</td>
+                        <td><input type="number" class="table-input" data-field="n"></td>
+                        <td><input type="number" class="table-input" data-field="e"></td>
+                        <td><input type="number" class="table-input" data-field="p"></td>
+                    </tr>
+                    <!-- Fila 2: Cloro -->
+                    <tr data-row="2">
+                        <td>2</td>
+                        <td>Cloro</td>
+                        <td><input type="text" class="table-input" data-field="simbolo"></td>
+                        <td>17</td>
+                        <td><input type="number" class="table-input" data-field="A"></td>
+                        <td>20</td>
+                        <td><input type="number" class="table-input" data-field="e"></td>
+                        <td><input type="number" class="table-input" data-field="p"></td>
+                    </tr>
+                    <!-- Fila 3: Potasio -->
+                    <tr data-row="3">
+                        <td>3</td>
+                        <td><input type="text" class="table-input" data-field="atomo"></td>
+                        <td><input type="text" class="table-input" data-field="simbolo"></td>
+                        <td><input type="number" class="table-input" data-field="Z"></td>
+                        <td>40</td>
+                        <td>21</td>
+                        <td><input type="number" class="table-input" data-field="e"></td>
+                        <td>19</td>
+                    </tr>
+                     <!-- Fila 4: Carbono -->
+                    <tr data-row="4">
+                        <td>4</td>
+                        <td>Carbono</td>
+                        <td><input type="text" class="table-input" data-field="simbolo"></td>
+                        <td>6</td>
+                        <td>12</td>
+                        <td>6</td>
+                        <td><input type="number" class="table-input" data-field="e"></td>
+                        <td><input type="number" class="table-input" data-field="p"></td>
+                    </tr>
+                     <!-- Fila 5: Flúor -->
+                    <tr data-row="5">
+                        <td>5</td>
+                        <td><input type="text" class="table-input" data-field="atomo"></td>
+                        <td>F</td>
+                        <td>9</td>
+                        <td>19</td>
+                        <td><input type="number" class="table-input" data-field="n"></td>
+                        <td><input type="number" class="table-input" data-field="e"></td>
+                        <td><input type="number" class="table-input" data-field="p"></td>
+                    </tr>
+                     <!-- Fila 6: Calcio -->
+                    <tr data-row="6">
+                        <td>6</td>
+                        <td>Calcio</td>
+                        <td>Ca</td>
+                        <td><input type="number" class="table-input" data-field="Z"></td>
+                        <td>40</td>
+                        <td><input type="number" class="table-input" data-field="n"></td>
+                        <td><input type="number" class="table-input" data-field="e"></td>
+                        <td><input type="number" class="table-input" data-field="p"></td>
+                    </tr>
+                     <!-- Fila 7: Berilio -->
+                    <tr data-row="7">
+                        <td>7</td>
+                        <td>Berilio</td>
+                        <td>Be</td>
+                        <td><input type="number" class="table-input" data-field="Z"></td>
+                        <td>9</td>
+                        <td><input type="number" class="table-input" data-field="n"></td>
+                        <td><input type="number" class="table-input" data-field="e"></td>
+                        <td>4</td>
+                    </tr>
+                     <!-- Fila 8: Azufre -->
+                    <tr data-row="8">
+                        <td>8</td>
+                        <td><input type="text" class="table-input" data-field="atomo"></td>
+                        <td><input type="text" class="table-input" data-field="simbolo"></td>
+                        <td>16</td>
+                        <td>38</td>
+                        <td><input type="number" class="table-input" data-field="n"></td>
+                        <td><input type="number" class="table-input" data-field="e"></td>
+                        <td><input type="number" class="table-input" data-field="p"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn-primary" style="font-size: 1.3rem;" onclick="checkFinalTable()">✅ Verificar Mis Respuestas</button>
+            <p id="final-score" style="font-weight: bold; font-size: 1.2rem; margin-top: 20px;"></p>
+        </div>
+        <div style="text-align: center; margin-top: 50px;">
+            <p>🎉 ¡Felicidades por completar tu entrenamiento de explorador atómico! 🎉</p>
+        </div>
+    </div>
+</section>
+
+
+<script>
+    // --- LÓGICA DE LA SECCIÓN 1: THREE.JS (Átomo 3D simple) ---
+    function initThreeJS() {
+        const container = document.getElementById('intro-canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        // Núcleo (Protones rojos, Neutrones grises)
+        const nucleusGroup = new THREE.Group();
+        const sphereGeo = new THREE.SphereGeometry(0.3, 16, 16);
+        const protonMat = new THREE.MeshLambertMaterial({ color: 0xFF6B6B });
+        const neutronMat = new THREE.MeshLambertMaterial({ color: 0x95A5A6 });
+
+        // Crear un núcleo simple agrupado
+        for(let i=0; i<5; i++) {
+            const p = new THREE.Mesh(sphereGeo, protonMat);
+            p.position.set(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize().multiplyScalar(0.4);
+            nucleusGroup.add(p);
+            const n = new THREE.Mesh(sphereGeo, neutronMat);
+            n.position.set(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize().multiplyScalar(0.4);
+            nucleusGroup.add(n);
+        }
+        scene.add(nucleusGroup);
+
+        // Electrones (Amarillos) y Órbitas
+        const electronMat = new THREE.MeshBasicMaterial({ color: 0xFFE66D });
+        const electronGeo = new THREE.SphereGeometry(0.15, 8, 8);
+        const electrons = [];
+
+        function createElectron(radius, speed, angleOffset, axis) {
+            const electron = new THREE.Mesh(electronGeo, electronMat);
+            const orbitGroup = new THREE.Group();
+            orbitGroup.add(electron);
+            electron.position.set(radius, 0, 0);
+            
+            // Inclinar la órbita
+            if(axis === 'x') orbitGroup.rotation.x = angleOffset;
+            if(axis === 'y') orbitGroup.rotation.y = angleOffset;
+            if(axis === 'z') orbitGroup.rotation.z = angleOffset;
+
+            scene.add(orbitGroup);
+            
+            // Añadir rastro de órbita visual
+            const pathGeo = new THREE.RingGeometry(radius - 0.02, radius + 0.02, 64);
+            const pathMat = new THREE.MeshBasicMaterial({ color: 0xFFE66D, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
+            const path = new THREE.Mesh(pathGeo, pathMat);
+            path.rotation.x = Math.PI / 2; // Alinear con el plano
+            orbitGroup.add(path);
+
+            return { mesh: orbitGroup, speed: speed };
+        }
+
+        electrons.push(createElectron(2, 0.02, Math.PI/4, 'z'));
+        electrons.push(createElectron(2.5, 0.015, -Math.PI/4, 'z'));
+        electrons.push(createElectron(3, 0.01, Math.PI/3, 'x'));
+
+        // Iluminación
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+
+        camera.position.z = 6;
+
+        // Animación
+        function animate() {
+            requestAnimationFrame(animate);
+            nucleusGroup.rotation.y += 0.005;
+            nucleusGroup.rotation.x += 0.002;
+
+            electrons.forEach(e => {
+                e.mesh.rotation.y += e.speed;
+            });
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Responsive canvas
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    }
+
+    // Inicializar Three.js cuando cargue la página
+    window.addEventListener('load', initThreeJS);
+
+
+    // --- LÓGICA DE LA SECCIÓN 3: PRÁCTICA INTERACTIVA ---
+
+    // Banco de preguntas para la práctica
+    const practiceQuestions = [
+        { name: "Litio", symbol: "Li", Z: 3, A: 7 },
+        { name: "Boro", symbol: "B", Z: 5, A: 11 },
+        { name: "Nitrógeno", symbol: "N", Z: 7, A: 14 },
+        { name: "Neón", symbol: "Ne", Z: 10, A: 20 },
+        { name: "Magnesio", symbol: "Mg", Z: 12, A: 24 }
+    ];
+    let currentQuestionIndex = 0;
+    let currentQuestion = {};
+
+    function loadPracticeQuestion() {
+        currentQuestion = practiceQuestions[currentQuestionIndex];
+        
+        // Actualizar la interfaz
+        document.getElementById('practice-name-display').textContent = currentQuestion.name;
+        document.getElementById('practice-symbol-display').textContent = currentQuestion.symbol;
+        document.getElementById('practice-Z-display').textContent = currentQuestion.Z;
+        document.getElementById('practice-A-display').textContent = currentQuestion.A;
+
+        // Limpiar inputs y feedback
+        document.getElementById('input-p').value = '';
+        document.getElementById('input-e').value = '';
+        document.getElementById('input-n').value = '';
+        document.getElementById('practice-feedback').textContent = '';
+        document.getElementById('practice-feedback').style.color = 'inherit';
+    }
+
+    function checkPractice() {
+        const pInput = parseInt(document.getElementById('input-p').value);
+        const eInput = parseInt(document.getElementById('input-e').value);
+        const nInput = parseInt(document.getElementById('input-n').value);
+        const feedback = document.getElementById('practice-feedback');
+
+        // Calcular respuestas correctas (asumiendo átomo neutro)
+        const correctP = currentQuestion.Z;
+        const correctE = currentQuestion.Z;
+        const correctN = currentQuestion.A - currentQuestion.Z;
+
+        if (isNaN(pInput) || isNaN(eInput) || isNaN(nInput)) {
+            feedback.textContent = "⚠️ ¡Por favor, rellena todos los campos con números!";
+            feedback.style.color = "orange";
+            return;
+        }
+
+        if (pInput === correctP && eInput === correctE && nInput === correctN) {
+            feedback.textContent = "🎉 ¡Correcto! Eres un crack.";
+            feedback.style.color = var(--success-color);
+        } else {
+            feedback.textContent = `❌ Ups, revisa: p⁺=${correctP}, e⁻=${correctE}, n⁰=${correctN}. ¡Inténtalo de nuevo!`;
+            feedback.style.color = var(--error-color);
+        }
+    }
+
+    function nextPracticeQuestion() {
+        currentQuestionIndex = (currentQuestionIndex + 1) % practiceQuestions.length;
+        loadPracticeQuestion();
+    }
+
+    // Cargar la primera pregunta al inicio
+    loadPracticeQuestion();
+
+
+    // --- LÓGICA DE LA SECCIÓN 4: DESAFÍO FINAL (Validación de Tabla) ---
+
+    // Datos correctos de la tabla (basados en la imagen proporcionada)
+    const tableAnswers = {
+        "1": { atomo: "Sodio", n: 12, e: 11, p: 11 },
+        "2": { simbolo: "Cl", A: 37, e: 17, p: 17 }, // Cloro-37 basado en Z=17, n=20
+        "3": { atomo: "Potasio", simbolo: "K", Z: 19, e: 19 }, // Potasio basado en p=19
+        "4": { simbolo: "C", e: 6, p: 6 },
+        "5": { atomo: "Flúor", n: 10, e: 9, p: 9 },
+        "6": { Z: 20, n: 20, e: 20, p: 20 }, // Calcio Z=20
+        "7": { Z: 4, n: 5, e: 4 }, // Berilio Z=4
+        "8": { atomo: "Estroncio", simbolo: "Sr", n: 22, e: 16, p: 16 } // NOTA: La imagen tiene un error. Z=16 es Azufre (S), pero A=38 es isótopo de Argón o Cloro. Si Z=16 y A=38, n=22. Asumiré Z=16 (Azufre) pero la imagen original es confusa en la fila 8. CORRECCION: Mirando la imagen, Z=16, A=38. Eso es Azufre-38. Entonces n=22, p=16, e=16.
+    };
+    // Corrección manual para la fila 8 basada en los datos exactos de la imagen Z=16, A=38
+    tableAnswers["8"] = { atomo: "Azufre", simbolo: "S", n: 22, e: 16, p: 16 };
+
+
+    function checkFinalTable() {
+        let correctCount = 0;
+        let totalInputs = 0;
+        const rows = document.querySelectorAll('#chemistry-table tbody tr');
+
+        rows.forEach(row => {
+            const rowId = row.getAttribute('data-row');
+            const answers = tableAnswers[rowId];
+            const inputs = row.querySelectorAll('.table-input');
+
+            inputs.forEach(input => {
+                totalInputs++;
+                const fieldType = input.getAttribute('data-field');
+                let userAnswer = input.value.trim();
+                const correctAnswer = answers[fieldType];
+
+                // Limpiar estilos previos
+                input.classList.remove('correct-cell', 'incorrect-cell');
+
+                let isCorrect = false;
+
+                if (input.type === "number") {
+                    // Comparación numérica
+                    if (parseInt(userAnswer) === correctAnswer) {
+                        isCorrect = true;
+                    }
+                } else {
+                    // Comparación de texto (insensible a mayúsculas/minúsculas y acentos básicos)
+                    userAnswer = userAnswer.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const correctText = correctAnswer.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if (userAnswer === correctText && userAnswer !== "") {
+                         isCorrect = true;
+                    }
+                }
+
+                if (isCorrect) {
+                    input.classList.add('correct-cell');
+                    correctCount++;
+                } else if (input.value !== "") {
+                    input.classList.add('incorrect-cell');
+                }
+            });
+        });
+
+        const scoreElement = document.getElementById('final-score');
+        if (correctCount === totalInputs) {
+            scoreElement.textContent = `🌟 ¡INCREÍBLE! Has acertado ${correctCount} de ${totalInputs}. ¡Tabla perfecta! 🌟`;
+            scoreElement.style.color = var(--success-color);
+        } else {
+            scoreElement.textContent = `Has acertado ${correctCount} de ${totalInputs} casillas. ¡Revisa las rojas y vuelve a intentarlo! 💪`;
+             scoreElement.style.color = var(--dark-color);
+        }
+    }
+
+</script>
+
+</body>
+</html>
