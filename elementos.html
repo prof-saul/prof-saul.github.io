@@ -668,10 +668,10 @@
 
         if (pInput === correctP && eInput === correctE && nInput === correctN) {
             feedback.textContent = "🎉 ¡Correcto! Eres un crack.";
-            feedback.style.color = var(--success-color);
+            feedback.style.color = "var(--success-color)";
         } else {
             feedback.textContent = `❌ Ups, revisa: p⁺=${correctP}, e⁻=${correctE}, n⁰=${correctN}. ¡Inténtalo de nuevo!`;
-            feedback.style.color = var(--error-color);
+            feedback.style.color = "var(--error-color)";
         }
     }
 
@@ -748,10 +748,10 @@
         const scoreElement = document.getElementById('final-score');
         if (correctCount === totalInputs) {
             scoreElement.textContent = `🌟 ¡INCREÍBLE! Has acertado ${correctCount} de ${totalInputs}. ¡Tabla perfecta! 🌟`;
-            scoreElement.style.color = var(--success-color);
+            scoreElement.style.color = "var(--success-color)";
         } else {
             scoreElement.textContent = `Has acertado ${correctCount} de ${totalInputs} casillas. ¡Revisa las rojas y vuelve a intentarlo! 💪`;
-             scoreElement.style.color = var(--dark-color);
+             scoreElement.style.color = "var(--dark-color)";
         }
     }
 
