@@ -148,7 +148,7 @@
           </button>
         </h4>
         <p id="tutorText" class="text-cozy-dark text-sm md:text-base mt-1 leading-relaxed">
-          ¡Hola, explorador! Las palabras tienen música, y cada golpe de voz es una sílaba. ¡Prueba la nueva sección de corte de sílabas para convertirte en un maestro cirujano de palabras! 🦉
+          ¡Hola, explorador! Las palabras tienen música, y cada golpe de voz es una sílaba. ¡Prueba la sección de corte de sílabas para convertirte en un maestro cirujano de palabras! 🦉
         </p>
       </div>
     </div>
@@ -207,8 +207,8 @@
             <p class="text-sm text-gray-600 leading-relaxed mb-4">Llevan tilde si terminan en vocal o en las consonantes <strong>N</strong> o <strong>S</strong>.</p>
             <div class="bg-white p-2 rounded-xl border border-amber-150 text-center text-xs">
               Ejemplos: <br>
-              <button onclick="speakBySyllables(['pa', 'pá'], 1)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block">pa - <span class="text-amber-600 underline decoration-2">pá</span> 🔊</button> <br>
-              <button onclick="speakBySyllables(['re', 'loj'], 1)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block">re - <span class="text-amber-600 underline decoration-2">loj</span> 🔊</button>
+              <button onclick="playWordRhythm('papá', ['pa', 'pá'], 1)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block">pa - <span class="text-amber-600 underline decoration-2">pá</span> 🔊</button> <br>
+              <button onclick="playWordRhythm('reloj', ['re', 'loj'], 1)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block">re - <span class="text-amber-600 underline decoration-2">loj</span> 🔊</button>
             </div>
           </div>
 
@@ -220,8 +220,8 @@
             <p class="text-sm text-gray-600 leading-relaxed mb-4">Llevan tilde si <strong>NO</strong> terminan en vocal, ni en <strong>N</strong> o <strong>S</strong>.</p>
             <div class="bg-white p-2 rounded-xl border border-emerald-150 text-center text-xs">
               Ejemplos: <br>
-              <button onclick="speakBySyllables(['lá', 'piz'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-emerald-600 underline decoration-2">lá</span> - piz 🔊</button> <br>
-              <button onclick="speakBySyllables(['pa', 'pa'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-emerald-600 underline decoration-2">pa</span> - pa 🔊</button>
+              <button onclick="playWordRhythm('lápiz', ['lá', 'piz'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-emerald-600 underline decoration-2">lá</span> - piz 🔊</button> <br>
+              <button onclick="playWordRhythm('papa', ['pa', 'pa'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-emerald-600 underline decoration-2">pa</span> - pa 🔊</button>
             </div>
           </div>
 
@@ -233,8 +233,8 @@
             <p class="text-sm text-gray-600 leading-relaxed mb-4"><strong>¡Siempre!</strong> llevan tilde sin importar en qué letra terminen.</p>
             <div class="bg-white p-2 rounded-xl border border-blue-150 text-center text-xs">
               Ejemplos: <br>
-              <button onclick="speakBySyllables(['pú', 'bli', 'co'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-cozy-blue underline decoration-2">pú</span> - bli - co 🔊</button> <br>
-              <button onclick="speakBySyllables(['mú', 'si', 'ca'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-cozy-blue underline decoration-2">mú</span> - si - ca 🔊</button>
+              <button onclick="playWordRhythm('público', ['pú', 'bli', 'co'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-cozy-blue underline decoration-2">pú</span> - bli - co 🔊</button> <br>
+              <button onclick="playWordRhythm('música', ['mú', 'si', 'ca'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-cozy-blue underline decoration-2">mú</span> - si - ca 🔊</button>
             </div>
           </div>
 
@@ -246,31 +246,31 @@
             <p class="text-sm text-gray-600 leading-relaxed mb-4">Al igual que las esdrújulas, <strong>¡siempre!</strong> llevan tilde.</p>
             <div class="bg-white p-2 rounded-xl border border-purple-150 text-center text-xs">
               Ejemplo: <br>
-              <button onclick="speakBySyllables(['de', 'vuél', 've', 'me', 'lo'], 1)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block">de - <span class="text-purple-600 underline decoration-2">vuél</span> - ve - me - lo 🔊</button>
+              <button onclick="playWordRhythm('devuélvemelo', ['de', 'vuél', 've', 'me', 'lo'], 1)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block">de - <span class="text-purple-600 underline decoration-2">vuél</span> - ve - me - lo 🔊</button>
             </div>
           </div>
 
         </div>
       </div>
 
-      <!-- El Clapeador Rítmico (Con Sonidos Orgánicos Sintetizados) -->
+      <!-- El Clapeador Rítmico -->
       <div class="bg-white rounded-3xl p-6 md:p-8 custom-shadow border border-[#EBE6DD]">
         <div class="max-w-3xl mx-auto text-center">
           <span class="text-4xl">👏</span>
           <h3 class="text-xl md:text-2xl font-bold text-cozy-dark mt-3 mb-2">¡El Clapeador del Ritmo Acústico!</h3>
-          <p class="text-sm text-gray-500 mb-6">Siente de verdad las sílabas. La sílaba tónica emitirá un golpe de sonido de madera brillante (agudo) y se escuchará con mayor volumen.</p>
+          <p class="text-sm text-gray-500 mb-6">Siente de verdad las sílabas. La tónica emitirá un golpe de sonido de madera brillante (agudo) y se escuchará más fuerte, para luego oír la pronunciación real integrada.</p>
           
           <div class="flex flex-wrap gap-3 justify-center mb-8">
-            <button onclick="playClapPatternWithAcoustic('pa-pa', [1, 0], 'PAPA (tubérculo)', 0)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
+            <button onclick="playClapPatternWithAcoustic('papa', ['pa', 'pa'], 'PAPA (tubérculo)', 0)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
               🥔 PA-pa
             </button>
-            <button onclick="playClapPatternWithAcoustic('pa-pá', [0, 1], 'PAPÁ (padre)', 1)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
+            <button onclick="playClapPatternWithAcoustic('papá', ['pa', 'pá'], 'PAPÁ (padre)', 1)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
               👨 pa-PÁ
             </button>
-            <button onclick="playClapPatternWithAcoustic('pú-bli-co', [1, 0, 0], 'PÚBLICO (gente)', 0)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
+            <button onclick="playClapPatternWithAcoustic('público', ['pú', 'bli', 'co'], 'PÚBLICO (gente)', 0)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
               👥 PÚ-bli-co
             </button>
-            <button onclick="playClapPatternWithAcoustic('pu-bli-có', [0, 0, 1], 'PUBLICÓ (acción)', 2)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
+            <button onclick="playClapPatternWithAcoustic('publicó', ['pu', 'bli', 'có'], 'PUBLICÓ (acción)', 2)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
               📖 pu-bli-CÓ
             </button>
           </div>
@@ -371,7 +371,7 @@
               📝 Tu Misión: Completa la Tabla
             </h3>
             <p class="text-sm text-gray-500 mt-1">
-              Analiza la palabra en negrita de cada oración. Escribe su sílaba tónica y selecciona su clasificación adecuada.
+              Analiza la palabra en negrita de cada oración (basada en la imagen <strong class="text-cozy-clay">image_7a6f5d.png</strong>). Escribe su sílaba tónica y selecciona su clasificación adecuada.
             </p>
           </div>
           <div class="w-full md:w-auto flex flex-col items-end gap-1">
@@ -502,18 +502,18 @@
 
   </main>
 
-  <!-- Modal / Banner de Éxito al completar todo -->
+  <!-- Modal de Éxito al completar todo -->
   <div id="congratsModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-40 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-cozy-sage text-center transform scale-95 transition-all duration-300">
       <span class="text-6xl block mb-4">🏆</span>
       <h3 class="text-2xl font-black text-cozy-dark mb-2">¡Eres el Guardián de la Acentuación!</h3>
       <p class="text-gray-500 text-sm mb-6">
-        Has completado el reto principal con éxito. Quill el Búho está extremadamente orgulloso de tu asombrosa agudeza visual y auditiva.
+        Has completado el reto de la imagen <strong class="text-cozy-clay">image_7a6f5d.png</strong> con éxito. Quill el Búho está extremadamente orgulloso de tu agudeza auditiva.
       </p>
       
       <div class="bg-cozy-beige p-4 rounded-2xl mb-6">
-        <span class="text-xs text-gray-400 font-semibold block uppercase">Premio desbloqueado</span>
-        <span class="text-lg font-bold text-cozy-dark">Medalla de Oro del Bosque 🥇</span>
+        <span class="text-xs text-gray-400 font-semibold block uppercase">Premio de Oro</span>
+        <span class="text-lg font-bold text-cozy-dark">Medalla del Bosque Silábico 🥇</span>
         <div class="flex justify-center gap-1 mt-2">
           <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
         </div>
@@ -525,9 +525,7 @@
     </div>
   </div>
 
-  <!-- Script para la lógica interactiva -->
   <script>
-    // Configuración global de sonido
     let isSoundOn = true;
     let starCount = 0;
     let audioCtx = null;
@@ -544,11 +542,10 @@
       return audioCtx;
     }
 
-    // Cargar voces en español del dispositivo para máxima calidad de pronunciación
+    // Cargar voces en español nativas de alta fidelidad para la pronunciación final
     function loadSpanishVoices() {
       if ('speechSynthesis' in window) {
         const voices = window.speechSynthesis.getVoices();
-        // Buscar voces de España, México o genéricas de español
         spanishVoice = voices.find(v => v.lang === 'es-ES' && v.name.includes('Google')) ||
                        voices.find(v => v.lang === 'es-MX' && v.name.includes('Google')) ||
                        voices.find(v => v.lang === 'es-ES') ||
@@ -573,8 +570,8 @@
         osc.type = type;
         osc.frequency.setValueAtTime(pitch, ctx.currentTime);
         
-        // Envolvente suave para evitar chasquidos
-        gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+        // Envolvente suave y percusiva (ataque rápido, decaimiento exponencial)
+        gainNode.gain.setValueAtTime(0.25, ctx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
         
         osc.connect(gainNode);
@@ -583,68 +580,72 @@
         osc.start();
         osc.stop(ctx.currentTime + duration);
       } catch (e) {
-        console.log("Audio no activado o bloqueado por política del navegador", e);
+        console.log("Audio contextual no habilitado por el navegador o desactivado", e);
       }
     }
 
-    // Pronunciar palabras acentuando dinámicamente el golpe de voz silábico
-    function speakBySyllables(syllablesArray, tonicIndex) {
+    // NUEVO MOTOR DE AUDIO HÍBRIDO (SIN DELETREOS)
+    // 1. Reproduce los golpes de madera rítmicos para cada sílaba.
+    // 2. Al terminar la percusión, pronuncia la PALABRA COMPLETA de forma natural y fluida.
+    function playWordRhythm(word, syllablesArray, tonicIndex) {
       if (!isSoundOn) return;
-      if (!('speechSynthesis' in window)) return;
+      
+      // Detener cualquier audio previo
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
 
-      window.speechSynthesis.cancel();
       let delay = 0;
+      const beatInterval = 400; // milisegundos por sílaba
 
+      // Tocar los golpes rítmicos percusivos
       syllablesArray.forEach((syl, index) => {
         setTimeout(() => {
-          // 1. Producir el apoyo acústico según la fuerza
           if (index === tonicIndex) {
-            playOrganicBeep(520, 0.35, 'sine'); // Tónica: Sonido agudo y brillante
+            // Golpe brillante, agudo y fuerte para la sílaba tónica
+            playOrganicBeep(480, 0.3, 'sine');
           } else {
-            playOrganicBeep(260, 0.15, 'triangle'); // Átona: Golpe suave bajo
+            // Golpe suave, bajo y seco para las sílabas átonas
+            playOrganicBeep(220, 0.15, 'triangle');
           }
-
-          // 2. TTS con Pitch y Volumen dinámico para la acentuación realista
-          const utterance = new SpeechSynthesisUtterance(syl);
-          if (spanishVoice) {
-            utterance.voice = spanishVoice;
-          }
-          utterance.lang = 'es-ES';
-          utterance.rate = 0.7; // Despacio para poder captarlo
-
-          // Ajustes dinámicos de acentuación
-          if (index === tonicIndex) {
-            utterance.pitch = 1.35; // Tono más alto para el acento
-            utterance.volume = 1.0;  // Más fuerte
-          } else {
-            utterance.pitch = 0.95; // Tono más bajo
-            utterance.volume = 0.5;  // Más suave
-          }
-
-          window.speechSynthesis.speak(utterance);
         }, delay);
-        
-        delay += 650; // Intervalo óptimo entre sílabas
+        delay += beatInterval;
       });
+
+      // Al final de la secuencia rítmica, se pronuncia la palabra completa de manera natural
+      setTimeout(() => {
+        speakWord(word);
+      }, delay + 100);
     }
 
-    // Pronunciación de palabra completa natural utilizando la mejor voz en español
-    function speakWord(word) {
+    // Pronunciar texto general (Ej. Consejos del búho)
+    function speakText(text) {
       if (!isSoundOn) return;
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(word);
-        if (spanishVoice) {
-          utterance.voice = spanishVoice;
-        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        if (spanishVoice) utterance.voice = spanishVoice;
         utterance.lang = 'es-ES';
-        utterance.rate = 0.85;
+        utterance.rate = 0.9;
         utterance.pitch = 1.05;
         window.speechSynthesis.speak(utterance);
       }
     }
 
-    // Datos originales de la tabla (Sincronizado al 100% con la imagen provista)
+    // Pronunciación perfecta y fluida de la palabra entera
+    function speakWord(word) {
+      if (!isSoundOn) return;
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        if (spanishVoice) utterance.voice = spanishVoice;
+        utterance.lang = 'es-ES';
+        utterance.rate = 0.85;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    // Datos originales de la tabla (Sincronizado al 100% con la imagen provista "image_7a6f5d.png")
     const TABLE_DATA = [
       {
         id: 1,
@@ -673,7 +674,7 @@
         correctTonic: "pú",
         correctClass: "esdrújula",
         isExample: false,
-        hint: "pú-bli-co (lleva tilde porque la fuerza está en la antepenúltima sílaba, ¡todas las esdrújulas llevan tilde!)."
+        hint: "pú-bli-co (lleva tilde porque la fuerza está en la antepenúltima sílaba)."
       },
       {
         id: 4,
@@ -703,7 +704,7 @@
         correctTonic: "dí",
         correctClass: "grave",
         isExample: false,
-        hint: "me-dí-as (hay un hiato que separa la 'í' de la 'a', la sílaba más fuerte es 'dí', por eso lleva tilde y es grave)."
+        hint: "me-dí-as (hay un hiato que separa la 'í' de la 'a', la sílaba más fuerte es 'dí')."
       },
       {
         id: 7,
@@ -713,7 +714,7 @@
         correctTonic: "pa",
         correctClass: "grave",
         isExample: false,
-        hint: "pa-pa (planta/tubérculo. La fuerza está en la penúltima 'pa'. No lleva tilde)."
+        hint: "pa-pa (planta/tubérculo. La fuerza está en la penúltima 'pa')."
       },
       {
         id: 8,
@@ -723,7 +724,7 @@
         correctTonic: "pá",
         correctClass: "aguda",
         isExample: false,
-        hint: "pa-pá (padre. La fuerza está en la última 'pá', lleva tilde porque termina en vocal)."
+        hint: "pa-pá (padre. La fuerza está en la última 'pá', lleva tilde al terminar en vocal)."
       },
       {
         id: 9,
@@ -863,8 +864,8 @@
       }
     }
 
-    // --- SECCIÓN 1: LÓGICA DE APLAUDIR CON RITMO MEJORADO ---
-    function playClapPatternWithAcoustic(wordStr, pattern, description, tonicIndex) {
+    // --- SECCIÓN 1: LÓGICA DE APLAUDIR CON RITMO ACOPLADO ---
+    function playClapPatternWithAcoustic(wordStr, syllablesArray, description, tonicIndex) {
       const container = document.getElementById('clapSyllables');
       const sandbox = document.getElementById('clapSandbox');
       const visual = document.getElementById('clapVisual');
@@ -873,10 +874,9 @@
       container.innerHTML = '';
       
       document.getElementById('clapLabel').innerText = description;
-      const syllables = wordStr.split('-');
       
-      syllables.forEach((syl, i) => {
-        const isTonic = pattern[i] === 1;
+      syllablesArray.forEach((syl, i) => {
+        const isTonic = i === tonicIndex;
         const sylSpan = document.createElement('span');
         sylSpan.id = `syl-block-${i}`;
         sylSpan.className = `px-4 py-2 rounded-xl transition-all duration-200 border ${
@@ -888,23 +888,26 @@
         container.appendChild(sylSpan);
       });
 
-      // Secuencia de animación de aplausos
+      // Secuencia de animación de aplausos acoplada con golpes acústicos
       let step = 0;
-      speakBySyllables(syllables, tonicIndex);
+      const beatInterval = 400;
+
+      // Reproducir audio sin sílabas deletreadas
+      playWordRhythm(wordStr, syllablesArray, tonicIndex);
 
       function runStep() {
-        if (step >= syllables.length) {
+        if (step >= syllablesArray.length) {
           visual.className = "text-4xl mt-4 opacity-0 transition-all duration-200";
           return;
         }
 
-        syllables.forEach((_, i) => {
+        syllablesArray.forEach((_, i) => {
           const block = document.getElementById(`syl-block-${i}`);
           if (block) block.classList.remove('ring-4', 'ring-cozy-yellow');
         });
 
         const activeBlock = document.getElementById(`syl-block-${step}`);
-        const isTonic = pattern[step] === 1;
+        const isTonic = step === tonicIndex;
 
         if (activeBlock) activeBlock.classList.add('ring-4', 'ring-cozy-yellow');
 
@@ -917,13 +920,13 @@
         }
 
         step++;
-        setTimeout(runStep, 650);
+        setTimeout(runStep, beatInterval);
       }
 
       runStep();
     }
 
-    // --- NUEVA SECCIÓN: LÓGICA DE JUEGO DE CORTAR PALABRAS ---
+    // --- SECCIÓN 2: LÓGICA DE JUEGO DE CORTAR PALABRAS ---
     function loadCutterWord(word, correctSyllables) {
       currentCutterWord = word;
       currentCutterSyllables = correctSyllables;
@@ -985,8 +988,8 @@
     // Escuchar cómo se escucha con los cortes actuales del usuario
     function hearCutterCurrentWord() {
       const userSyllables = getUserCutterSyllables();
-      // Encontrar la tónica empírica: para este juego asumimos que la última es la tónica por defecto si es plana, o de forma aleatoria
-      speakBySyllables(userSyllables, userSyllables.length - 1);
+      // Usar el reproductor rítmico integrado
+      playWordRhythm(currentCutterWord, userSyllables, userSyllables.length - 1);
     }
 
     // Obtener las sílabas construidas por los cortes del usuario
@@ -1013,25 +1016,24 @@
         addStars(5);
         triggerConfetti();
         changeTutorMessage(`¡Excelente cirujano! Has cortado la palabra correctamente: ${userSyls.join(' - ')}. ¡Ganaste 5 estrellas! 🦉🌟`);
-        speakBySyllables(userSyls, userSyls.length - 1);
+        playWordRhythm(currentCutterWord, userSyls, userSyls.length - 1);
       } else {
         changeTutorMessage(`¡Uh, casi! Tu separación actual es [${userSyls.join(' - ')}]. Revisa las reglas de hiato/diptongo y reajusta las tijeras.`);
         playOrganicBeep(180, 0.3, 'sawtooth');
       }
     }
 
-    // Algoritmo simplificado de silabeo en español para el Laboratorio de Sílabas
+    // Algoritmo de silabeo en español para el Laboratorio de Sílabas
     function splitSpanishSyllables(word) {
       const vowels = "aeiouáéóíúüAEIOUÁÉÓÍÚÜ";
       const strongVowels = "aeoáéóAEOÁÉÓ";
       const weakVowels = "iouíúüIOUÍÚÜ";
       const accentedWeak = "íúÍÚ";
 
-      // Limpieza preliminar
       word = word.trim();
       if (!word) return [];
 
-      // Diccionario de fallbacks comunes de nuestra app para asegurar precisión quirúrgica
+      // Diccionario de fallbacks para palabras comunes de nuestra app y asegurar precisión
       const dictionary = {
         "cambio": ["cam", "bio"],
         "cambió": ["cam", "bió"],
@@ -1057,23 +1059,19 @@
         return dictionary[wordLower];
       }
 
-      // Reglas básicas procedimentales para división silábica básica
+      // Reglas procedimentales de apoyo
       let syllables = [];
       let i = 0;
       let len = word.length;
       let currentSyllable = "";
 
-      // Una aproximación simple para simular el silabeo
-      // En primaria, si no es una palabra registrada, la procesamos por bloques sencillos de consonantes y vocales
       while (i < len) {
         currentSyllable += word[i];
         
         let isNextVowel = (i + 1 < len) && vowels.includes(word[i + 1]);
         let isCurrentVowel = vowels.includes(word[i]);
 
-        // Si la actual es vocal y la siguiente es consonante seguida de vocal
         if (isCurrentVowel && !isNextVowel && i + 1 < len) {
-          // Evaluar grupo consonántico inseparable (cl, cr, pl, pr, bl, br, dr, tr, fl, fr, gl, gr, ch, ll, rr)
           let isGroup = false;
           if (i + 2 < len) {
             let pair = (word[i + 1] + word[i + 2]).toLowerCase();
@@ -1086,12 +1084,10 @@
             syllables.push(currentSyllable);
             currentSyllable = "";
           } else {
-            // Un caso simple de CV (Consonante Vocal) o similar
             if (i + 2 < len && vowels.includes(word[i+2])) {
               syllables.push(currentSyllable);
               currentSyllable = "";
             } else if (i + 1 < len && !vowels.includes(word[i+1]) && (i + 2 < len && !vowels.includes(word[i+2]))) {
-              // Si vienen 2 consonantes seguidas, usualmente se dividen
               currentSyllable += word[i+1];
               syllables.push(currentSyllable);
               currentSyllable = "";
@@ -1100,7 +1096,6 @@
           }
         }
         
-        // Hiatos simples (dos vocales fuertes juntas)
         if (isCurrentVowel && isNextVowel && i + 1 < len) {
           let v1 = word[i];
           let v2 = word[i + 1];
@@ -1108,7 +1103,6 @@
             syllables.push(currentSyllable);
             currentSyllable = "";
           } else if (accentedWeak.includes(v1) || accentedWeak.includes(v2)) {
-            // Vocal débil con tilde rompe el diptongo
             syllables.push(currentSyllable);
             currentSyllable = "";
           }
@@ -1121,11 +1115,10 @@
         syllables.push(currentSyllable);
       }
 
-      // Validar que no nos queden sílabas vacías o trozos sin vocales
       return syllables.filter(s => s.length > 0);
     }
 
-    // Analizador de palabras personalizadas del usuario
+    // Analizador de palabras del usuario en el laboratorio
     function analyzeCustomWord() {
       const input = document.getElementById('customWordInput').value.trim();
       if (!input) return;
@@ -1137,21 +1130,19 @@
       resultBox.classList.remove('hidden');
       resultText.innerText = syllables.join(' - ');
 
-      // Buscar sílaba tónica heurística para la reproducción de audio
       let tonicIndex = findTonicHeuristic(syllables);
 
       const btnHear = document.getElementById('btnHearResult');
       btnHear.onclick = () => {
-        speakBySyllables(syllables, tonicIndex);
+        playWordRhythm(input, syllables, tonicIndex);
       };
 
-      // Auto reproducir al analizar
-      speakBySyllables(syllables, tonicIndex);
+      // Auto reproducir ritmo y palabra
+      playWordRhythm(input, syllables, tonicIndex);
     }
 
-    // Heurística simple para encontrar la sílaba tónica
+    // Heurística simple para encontrar la tónica
     function findTonicHeuristic(syllables) {
-      // 1. Si alguna sílaba tiene tilde, es la tónica
       const accents = "áéóíúÁÉÓÍÚ";
       for (let i = 0; i < syllables.length; i++) {
         for (let char of syllables[i]) {
@@ -1159,7 +1150,6 @@
         }
       }
 
-      // 2. Si termina en N, S o Vocal y no tiene tilde -> Grave (penúltima)
       const lastSyl = syllables[syllables.length - 1].toLowerCase();
       const lastChar = lastSyl[lastSyl.length - 1];
       if (syllables.length > 1) {
@@ -1168,12 +1158,11 @@
         }
       }
 
-      // 3. Por defecto, asumir Aguda (última)
-      return syllables.length - 1;
+      return syllables.length - 1; // Última
     }
 
 
-    // --- SECCIÓN 3: LÓGICA DE LA TABLA RETO (COMPLETO E INTERACTIVO) ---
+    // --- SECCIÓN 3: LÓGICA DE LA TABLA RETO ---
     function initTable() {
       const tbody = document.getElementById('interactiveTableBody');
       tbody.innerHTML = '';
@@ -1202,24 +1191,22 @@
         tr.id = `table-row-${row.id}`;
         tr.className = `transition-all duration-200 ${row.isExample ? 'bg-[#F9F7F2]' : 'hover:bg-gray-50'}`;
 
-        // Columna 1: Oración con la palabra
         const tdSentence = document.createElement('td');
         tdSentence.className = "p-4 text-sm md:text-base text-cozy-dark font-medium";
         
-        // Obtener arreglo de sílabas para reproducción realista
         const syls = splitSpanishSyllables(row.word);
         const tonicIdx = findTonicHeuristic(syls);
 
+        // Al presionar el botón de sonido de la tabla, se reproduce la campana y la palabra integrada
         tdSentence.innerHTML = `
           <div class="flex items-center gap-2">
-            <button onclick="speakBySyllables(['${syls.join("', '")}'], ${tonicIdx})" class="p-1.5 hover:bg-cozy-card rounded-lg text-cozy-sage transition-all inline-flex items-center" title="Escuchar por sílabas de forma interactiva">
+            <button onclick="playWordRhythm('${row.word}', ['${syls.join("', '")}'], ${tonicIdx})" class="p-1.5 hover:bg-cozy-card rounded-lg text-cozy-sage transition-all inline-flex items-center" title="Escuchar pronunciación rítmica">
               <i data-lucide="volume-2" class="w-4 h-4 text-cozy-sage"></i>
             </button>
             <span>${row.sentence}</span>
           </div>
         `;
 
-        // Columna 2: Sílaba Tónica (input)
         const tdTonic = document.createElement('td');
         tdTonic.className = "p-4 text-center";
         
@@ -1242,7 +1229,6 @@
           `;
         }
 
-        // Columna 3: Clasificación interactiva
         const tdClass = document.createElement('td');
         tdClass.className = "p-4";
         
@@ -1271,7 +1257,6 @@
           `;
         }
 
-        // Columna 4: Ayuda e Indicador de Corrección
         const tdHelp = document.createElement('td');
         tdHelp.className = "p-4 text-center";
         
@@ -1338,7 +1323,7 @@
       const row = TABLE_DATA.find(r => r.id === id);
       changeTutorMessage(`Pista para '${row.word}': La separación en sílabas es ${row.hint}`);
       const syls = splitSpanishSyllables(row.word);
-      speakBySyllables(syls, findTonicHeuristic(syls));
+      playWordRhythm(row.word, syls, findTonicHeuristic(syls));
     }
 
     function calculateProgress() {
@@ -1406,7 +1391,7 @@
         const unfinishBtn = document.getElementById('unfinishedBtn');
         unfinishBtn.classList.remove('hidden');
         setTimeout(() => unfinishBtn.classList.add('hidden'), 4000);
-        changeTutorMessage("¡Uy! Aún tienes algunas filas vacías en la tabla. Rellena la sílaba tónica y selecciona la clasificación antes de revisar.");
+        changeTutorMessage("¡Uy! Aún tienes algunas de las casillas vacías en la tabla. Rellena la sílaba tónica y clasifica antes de revisar.");
         return;
       }
 
@@ -1483,7 +1468,7 @@
       const current = shuffledGameWords[gameIndex];
       if (current) {
         const syls = current.syl.split('-');
-        speakBySyllables(syls, findTonicHeuristic(syls));
+        playWordRhythm(current.word, syls, findTonicHeuristic(syls));
       }
     }
 
