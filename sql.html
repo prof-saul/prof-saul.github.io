@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Aprendizaje Interactivo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200 relative overflow-x-hidden">
+
+    <!-- Canvas para Confeti -->
+    <canvas id="confetti-canvas" class="absolute inset-0 pointer-events-none z-50 w-full h-full"></canvas>
+
+    <!-- Header principal -->
+    <header class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-40 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-500 text-white p-2 rounded-xl shadow-md shadow-emerald-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">SQL Academy</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Entorno Interactivo de Práctica</p>
+                </div>
+            </div>
+
+            <!-- Controles globales -->
+            <div class="flex items-center space-x-4">
+                <!-- Barra de progreso global compacta -->
+                <div class="hidden sm:flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Progreso:</span>
+                    <div class="w-24 bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                        <div id="progress-bar-global" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <span id="progress-text-global" class="text-xs font-bold text-emerald-500">0%</span>
+                </div>
+
+                <!-- Botón de Modo Oscuro -->
+                <button id="theme-toggle" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Cambiar tema">
+                    <!-- Icono Sol -->
+                    <svg id="theme-sun" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m2.828 9.9a5 5 0 111.06-7.06L12 12l2.828 2.828z" />
+                    </svg>
+                    <!-- Icono Luna -->
+                    <svg id="theme-moon" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor de Contenido -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- Grid principal -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- SECCIÓN IZQUIERDA: Teoría & Visor de la base de datos (5 columnas en desktop) -->
+            <section class="lg:col-span-5 space-y-6">
+                
+                <!-- Pestañas de Navegación Lateral -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-2 border border-slate-200 dark:border-slate-800 flex space-x-1">
+                    <button onclick="switchLeftTab('theory')" id="tab-theory-btn" class="flex-1 py-2 px-3 text-sm font-semibold rounded-xl bg-emerald-500 text-white shadow-sm transition">
+                        Aprender SQL
+                    </button>
+                    <button onclick="switchLeftTab('database')" id="tab-database-btn" class="flex-1 py-2 px-3 text-sm font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                        Tabla 'Libros'
+                    </button>
+                </div>
+
+                <!-- CONTENIDO TIPO TABS -->
+
+                <!-- 1. Pestaña de Teoría -->
+                <div id="content-theory" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-6 transition">
+                    <div class="border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-500">Introducción</span>
+                        <h2 class="text-2xl font-bold mt-1">¿Qué es SQL?</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                            <strong>SQL</strong> (Structured Query Language o Lenguaje de Consulta Estructurada) es el lenguaje estándar utilizado en todo el mundo para comunicarse con bases de datos relacionales.
+                        </p>
+                    </div>
+
+                    <!-- ¿Para qué sirve? -->
+                    <div class="space-y-3">
+                        <h3 class="text-md font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span>¿Para qué sirve?</span>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Permite realizar operaciones clave sobre la información de una empresa o aplicación:
+                        </p>
+                        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <li class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center space-x-2">
+                                <span class="text-emerald-500 font-bold">✓</span>
+                                <span>Consultar y buscar datos</span>
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center space-x-2">
+                                <span class="text-emerald-500 font-bold">✓</span>
+                                <span>Insertar nuevos registros</span>
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center space-x-2">
+                                <span class="text-emerald-500 font-bold">✓</span>
+                                <span>Actualizar información</span>
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center space-x-2">
+                                <span class="text-emerald-500 font-bold">✓</span>
+                                <span>Eliminar registros</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Sintaxis Básica -->
+                    <div class="space-y-4 pt-2">
+                        <h3 class="text-md font-bold flex items-center space-x-2 text-slate-700 dark:text-slate-200">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span>Sintaxis Básica de Consulta (SELECT)</span>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Para pedirle información a una tabla, usamos la estructura fundamental de consultas:
+                        </p>
+
+                        <!-- Bloques explicativos de palabras clave -->
+                        <div class="space-y-3">
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <div class="flex items-center space-x-2">
+                                    <code class="code-font bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-xs px-2 py-0.5 rounded font-bold">SELECT</code>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400">¿Qué columnas quieres traer?</span>
+                                </div>
+                                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                                    Usa <code class="code-font font-bold">*</code> para traer todas las columnas, o escribe sus nombres separados por comas (ej. <code class="code-font">titulo, autor</code>).
+                                </p>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <div class="flex items-center space-x-2">
+                                    <code class="code-font bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-xs px-2 py-0.5 rounded font-bold">FROM</code>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400">¿De qué tabla provienen los datos?</span>
+                                </div>
+                                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                                    En este caso, nuestra tabla siempre será <code class="code-font font-bold">Libros</code>.
+                                </p>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <div class="flex items-center space-x-2">
+                                    <code class="code-font bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-xs px-2 py-0.5 rounded font-bold">WHERE</code>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400">¿Bajo qué filtro o condición? (Opcional)</span>
+                                </div>
+                                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                                    Filtra filas específicas. Ej. <code class="code-font">categoria = 'Literatura'</code>. Las cadenas de texto se colocan siempre entre comillas simples <code class="code-font">'...'</code>.
+                                </p>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <div class="flex items-center space-x-2">
+                                    <code class="code-font bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 text-xs px-2 py-0.5 rounded font-bold">ORDER BY</code>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400">¿Cómo quieres ordenar los resultados? (Opcional)</span>
+                                </div>
+                                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                                    Ordena los resultados basándose en una columna de forma ascendente (<code class="code-font">ASC</code>, por defecto) o descendente (<code class="code-font">DESC</code>).
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Ejemplo visual integrado -->
+                        <div class="bg-slate-900 text-slate-200 p-4 rounded-xl border border-slate-800 code-font text-xs space-y-1 shadow-inner">
+                            <div class="text-slate-500">-- Ejemplo: Libros de aventura ordenados</div>
+                            <div><span class="text-purple-400">SELECT</span> *</div>
+                            <div><span class="text-purple-400">FROM</span> Libros</div>
+                            <div><span class="text-purple-400">WHERE</span> categoria = <span class="text-emerald-400">'Aventura'</span></div>
+                            <div><span class="text-purple-400">ORDER BY</span> titulo <span class="text-blue-400">ASC</span>;</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Pestaña de la Tabla Libros (La Base de Datos) -->
+                <div id="content-database" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4 hidden transition">
+                    <div>
+                        <h2 class="text-xl font-bold flex items-center space-x-2">
+                            <span class="p-1 bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" />
+                                    <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z" />
+                                    <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z" />
+                                </svg>
+                            </span>
+                            <span>Tabla: <code class="text-emerald-500 font-bold code-font">Libros</code></span>
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                            Este es el estado actual de tu base de datos relacional. Los desafíos se evaluarán consultando directamente esta información.
+                        </p>
+                    </div>
+
+                    <!-- Datos en SQL Script -->
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 overflow-x-auto">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                            <span class="text-[10px] uppercase font-bold text-slate-500 code-font">Script de Creación</span>
+                            <span class="text-[10px] text-emerald-400 code-font">SQL</span>
+                        </div>
+                        <pre class="text-[11px] code-font text-emerald-400 whitespace-pre leading-relaxed">
+INSERT INTO Libros (id_libro, titulo, autor, categoria)
+VALUES
+(1, 'El Principito', 'Antoine de Saint-Exupéry', 'Literatura'),
+(2, 'Viaje al Centro de la Tierra', 'Julio Verne', 'Aventura'),
+(3, 'Cuentos de la Selva', 'Horacio Quiroga', 'Literatura'),
+(4, 'Historia de El Salvador', 'María López', 'Historia'),
+(5, 'Introducción a Python', 'Juan Pérez', 'Tecnología');</pre>
+                    </div>
+
+                    <!-- Tabla Visual -->
+                    <div class="border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden shadow-inner">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
+                                        <th class="p-3 code-font">id_libro</th>
+                                        <th class="p-3 code-font">titulo</th>
+                                        <th class="p-3 code-font">autor</th>
+                                        <th class="p-3 code-font">categoria</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800 code-font">
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                                        <td class="p-3 text-emerald-500 font-semibold">1</td>
+                                        <td class="p-3 font-semibold">El Principito</td>
+                                        <td class="p-3 text-slate-500 dark:text-slate-400">Antoine de Saint-Exupéry</td>
+                                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">Literatura</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                                        <td class="p-3 text-emerald-500 font-semibold">2</td>
+                                        <td class="p-3 font-semibold">Viaje al Centro de la Tierra</td>
+                                        <td class="p-3 text-slate-500 dark:text-slate-400">Julio Verne</td>
+                                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">Aventura</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                                        <td class="p-3 text-emerald-500 font-semibold">3</td>
+                                        <td class="p-3 font-semibold">Cuentos de la Selva</td>
+                                        <td class="p-3 text-slate-500 dark:text-slate-400">Horacio Quiroga</td>
+                                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">Literatura</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                                        <td class="p-3 text-emerald-500 font-semibold">4</td>
+                                        <td class="p-3 font-semibold">Historia de El Salvador</td>
+                                        <td class="p-3 text-slate-500 dark:text-slate-400">María López</td>
+                                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-100 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400">Historia</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                                        <td class="p-3 text-emerald-500 font-semibold">5</td>
+                                        <td class="p-3 font-semibold">Introducción a Python</td>
+                                        <td class="p-3 text-slate-500 dark:text-slate-400">Juan Pérez</td>
+                                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-100 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400">Tecnología</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN DERECHA: Playground y Desafíos (7 columnas en desktop) -->
+            <section class="lg:col-span-7 space-y-6">
+                
+                <!-- Tarjeta del Desafío Activo -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+                    <!-- Selector de Desafíos con burbujas de progreso -->
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Ejercicios</span>
+                            <h2 class="text-xl font-bold">Consola de Prácticas</h2>
+                        </div>
+                        <!-- Círculos de estado de desafíos -->
+                        <div class="flex items-center space-x-1.5" id="challenge-dots">
+                            <!-- Inyectados por JS -->
+                        </div>
+                    </div>
+
+                    <!-- Cuerpo del Desafío -->
+                    <div class="space-y-3 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span id="challenge-number-label">Desafío 1</span>
+                            </span>
+                            <span class="text-xs text-slate-400" id="challenge-difficulty">Dificultad: Principiante</span>
+                        </div>
+                        <h3 class="text-lg font-extrabold text-slate-800 dark:text-white" id="challenge-title">Cargando...</h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed" id="challenge-description">Cargando instrucciones...</p>
+                        
+                        <!-- Pista plegable -->
+                        <div class="pt-2">
+                            <button onclick="toggleHint()" class="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline flex items-center space-x-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>¿Necesitas una pista?</span>
+                            </button>
+                            <div id="challenge-hint-box" class="hidden mt-2 p-3 bg-teal-50 dark:bg-teal-950/20 text-teal-800 dark:text-teal-300 rounded-lg text-xs border border-teal-100 dark:border-teal-950/50 leading-relaxed">
+                                Cita o estructura sugerida.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Editor SQL Interactiva -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label for="sql-editor" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Escribe tu consulta SQL abajo:</label>
+                            <button onclick="resetEditorQuery()" class="text-xs font-semibold text-rose-500 hover:text-rose-600 flex items-center space-x-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Restablecer</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Panel del Editor estilo Consola IDE -->
+                        <div class="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md">
+                            <div class="bg-slate-100 dark:bg-slate-950 px-4 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                                <div class="flex space-x-1.5">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
+                                    <div class="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+                                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                                </div>
+                                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider code-font">editor-query.sql</span>
+                            </div>
+                            
+                            <!-- Editor de Texto de Consola -->
+                            <textarea id="sql-editor" rows="5" class="w-full p-4 bg-slate-900 text-slate-100 font-mono text-sm code-font focus:ring-0 focus:outline-none resize-y leading-relaxed" placeholder="Escribe tu consulta SQL aquí..."></textarea>
+                            
+                            <!-- Accesos rápidos / Atajos de sintaxis (UX Genial) -->
+                            <div class="bg-slate-950 px-3 py-2 border-t border-slate-800/60 flex flex-wrap gap-1.5">
+                                <button onclick="insertAtCursor('SELECT ')" class="text-[10px] code-font font-semibold px-2 py-1 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white transition">SELECT</button>
+                                <button onclick="insertAtCursor('* ')" class="text-[10px] code-font font-semibold px-2 py-1 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white transition">*</button>
+                                <button onclick="insertAtCursor('FROM Libros ')" class="text-[10px] code-font font-semibold px-2 py-1 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white transition">FROM Libros</button>
+                                <button onclick="insertAtCursor('WHERE ')" class="text-[10px] code-font font-semibold px-2 py-1 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white transition">WHERE</button>
+                                <button onclick="insertAtCursor('ORDER BY ')" class="text-[10px] code-font font-semibold px-2 py-1 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white transition">ORDER BY</button>
+                                <button onclick="insertAtCursor('\'Literatura\'' )" class="text-[10px] code-font font-semibold px-2 py-1 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 hover:text-white transition">'Literatura'</button>
+                            </div>
+                        </div>
+
+                        <!-- Botón de Ejecutar -->
+                        <div class="flex justify-end pt-2">
+                            <button id="run-btn" onclick="runUserQuery()" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Ejecutar y Validar Consulta</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bloque de Resultados / Feedback -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Consola de Salida / Resultados</span>
+                        <span id="output-status" class="text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-400">Esperando ejecución...</span>
+                    </div>
+
+                    <!-- Mensaje de Estado / Feedback de Validación -->
+                    <div id="feedback-alert" class="hidden p-4 rounded-xl border flex items-start space-x-3 transition">
+                        <!-- Icono Dinámico (Inyectado por JS) -->
+                        <div id="feedback-icon" class="mt-0.5"></div>
+                        <div class="flex-1">
+                            <h4 id="feedback-title" class="text-sm font-bold">Título de Estado</h4>
+                            <p id="feedback-desc" class="text-xs mt-1 leading-relaxed">Mensaje descriptivo.</p>
+                            <button id="next-btn" onclick="loadNextChallenge()" class="hidden mt-3 px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-lg shadow transition">Siguiente Desafío →</button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Resultados Generada -->
+                    <div class="border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-950/20 shadow-inner">
+                        <div class="overflow-x-auto min-h-[120px] flex items-center justify-center text-center p-4" id="query-result-wrapper">
+                            <div class="text-slate-400 dark:text-slate-500 text-xs py-8 space-y-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto stroke-current" fill="none" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p>Las tablas resultantes de tus consultas se visualizarán aquí.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal de Felicitación Final -->
+    <div id="congrats-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 max-w-lg w-full text-center shadow-2xl relative overflow-hidden transform scale-95 transition-transform duration-300" id="congrats-box">
+            <!-- Corona decorativa -->
+            <div class="mx-auto w-20 h-20 bg-gradient-to-tr from-yellow-400 to-amber-500 rounded-2xl flex items-center justify-center text-white text-4xl shadow-xl shadow-amber-500/20 mb-6 animate-bounce">
+                👑
+            </div>
+            
+            <h2 class="text-3xl font-extrabold bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">¡Felicidades, Maestro SQL!</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-3 leading-relaxed">
+                Has completado con éxito todos los desafíos de consulta SQL del módulo <span class="font-semibold text-slate-800 dark:text-white">"Libros"</span>. Has demostrado un dominio excelente en filtrado condicional, selección selectiva de columnas y ordenación de datos.
+            </p>
+
+            <!-- Estadística compacta -->
+            <div class="grid grid-cols-2 gap-4 mt-6 p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div class="text-center border-r border-slate-200 dark:border-slate-700/60">
+                    <span class="block text-2xl font-black text-emerald-500">5 / 5</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Desafíos Logrados</span>
+                </div>
+                <div class="text-center">
+                    <span class="block text-2xl font-black text-teal-500">100%</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Precisión Obtenida</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 mt-8">
+                <button onclick="resetWholeGame()" class="flex-1 px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition shadow-lg shadow-emerald-500/10">
+                    Volver a empezar
+                </button>
+                <button onclick="closeCongratsModal()" class="flex-1 px-5 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition">
+                    Ver mi código final
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Inicialización y Lógica de SQL en JS -->
+    <script>
+        // Datos de Base de Datos
+        const librosData = [
+            {id_libro: 1, titulo: 'El Principito', autor: 'Antoine de Saint-Exupéry', categoria: 'Literatura'},
+            {id_libro: 2, titulo: 'Viaje al Centro de la Tierra', autor: 'Julio Verne', categoria: 'Aventura'},
+            {id_libro: 3, titulo: 'Cuentos de la Selva', autor: 'Horacio Quiroga', categoria: 'Literatura'},
+            {id_libro: 4, titulo: 'Historia de El Salvador', autor: 'María López', categoria: 'Historia'},
+            {id_libro: 5, titulo: 'Introducción a Python', autor: 'Juan Pérez', categoria: 'Tecnología'}
+        ];
+
+        // Listado de Desafíos
+        const challenges = [
+            {
+                title: "Selecciona toda la librería",
+                difficulty: "Fácil • Sintaxis Básica",
+                description: "Comencemos con lo básico. Escribe una consulta SQL que seleccione <strong>todas las columnas</strong> de todos los registros en la tabla <strong>Libros</strong>.",
+                hint: "Sugerencia: Puedes usar el comodín asterisco (*) para traer todo el contenido. El comando estructurado es: SELECT * FROM Libros;",
+                defaultCode: "SELECT * FROM Libros",
+                validator: (result) => {
+                    if (!result || !result.columns || !result.rows) return false;
+                    const expectedCols = ['id_libro', 'titulo', 'autor', 'categoria'];
+                    const hasAllCols = expectedCols.every(c => result.columns.includes(c));
+                    return hasAllCols && result.rows.length === 5;
+                }
+            },
+            {
+                title: "Obtén los títulos y sus autores",
+                difficulty: "Fácil • Selección Específica",
+                description: "¡Excelente! Ahora queremos una lista limpia para un folleto. Selecciona <strong>únicamente las columnas titulo y autor</strong> (en ese orden exacto de columnas) de todos los registros.",
+                hint: "Sugerencia: Reemplaza el asterisco por los nombres de las columnas que necesitas, separados por comas: SELECT columna1, columna2 FROM ...",
+                defaultCode: "SELECT  FROM Libros",
+                validator: (result) => {
+                    if (!result || !result.columns || !result.rows) return false;
+                    // Check order and exact columns
+                    if (result.columns.length !== 2) return false;
+                    return result.columns[0] === 'titulo' && result.columns[1] === 'autor';
+                }
+            },
+            {
+                title: "Filtra la categoría 'Literatura'",
+                difficulty: "Medio • Cláusula WHERE",
+                description: "Un cliente está buscando una novela. Escribe una consulta para obtener <strong>todas las columnas</strong> de los libros que pertenezcan únicamente a la categoría de <code class='code-font font-bold'>'Literatura'</code>.",
+                hint: "Sugerencia: Utiliza WHERE para restringir los resultados. Recuerda escribir el valor entre comillas simples: ... WHERE categoria = 'Literatura'",
+                defaultCode: "SELECT * FROM Libros WHERE ",
+                validator: (result) => {
+                    if (!result || !result.rows) return false;
+                    if (result.rows.length !== 2) return false;
+                    return result.rows.every(r => r.categoria === 'Literatura') && result.columns.includes('categoria');
+                }
+            },
+            {
+                title: "Encuentra el libro de 'María López'",
+                difficulty: "Medio • Filtro Específico",
+                description: "Un lector te pregunta por un libro específico, pero solo recuerda el nombre de la autora: <strong>María López</strong>. Escribe una consulta para seleccionar <strong>solo la columna titulo</strong> del libro escrito por ella.",
+                hint: "Sugerencia: Filtra con WHERE autor = 'María López' y asegúrate de proyectar solo la columna titulo en el SELECT.",
+                defaultCode: "SELECT titulo FROM Libros WHERE ",
+                validator: (result) => {
+                    if (!result || !result.columns || !result.rows) return false;
+                    if (result.columns.length !== 1 || result.columns[0] !== 'titulo') return false;
+                    if (result.rows.length !== 1) return false;
+                    return result.rows[0].titulo === 'Historia de El Salvador';
+                }
+            },
+            {
+                title: "Ordena los libros alfabéticamente",
+                difficulty: "Avanzado • Ordenamiento",
+                description: "Para organizar la estantería física de la tienda, necesitamos listar <strong>todas las columnas de todos los libros</strong>, pero ordenados <strong>alfabéticamente por el titulo</strong>.",
+                hint: "Sugerencia: Añade ORDER BY titulo (o ORDER BY titulo ASC) al final de tu consulta.",
+                defaultCode: "SELECT * FROM Libros ORDER BY ",
+                validator: (result) => {
+                    if (!result || !result.rows || result.rows.length !== 5) return false;
+                    // Verify sorted order
+                    const titles = result.rows.map(r => r.titulo);
+                    const sorted = [...titles].sort((a,b) => a.localeCompare(b));
+                    return JSON.stringify(titles) === JSON.stringify(sorted);
+                }
+            }
+        ];
+
+        // Estado del juego
+        let currentChallengeIndex = 0;
+        let completedChallenges = [false, false, false, false, false];
+
+        // Inicializador
+        window.onload = function() {
+            loadChallenge(0);
+            renderChallengeDots();
+            updateGlobalProgress();
+            
+            // Monitorizar atajo teclado (Ctrl + Enter o Cmd + Enter) para ejecutar query
+            document.getElementById('sql-editor').addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    runUserQuery();
+                }
+            });
+        };
+
+        // Cambiar pestañas de la izquierda (Teoría / Base de datos)
+        function switchLeftTab(tabId) {
+            const theoryBtn = document.getElementById('tab-theory-btn');
+            const databaseBtn = document.getElementById('tab-database-btn');
+            const theoryContent = document.getElementById('content-theory');
+            const databaseContent = document.getElementById('content-database');
+
+            if (tabId === 'theory') {
+                theoryBtn.className = "flex-1 py-2 px-3 text-sm font-semibold rounded-xl bg-emerald-500 text-white shadow-sm transition";
+                databaseBtn.className = "flex-1 py-2 px-3 text-sm font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition";
+                theoryContent.classList.remove('hidden');
+                databaseContent.classList.add('hidden');
+            } else {
+                databaseBtn.className = "flex-1 py-2 px-3 text-sm font-semibold rounded-xl bg-emerald-500 text-white shadow-sm transition";
+                theoryBtn.className = "flex-1 py-2 px-3 text-sm font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition";
+                databaseContent.classList.remove('hidden');
+                theoryContent.classList.add('hidden');
+            }
+        }
+
+        // Cargar un desafío específico
+        function loadChallenge(index) {
+            currentChallengeIndex = index;
+            const chal = challenges[index];
+
+            document.getElementById('challenge-number-label').innerText = `Desafío ${index + 1}`;
+            document.getElementById('challenge-difficulty').innerText = chal.difficulty;
+            document.getElementById('challenge-title').innerText = chal.title;
+            document.getElementById('challenge-description').innerHTML = chal.description;
+            document.getElementById('challenge-hint-box').innerText = chal.hint;
+            document.getElementById('challenge-hint-box').classList.add('hidden'); // Ocultar pista por defecto
+
+            // Cargar código por defecto si no ha sido resuelto o editado
+            document.getElementById('sql-editor').value = chal.defaultCode;
+
+            // Limpiar feedback anterior
+            document.getElementById('feedback-alert').className = "hidden";
+            document.getElementById('output-status').innerText = "Esperando ejecución...";
+            document.getElementById('output-status').className = "text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-400";
+            
+            // Restablecer envoltorio de tabla
+            document.getElementById('query-result-wrapper').innerHTML = `
+                <div class="text-slate-400 dark:text-slate-500 text-xs py-8 space-y-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto stroke-current" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p>Las tablas resultantes de tus consultas se visualizarán aquí.</p>
+                </div>
+            `;
+
+            renderChallengeDots();
+        }
+
+        // Mostrar / Ocultar pista
+        function toggleHint() {
+            const hintBox = document.getElementById('challenge-hint-box');
+            hintBox.classList.toggle('hidden');
+        }
+
+        // Insertar comandos rápidos en el cursor del Textarea
+        function insertAtCursor(text) {
+            const textarea = document.getElementById('sql-editor');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const val = textarea.value;
+            textarea.value = val.substring(0, start) + text + val.substring(end);
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = start + text.length;
+        }
+
+        // Restablecer el editor del desafío activo
+        function resetEditorQuery() {
+            document.getElementById('sql-editor').value = challenges[currentChallengeIndex].defaultCode;
+        }
+
+        // Renderizar burbujas de progreso de desafíos
+        function renderChallengeDots() {
+            const container = document.getElementById('challenge-dots');
+            container.innerHTML = '';
+            
+            challenges.forEach((chal, idx) => {
+                const isActive = idx === currentChallengeIndex;
+                const isDone = completedChallenges[idx];
+                
+                let dotClass = "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ";
+                
+                if (isActive) {
+                    dotClass += "bg-emerald-500 text-white ring-4 ring-emerald-500/20 shadow-md";
+                } else if (isDone) {
+                    dotClass += "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-200 cursor-pointer";
+                } else {
+                    dotClass += "bg-slate-100 dark:bg-slate-800 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer";
+                }
+
+                const button = document.createElement('button');
+                button.className = dotClass;
+                button.innerHTML = isDone ? '✓' : (idx + 1);
+                button.onclick = () => loadChallenge(idx);
+                container.appendChild(button);
+            });
+        }
+
+        // Actualizar barra de progreso global
+        function updateGlobalProgress() {
+            const completedCount = completedChallenges.filter(c => c).length;
+            const pct = Math.round((completedCount / challenges.length) * 100);
+            
+            document.getElementById('progress-bar-global').style.width = `${pct}%`;
+            document.getElementById('progress-text-global').innerText = `${pct}%`;
+        }
+
+        // CARGAR SIGUIENTE DESAFÍO
+        function loadNextChallenge() {
+            const nextIdx = completedChallenges.indexOf(false);
+            if (nextIdx !== -1) {
+                loadChallenge(nextIdx);
+            } else {
+                // Todo resuelto
+                triggerCongratsModal();
+            }
+        }
+
+        // MOTOR SQL INTERNO (Filtro, selección y ordenamiento en memoria JS)
+        function executeMockSQL(sqlStr) {
+            let sql = sqlStr.trim();
+            // Sanitizar y unificar espaciado
+            sql = sql.replace(/\s+/g, ' ');
+            // Remover punto y coma final
+            sql = sql.replace(/;$/, "");
+
+            // Regex de análisis sintáctico básico (SELECT, FROM, WHERE, ORDER BY)
+            const regex = /^\s*select\s+(.+?)\s+from\s+libros(?:\s+where\s+(.+?))?(?:\s+order\s+by\s+(.+?))?\s*$/i;
+            const match = sql.match(regex);
+
+            if (!match) {
+                throw new Error("Sintaxis incorrecta. Recuerda la estructura básica: SELECT columnas FROM Libros [WHERE ...] [ORDER BY ...]");
+            }
+
+            let colsPart = match[1].trim();
+            let wherePart = match[2] ? match[2].trim() : null;
+            let orderPart = match[3] ? match[3].trim() : null;
+
+            let dataset = JSON.parse(JSON.stringify(librosData)); // Clonar datos limpios
+
+            // 1. Filtrado (WHERE)
+            if (wherePart) {
+                // Soportar columna = 'valor' o columna = "valor"
+                const whereRegex = /^([a-zA-Z_0-9]+)\s*=\s*['"](.+?)['"]$/i;
+                const whereMatch = wherePart.match(whereRegex);
+                
+                if (whereMatch) {
+                    const col = whereMatch[1].toLowerCase();
+                    const val = whereMatch[2]; // Valor sensible a mayúsculas
+                    
+                    const validCols = ['id_libro', 'titulo', 'autor', 'categoria'];
+                    const matchedCol = validCols.find(c => c.toLowerCase() === col);
+                    
+                    if (!matchedCol) {
+                        throw new Error(`La columna "${whereMatch[1]}" no existe en la tabla Libros.`);
+                    }
+
+                    dataset = dataset.filter(row => {
+                        // Tolerar leves errores de mayúsculas pero alertar si falla
+                        return String(row[matchedCol]).toLowerCase() === val.toLowerCase();
+                    });
+                } else {
+                    throw new Error("Error en cláusula WHERE. Usa el formato: columna = 'valor'.");
+                }
+            }
+
+            // 2. Ordenamiento (ORDER BY)
+            if (orderPart) {
+                // Soportar: columna [ASC|DESC]
+                const orderRegex = /^([a-zA-Z_0-9]+)(?:\s+(asc|desc))?$/i;
+                const orderMatch = orderPart.match(orderRegex);
+
+                if (orderMatch) {
+                    const col = orderMatch[1].toLowerCase();
+                    const dir = orderMatch[2] ? orderMatch[2].toLowerCase() : 'asc';
+
+                    const validCols = ['id_libro', 'titulo', 'autor', 'categoria'];
+                    const matchedCol = validCols.find(c => c.toLowerCase() === col);
+
+                    if (!matchedCol) {
+                        throw new Error(`No se puede ordenar por la columna desconocida: "${orderMatch[1]}".`);
+                    }
+
+                    dataset.sort((a, b) => {
+                        let valA = a[matchedCol];
+                        let valB = b[matchedCol];
+                        if (typeof valA === 'string') {
+                            return dir === 'desc' ? valB.localeCompare(valA) : valA.localeCompare(valB);
+                        } else {
+                            return dir === 'desc' ? valB - valA : valA - valB;
+                        }
+                    });
+                } else {
+                    throw new Error("Error en cláusula ORDER BY. Ejemplo válido: ORDER BY columna ASC");
+                }
+            }
+
+            // 3. Selección de Columnas (SELECT)
+            let selectedCols = [];
+            if (colsPart === '*') {
+                selectedCols = ['id_libro', 'titulo', 'autor', 'categoria'];
+            } else {
+                const rawCols = colsPart.split(',');
+                const validCols = ['id_libro', 'titulo', 'autor', 'categoria'];
+
+                for (let rc of rawCols) {
+                    const trimmed = rc.trim().toLowerCase();
+                    const found = validCols.find(c => c.toLowerCase() === trimmed);
+                    if (found) {
+                        selectedCols.push(found);
+                    } else {
+                        throw new Error(`La columna "${rc.trim()}" no existe o no está soportada.`);
+                    }
+                }
+            }
+
+            // Construir dataset final proyectado
+            const finalRows = dataset.map(row => {
+                const projectedRow = {};
+                selectedCols.forEach(col => {
+                    projectedRow[col] = row[col];
+                });
+                return projectedRow;
+            });
+
+            return {
+                columns: selectedCols,
+                rows: finalRows
+            };
+        }
+
+        // EJECUTAR Y VALIDAR QUERY DE USUARIO
+        function runUserQuery() {
+            const query = document.getElementById('sql-editor').value;
+            const feedbackAlert = document.getElementById('feedback-alert');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackDesc = document.getElementById('feedback-desc');
+            const nextBtn = document.getElementById('next-btn');
+            const outputStatus = document.getElementById('output-status');
+
+            if (!query.trim()) {
+                showQueryError("Por favor, escribe una consulta antes de ejecutar.");
+                return;
+            }
+
+            try {
+                // Ejecutar motor sim
+                const result = executeMockSQL(query);
+
+                // Renderizar tabla de resultados
+                renderResultsTable(result);
+
+                // Validar desafío activo
+                const isCorrect = challenges[currentChallengeIndex].validator(result);
+
+                if (isCorrect) {
+                    // Éxito
+                    completedChallenges[currentChallengeIndex] = true;
+                    updateGlobalProgress();
+                    renderChallengeDots();
+
+                    // UI Feedback verde
+                    feedbackAlert.className = "p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300 flex items-start space-x-3 transition animate-fadeIn";
+                    feedbackIcon.innerHTML = `
+                        <div class="bg-emerald-500 text-white p-1 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    `;
+                    feedbackTitle.innerText = "¡Excelente! Consulta Correcta";
+                    feedbackDesc.innerText = "Tu consulta arrojó exactamente la tabla y columnas deseadas. ¡Buen trabajo!";
+                    
+                    // Mostrar botón siguiente
+                    nextBtn.classList.remove('hidden');
+
+                    outputStatus.innerText = "Completado";
+                    outputStatus.className = "text-xs font-semibold px-2 py-1 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400";
+
+                    // Disparar confeti para celebrar
+                    triggerConfettiSparkle();
+
+                    // Si completó el último, lanzar pantalla final
+                    if (completedChallenges.every(c => c)) {
+                        setTimeout(() => {
+                            triggerCongratsModal();
+                        }, 800);
+                    }
+
+                } else {
+                    // Consulta válida sintácticamente pero no resuelve el desafío particular
+                    feedbackAlert.className = "p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 flex items-start space-x-3 transition";
+                    feedbackIcon.innerHTML = `
+                        <div class="bg-amber-500 text-white p-1 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    `;
+                    feedbackTitle.innerText = "¡Casi listo! Resultados incorrectos";
+                    feedbackDesc.innerText = "La sintaxis SQL es válida y se ejecutó con éxito, pero la tabla resultante no coincide con el objetivo del desafío actual. Revisa las instrucciones y vuelve a intentarlo.";
+                    nextBtn.classList.add('hidden');
+
+                    outputStatus.innerText = "Sintaxis Correcta (Resultado No Coincide)";
+                    outputStatus.className = "text-xs font-semibold px-2 py-1 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400";
+                }
+
+            } catch (err) {
+                showQueryError(err.message);
+            }
+        }
+
+        // Mostrar Error de Consola
+        function showQueryError(msg) {
+            const feedbackAlert = document.getElementById('feedback-alert');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackDesc = document.getElementById('feedback-desc');
+            const nextBtn = document.getElementById('next-btn');
+            const outputStatus = document.getElementById('output-status');
+
+            feedbackAlert.className = "p-4 rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-400 flex items-start space-x-3 transition";
+            feedbackIcon.innerHTML = `
+                <div class="bg-rose-500 text-white p-1 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v5a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+            `;
+            feedbackTitle.innerText = "Error de Consulta SQL";
+            feedbackDesc.innerText = msg;
+            nextBtn.classList.add('hidden');
+
+            outputStatus.innerText = "Error de Sintaxis";
+            outputStatus.className = "text-xs font-semibold px-2 py-1 rounded-md bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400";
+
+            // Mostrar un indicador visual de error en el wrapper de la tabla
+            document.getElementById('query-result-wrapper').innerHTML = `
+                <div class="text-rose-400 dark:text-rose-500 text-xs py-8 space-y-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <p>No se pudieron generar resultados debido al error en la consulta.</p>
+                </div>
+            `;
+        }
+
+        // RENDERIZAR TABLA DE RESULTADOS SQL
+        function renderResultsTable(result) {
+            const wrapper = document.getElementById('query-result-wrapper');
+            wrapper.className = "overflow-x-auto w-full";
+            wrapper.innerHTML = "";
+
+            if (!result || !result.rows || result.rows.length === 0) {
+                wrapper.innerHTML = `
+                    <div class="text-slate-400 dark:text-slate-500 text-xs py-8 text-center w-full">
+                        <p>La consulta se ejecutó, pero no devolvió ninguna fila coincidente.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.className = "w-full text-left border-collapse text-xs";
+
+            // Headers
+            const thead = document.createElement('thead');
+            thead.className = "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700";
+            
+            const trHead = document.createElement('tr');
+            result.columns.forEach(col => {
+                const th = document.createElement('th');
+                th.className = "p-3 code-font uppercase tracking-wider";
+                th.innerText = col;
+                trHead.appendChild(th);
+            });
+            thead.appendChild(trHead);
+            table.appendChild(thead);
+
+            // Body
+            const tbody = document.createElement('tbody');
+            tbody.className = "divide-y divide-slate-100 dark:divide-slate-800/60 code-font";
+
+            result.rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/20";
+                
+                result.columns.forEach(col => {
+                    const td = document.createElement('td');
+                    td.className = "p-3";
+                    
+                    // Resaltar ID de libro u otros detalles visuales sencillos
+                    if (col === 'id_libro') {
+                        td.className += " text-emerald-500 font-semibold";
+                    }
+                    
+                    td.innerText = row[col] !== undefined ? row[col] : 'NULL';
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(tbody);
+            wrapper.appendChild(table);
+        }
+
+        // TEMA OSCURO / CLARO CONTROL
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('theme-sun');
+        const moonIcon = document.getElementById('theme-moon');
+
+        themeToggleBtn.addEventListener('click', () => {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                html.classList.add('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('dark');
+                moonIcon.classList.add('hidden');
+                sunIcon.classList.remove('hidden');
+            }
+        });
+
+        // Asegurarse de que el icono coincida con la clase por defecto ('dark' está puesto en el tag HTML)
+        if (document.documentElement.classList.contains('dark')) {
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        }
+
+        // EFECTO DE CONFETI POR CANVAS INTERNO
+        function triggerConfettiSparkle() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Ajustar tamaño del canvas al viewport
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#ec4899', '#14b8a6'];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 5 + 4,
+                    d: Math.random() * canvas.height,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    tilt: Math.random() * 10 - 5,
+                    tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+                    tiltAngle: 0
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let active = false;
+
+                particles.forEach((p, index) => {
+                    p.tiltAngle += p.tiltAngleIncremental;
+                    p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                    p.x += Math.sin(p.tiltAngle);
+                    p.tilt = Math.sin(p.tiltAngle - index / 3) * 15;
+
+                    if (p.y < canvas.height) {
+                        active = true;
+                    }
+
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                    ctx.stroke();
+                });
+
+                if (active) {
+                    requestAnimationFrame(draw);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            draw();
+        }
+
+        // GESTIÓN DE MODAL DE FELICITACIONES
+        function triggerCongratsModal() {
+            const modal = document.getElementById('congrats-modal');
+            const box = document.getElementById('congrats-box');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }, 10);
+            
+            // Lanzar múltiples ráfagas de confeti
+            triggerConfettiSparkle();
+            setTimeout(triggerConfettiSparkle, 400);
+            setTimeout(triggerConfettiSparkle, 800);
+        }
+
+        function closeCongratsModal() {
+            const modal = document.getElementById('congrats-modal');
+            const box = document.getElementById('congrats-box');
+            modal.classList.remove('opacity-100');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function resetWholeGame() {
+            completedChallenges = [false, false, false, false, false];
+            closeCongratsModal();
+            loadChallenge(0);
+            updateGlobalProgress();
+        }
+    </script>
+</body>
+</html>
