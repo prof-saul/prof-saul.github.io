@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El Bosque de las Palabras - Sílaba Tónica y Acentuación</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts - Quicksand (Cozy, amigable e ideal para lectura infantil) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Canvas Confetti para celebraciones -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Quicksand', 'sans-serif'],
+          },
+          colors: {
+            cozy: {
+              beige: '#F9F6F0',       // Fondo ultra suave
+              card: '#F1EDE4',        // Fondo tarjetas
+              dark: '#3E3A35',        // Texto suave oscuro
+              sage: '#8FA89B',        // Verde sabio apagado
+              sagedark: '#6E8579',
+              terracotta: '#D49B86',  // Teja/Terracota suave
+              clay: '#C5846E',
+              yellow: '#E6C187',      // Amarillo mostaza pastel
+              purple: '#A992A5',      // Violeta apagado
+              blue: '#90AAB8',        // Azul nórdico suave
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #F9F6F0;
+      color: #3E3A35;
+      font-family: 'Quicksand', sans-serif;
+    }
+    .custom-shadow {
+      box-shadow: 0 8px 24px -4px rgba(125, 110, 95, 0.12);
+    }
+    .tab-active {
+      background-color: #8FA89B;
+      color: white;
+    }
+    /* Estilos para animación de aplauso */
+    @keyframes clapAnim {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); filter: drop-shadow(0 0 8px #E6C187); }
+      100% { transform: scale(1); }
+    }
+    .clap-active {
+      animation: clapAnim 0.4s ease-in-out;
+    }
+    /* Animación flotante para el búho */
+    @keyframes floatOwl {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(1deg); }
+    }
+    .float-owl {
+      animation: floatOwl 4s ease-in-out infinite;
+    }
+    /* Tijeras animadas al pasar el cursor */
+    .scissor-btn:hover i {
+      transform: rotate(-15deg) scale(1.1);
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-12">
+
+  <!-- Encabezado Principal -->
+  <header class="max-w-6xl mx-auto px-4 pt-6 pb-2">
+    <div class="flex flex-col md:flex-row items-center justify-between bg-white rounded-3xl p-6 custom-shadow border border-[#EBE6DD]">
+      <div class="flex items-center gap-4">
+        <!-- Avatar del Búho Quill -->
+        <div class="float-owl relative w-16 h-16 bg-cozy-yellow rounded-2xl flex items-center justify-center text-3xl shadow-inner border-2 border-white">
+          🦉
+          <span class="absolute -bottom-1 -right-1 flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cozy-sage opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-cozy-sage"></span>
+          </span>
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-cozy-dark">El Bosque de las Palabras</h1>
+          <p class="text-sm md:text-base text-gray-500">¡Aprende a dividir sílabas y domina la acentuación jugando! 🌿</p>
+        </div>
+      </div>
+      
+      <!-- Audio/Mute & Puntuación General -->
+      <div class="flex items-center gap-3 mt-4 md:mt-0">
+        <button onclick="toggleAudio()" id="audioBtn" class="p-3 bg-cozy-card hover:bg-gray-200 rounded-xl transition-all duration-200 text-cozy-dark flex items-center gap-2 text-sm font-semibold">
+          <i id="audioIcon" data-lucide="volume-2" class="w-5 h-5 text-cozy-sage"></i>
+          <span id="audioStatus">Sonido: Activo</span>
+        </button>
+        <div class="bg-cozy-yellow bg-opacity-30 border border-cozy-yellow px-4 py-2 rounded-xl text-cozy-dark font-bold flex items-center gap-2">
+          <span>⭐</span> <span id="starCounter">0</span> Estrellas
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación por Pestañas (4 Secciones) -->
+  <nav class="max-w-6xl mx-auto px-4 my-6">
+    <div class="bg-[#EBE6DD] p-1.5 rounded-2xl flex flex-wrap gap-1">
+      <button onclick="switchTab('teoria')" id="tab-teoria" class="flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 tab-active">
+        <i data-lucide="book-open" class="w-4 h-4"></i>
+        ¿Qué aprenderemos?
+      </button>
+      <button onclick="switchTab('silabas')" id="tab-silabas" class="flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 text-cozy-dark hover:bg-white hover:bg-opacity-50">
+        <i data-lucide="scissors" class="w-4 h-4"></i>
+        ¡A Cortar Sílabas!
+      </button>
+      <button onclick="switchTab('reto')" id="tab-reto" class="flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 text-cozy-dark hover:bg-white hover:bg-opacity-50">
+        <i data-lucide="table" class="w-4 h-4"></i>
+        El Reto de la Tabla
+      </button>
+      <button onclick="switchTab('juego')" id="tab-juego" class="flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 text-cozy-dark hover:bg-white hover:bg-opacity-50">
+        <i data-lucide="gamepad-2" class="w-4 h-4"></i>
+        Clasificador Veloz
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mensajes Guía de Quill (El Búho Tutor) -->
+  <section class="max-w-6xl mx-auto px-4 mb-6">
+    <div class="bg-cozy-card bg-opacity-50 border border-[#E2DBD0] rounded-2xl p-4 flex gap-4 items-start shadow-sm">
+      <span class="text-3xl mt-1">💡</span>
+      <div class="flex-1">
+        <h4 class="font-bold text-cozy-dark flex items-center gap-2">
+          Consejo de Quill el Búho
+          <button onclick="speakText(document.getElementById('tutorText').innerText)" class="p-1 hover:bg-white rounded-full transition-all text-cozy-sage" title="Escuchar consejo">
+            <i data-lucide="play-circle" class="w-4 h-4"></i>
+          </button>
+        </h4>
+        <p id="tutorText" class="text-cozy-dark text-sm md:text-base mt-1 leading-relaxed">
+          ¡Hola, explorador! Las palabras tienen música, y cada golpe de voz es una sílaba. ¡Prueba la sección de corte de sílabas para convertirte en un maestro cirujano de palabras! 🦉
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-6xl mx-auto px-4">
+
+    <!-- SECCIÓN 1: TEORÍA INTERACTIVA -->
+    <div id="content-teoria" class="space-y-8">
+      
+      <!-- Las Reglas de la División Silábica -->
+      <div class="bg-white rounded-3xl p-6 md:p-8 custom-shadow border border-[#EBE6DD]">
+        <h3 class="text-xl md:text-2xl font-bold text-cozy-dark mb-4 flex items-center gap-2">
+          <span class="text-cozy-sage text-2xl">📖</span> ¿Cómo dividimos en sílabas?
+        </h3>
+        <p class="text-sm text-gray-500 mb-6">Para cortar las palabras correctamente, debemos conocer a nuestras mejores aliadas: las vocales.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <!-- Vocales Abiertas y Cerradas -->
+          <div class="bg-amber-50 rounded-2xl p-5 border border-amber-100">
+            <h4 class="font-bold text-amber-950 text-base mb-3 flex items-center gap-2">
+              <span>🗣️</span> Las Vocales Fuertes y Débiles
+            </h4>
+            <div class="space-y-3 text-sm text-gray-700">
+              <p>🎈 <strong class="text-amber-800">Abiertas (Fuertes):</strong> <strong class="text-lg text-cozy-terracotta">A - E - O</strong> (necesitas abrir bien la boca).</p>
+              <p>💧 <strong class="text-amber-800">Cerradas (Débiles):</strong> <strong class="text-lg text-cozy-blue">I - U</strong> (la boca se abre muy poquito).</p>
+            </div>
+          </div>
+
+          <!-- Diptongo vs Hiato -->
+          <div class="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
+            <h4 class="font-bold text-emerald-950 text-base mb-3 flex items-center gap-2">
+              <span>🤝</span> ¿Se unen o se separan?
+            </h4>
+            <div class="space-y-3 text-sm text-gray-700">
+              <p>🔗 <strong>Diptongo (Unión):</strong> Una fuerte + una débil juntas <span class="italic font-bold">no se separan</span>. Ej: <span class="underline">tua</span> en acen-tua-ción.</p>
+              <p>⚡ <strong>Hiato (Separación):</strong> Dos fuertes juntas <span class="italic font-bold">siempre se dividen</span>, o si la débil tiene tilde. Ej: <span class="underline">dí - a</span> en me-dí-as.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Las Reglas del Juego (A.G.E.S.) -->
+        <h3 class="text-xl md:text-2xl font-bold text-cozy-dark mb-6 flex items-center gap-2">
+          <span class="text-cozy-sage text-2xl">🌱</span> Clasificación por Acentuación
+        </h3>
+        
+        <!-- Grid de Tarjetas A.G.E.S. -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <!-- AGUDAS -->
+          <div class="bg-amber-50 hover:bg-amber-100/60 border border-amber-200 rounded-2xl p-5 transition-all duration-300">
+            <div class="w-10 h-10 bg-cozy-yellow rounded-xl flex items-center justify-center font-bold text-white text-lg mb-3">A</div>
+            <h4 class="font-bold text-cozy-dark text-lg">Agudas</h4>
+            <p class="text-xs text-amber-800 font-semibold mb-2 bg-amber-100 inline-block px-2 py-0.5 rounded-full">Última sílaba tónica</p>
+            <p class="text-sm text-gray-600 leading-relaxed mb-4">Llevan tilde si terminan en vocal o en las consonantes <strong>N</strong> o <strong>S</strong>.</p>
+            <div class="bg-white p-2 rounded-xl border border-amber-150 text-center text-xs">
+              Ejemplos: <br>
+              <button onclick="playWordRhythm('papá', ['pa', 'pá'], 1)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block">pa - <span class="text-amber-600 underline decoration-2">pá</span> 🔊</button> <br>
+              <button onclick="playWordRhythm('reloj', ['re', 'loj'], 1)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block">re - <span class="text-amber-600 underline decoration-2">loj</span> 🔊</button>
+            </div>
+          </div>
+
+          <!-- GRAVES -->
+          <div class="bg-emerald-50 hover:bg-emerald-100/60 border border-emerald-200 rounded-2xl p-5 transition-all duration-300">
+            <div class="w-10 h-10 bg-cozy-sage rounded-xl flex items-center justify-center font-bold text-white text-lg mb-3">G</div>
+            <h4 class="font-bold text-cozy-dark text-lg">Graves</h4>
+            <p class="text-xs text-emerald-800 font-semibold mb-2 bg-emerald-100 inline-block px-2 py-0.5 rounded-full">Penúltima sílaba tónica</p>
+            <p class="text-sm text-gray-600 leading-relaxed mb-4">Llevan tilde si <strong>NO</strong> terminan en vocal, ni en <strong>N</strong> o <strong>S</strong>.</p>
+            <div class="bg-white p-2 rounded-xl border border-emerald-150 text-center text-xs">
+              Ejemplos: <br>
+              <button onclick="playWordRhythm('lápiz', ['lá', 'piz'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-emerald-600 underline decoration-2">lá</span> - piz 🔊</button> <br>
+              <button onclick="playWordRhythm('papa', ['pa', 'pa'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-emerald-600 underline decoration-2">pa</span> - pa 🔊</button>
+            </div>
+          </div>
+
+          <!-- ESDRÚJULAS -->
+          <div class="bg-blue-50 hover:bg-blue-100/60 border border-blue-200 rounded-2xl p-5 transition-all duration-300">
+            <div class="w-10 h-10 bg-cozy-blue rounded-xl flex items-center justify-center font-bold text-white text-lg mb-3">E</div>
+            <h4 class="font-bold text-cozy-dark text-lg">Esdrújulas</h4>
+            <p class="text-xs text-blue-800 font-semibold mb-2 bg-blue-100 inline-block px-2 py-0.5 rounded-full">Antepenúltima sílaba</p>
+            <p class="text-sm text-gray-600 leading-relaxed mb-4"><strong>¡Siempre!</strong> llevan tilde sin importar en qué letra terminen.</p>
+            <div class="bg-white p-2 rounded-xl border border-blue-150 text-center text-xs">
+              Ejemplos: <br>
+              <button onclick="playWordRhythm('público', ['pú', 'bli', 'co'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-cozy-blue underline decoration-2">pú</span> - bli - co 🔊</button> <br>
+              <button onclick="playWordRhythm('música', ['mú', 'si', 'ca'], 0)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block"><span class="text-cozy-blue underline decoration-2">mú</span> - si - ca 🔊</button>
+            </div>
+          </div>
+
+          <!-- SOBREESDRÚJULAS -->
+          <div class="bg-purple-50 hover:bg-purple-100/60 border border-purple-200 rounded-2xl p-5 transition-all duration-300">
+            <div class="w-10 h-10 bg-cozy-purple rounded-xl flex items-center justify-center font-bold text-white text-lg mb-3">S</div>
+            <h4 class="font-bold text-cozy-dark text-lg">Sobreesdrújulas</h4>
+            <p class="text-xs text-purple-800 font-semibold mb-2 bg-purple-100 inline-block px-2 py-0.5 rounded-full">Anterior a la antepenúltima</p>
+            <p class="text-sm text-gray-600 leading-relaxed mb-4">Al igual que las esdrújulas, <strong>¡siempre!</strong> llevan tilde.</p>
+            <div class="bg-white p-2 rounded-xl border border-purple-150 text-center text-xs">
+              Ejemplo: <br>
+              <button onclick="playWordRhythm('devuélvemelo', ['de', 'vuél', 've', 'me', 'lo'], 1)" class="font-bold text-cozy-dark hover:underline mt-1 inline-block">de - <span class="text-purple-600 underline decoration-2">vuél</span> - ve - me - lo 🔊</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- El Clapeador Rítmico -->
+      <div class="bg-white rounded-3xl p-6 md:p-8 custom-shadow border border-[#EBE6DD]">
+        <div class="max-w-3xl mx-auto text-center">
+          <span class="text-4xl">👏</span>
+          <h3 class="text-xl md:text-2xl font-bold text-cozy-dark mt-3 mb-2">¡El Clapeador del Ritmo Acústico!</h3>
+          <p class="text-sm text-gray-500 mb-6">Siente de verdad las sílabas. La tónica emitirá un golpe de sonido de madera brillante (agudo) y se escuchará más fuerte, para luego oír la pronunciación real integrada.</p>
+          
+          <div class="flex flex-wrap gap-3 justify-center mb-8">
+            <button onclick="playClapPatternWithAcoustic('papa', ['pa', 'pa'], 'PAPA (tubérculo)', 0)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
+              🥔 PA-pa
+            </button>
+            <button onclick="playClapPatternWithAcoustic('papá', ['pa', 'pá'], 'PAPÁ (padre)', 1)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
+              👨 pa-PÁ
+            </button>
+            <button onclick="playClapPatternWithAcoustic('público', ['pú', 'bli', 'co'], 'PÚBLICO (gente)', 0)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
+              👥 PÚ-bli-co
+            </button>
+            <button onclick="playClapPatternWithAcoustic('publicó', ['pu', 'bli', 'có'], 'PUBLICÓ (acción)', 2)" class="px-5 py-3 bg-cozy-card hover:bg-[#E5DFD4] rounded-2xl font-bold text-cozy-dark transition-all flex items-center gap-2">
+              📖 pu-bli-CÓ
+            </button>
+          </div>
+
+          <!-- Espacio interactivo de aplauso -->
+          <div id="clapSandbox" class="hidden bg-cozy-beige rounded-2xl p-6 border-2 border-dashed border-[#E0D9CD] flex flex-col items-center justify-center min-h-[160px]">
+            <span id="clapLabel" class="text-sm text-cozy-sage font-bold tracking-wider uppercase mb-2">Demostración</span>
+            <div id="clapSyllables" class="flex items-center gap-4 text-2xl md:text-4xl font-extrabold text-cozy-dark"></div>
+            <div id="clapVisual" class="text-4xl mt-4 opacity-0 transition-all duration-100">👏</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- NUEVA SECCIÓN 2: ¡A CORTAR SÍLABAS! -->
+    <div id="content-silabas" class="hidden space-y-8">
+      <div class="bg-white rounded-3xl p-6 md:p-8 custom-shadow border border-[#EBE6DD]">
+        <div class="text-center max-w-xl mx-auto mb-8">
+          <span class="text-4xl">✂️</span>
+          <h3 class="text-xl md:text-2xl font-bold text-cozy-dark mt-2">¡Cirujano de Palabras!</h3>
+          <p class="text-sm text-gray-500 mt-1">
+            Pulsa los espacios con tijeras entre las letras para dividir la palabra en sus sílabas correctas. ¡Escucha el ritmo real de cada corte!
+          </p>
+        </div>
+
+        <!-- Panel de Juego de Cortes -->
+        <div class="max-w-3xl mx-auto bg-cozy-beige rounded-2xl p-6 border border-[#E4DED4] text-center">
+          
+          <!-- Selector de palabra del juego -->
+          <div class="flex flex-wrap gap-2 justify-center mb-6">
+            <span class="text-xs font-bold text-gray-400 self-center mr-2">Elige un reto:</span>
+            <button onclick="loadCutterWord('BOSQUE', ['BOS', 'QUE'])" class="px-3 py-1.5 bg-white hover:bg-cozy-card rounded-lg text-xs font-bold text-cozy-dark border border-gray-200">🌳 Bosque</button>
+            <button onclick="loadCutterWord('MARIPOSA', ['MA', 'RI', 'PO', 'SA'])" class="px-3 py-1.5 bg-white hover:bg-cozy-card rounded-lg text-xs font-bold text-cozy-dark border border-gray-200">🦋 Mariposa</button>
+            <button onclick="loadCutterWord('PÁJARO', ['PÁ', 'JA', 'RO'])" class="px-3 py-1.5 bg-white hover:bg-cozy-card rounded-lg text-xs font-bold text-cozy-dark border border-gray-200">🐦 Pájaro</button>
+            <button onclick="loadCutterWord('DIARIO', ['DIA', 'RIO'])" class="px-3 py-1.5 bg-white hover:bg-cozy-card rounded-lg text-xs font-bold text-cozy-dark border border-gray-200">📔 Diario</button>
+            <button onclick="loadCutterWord('POETA', ['PO', 'E', 'TA'])" class="px-3 py-1.5 bg-white hover:bg-cozy-card rounded-lg text-xs font-bold text-cozy-dark border border-gray-200">✍️ Poeta</button>
+          </div>
+
+          <!-- Tablero Interactivo de Letras -->
+          <div class="bg-white rounded-2xl p-8 border border-[#EBE6DD] mb-6 flex flex-wrap items-center justify-center gap-y-6">
+            <div id="cutterContainer" class="flex items-center justify-center flex-wrap gap-x-1 gap-y-4">
+              <!-- Letras y botones de corte generados dinámicamente -->
+            </div>
+          </div>
+
+          <!-- Controles del juego de corte -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <button onclick="resetCutter()" class="text-xs text-gray-500 hover:text-cozy-dark underline font-bold">
+              Limpiar cortes 🧼
+            </button>
+            
+            <div class="flex gap-2">
+              <button onclick="hearCutterCurrentWord()" class="px-4 py-2 bg-cozy-blue hover:bg-[#7D98A7] text-white font-bold rounded-xl text-sm flex items-center gap-1.5">
+                <i data-lucide="volume-2" class="w-4 h-4"></i> Escuchar ritmo
+              </button>
+              <button onclick="verifyCuts()" class="px-6 py-2.5 bg-cozy-sage hover:bg-cozy-sagedark text-white font-extrabold rounded-xl text-sm">
+                ✂️ ¡Verificar cortes!
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Buscador de Silabeo Inteligente -->
+        <div class="max-w-3xl mx-auto mt-8 border-t border-[#F1EDE4] pt-6">
+          <h4 class="font-bold text-cozy-dark text-base mb-2 text-center flex items-center justify-center gap-2">
+            <span>🔬</span> ¡El Laboratorio de Sílabas!
+          </h4>
+          <p class="text-xs text-gray-500 text-center mb-4">Escribe cualquier palabra para ver cómo se divide y escuchar su pronunciación dinámica.</p>
+          
+          <div class="flex max-w-md mx-auto gap-2">
+            <input type="text" id="customWordInput" placeholder="Ej. helicóptero..." class="flex-1 px-4 py-3 bg-white rounded-xl border-2 border-[#EBE6DD] focus:border-cozy-sage focus:outline-none font-bold text-sm">
+            <button onclick="analyzeCustomWord()" class="px-5 py-3 bg-cozy-yellow hover:bg-[#DCB67B] text-cozy-dark font-bold rounded-xl text-sm">
+              Analizar
+            </button>
+          </div>
+
+          <div id="analysisResult" class="hidden max-w-md mx-auto mt-4 bg-cozy-card bg-opacity-40 border border-[#E2DBD0] p-4 rounded-xl text-center">
+            <span class="text-xs font-bold text-gray-400 block mb-1">Resultado de la máquina silábica:</span>
+            <div id="resultSyllables" class="text-2xl font-black text-cozy-dark tracking-wide mb-2"></div>
+            <button id="btnHearResult" class="mx-auto px-4 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-xs font-bold text-cozy-dark rounded-lg flex items-center gap-1.5 justify-center">
+              <i data-lucide="volume-2" class="w-3.5 h-3.5 text-cozy-sage"></i> Escuchar pronunciación real
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: EL RETO DE LA TABLA (RETO PRINCIPAL) -->
+    <div id="content-reto" class="hidden space-y-8">
+      
+      <div class="bg-white rounded-3xl p-6 md:p-8 custom-shadow border border-[#EBE6DD]">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4 border-b border-[#F1EDE4] pb-6">
+          <div>
+            <h3 class="text-xl md:text-2xl font-bold text-cozy-dark flex items-center gap-2">
+              📝 Tu Misión: Completa la Tabla
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">
+              Analiza la palabra en negrita de cada oración (basada en la imagen <strong class="text-cozy-clay">image_7a6f5d.png</strong>). Escribe su sílaba tónica y selecciona su clasificación adecuada.
+            </p>
+          </div>
+          <div class="w-full md:w-auto flex flex-col items-end gap-1">
+            <span class="text-xs font-bold text-cozy-sage">Progreso del reto:</span>
+            <div class="w-full md:w-56 bg-cozy-card rounded-full h-3 overflow-hidden border border-[#E2DBD0]">
+              <div id="tableProgressBar" class="bg-cozy-sage h-full w-0 transition-all duration-500"></div>
+            </div>
+            <span id="progressText" class="text-xs font-bold text-gray-500">0% (0 de 11 completados)</span>
+          </div>
+        </div>
+
+        <!-- Alerta de guía móvil -->
+        <div class="block lg:hidden bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-xl text-xs mb-4">
+          💡 <strong>Tip para móviles:</strong> Desliza la tabla horizontalmente para ver todas las columnas o resolverlas con calma.
+        </div>
+
+        <!-- Tabla Interactiva -->
+        <div class="overflow-x-auto rounded-2xl border border-[#E9E2D5]">
+          <table class="w-full text-left border-collapse min-w-[750px]">
+            <thead>
+              <tr class="bg-cozy-blue bg-opacity-30 border-b border-[#DCD6C9]">
+                <th class="p-4 font-bold text-cozy-dark text-sm md:text-base w-[35%]">Oración con palabra clave</th>
+                <th class="p-4 font-bold text-cozy-dark text-sm md:text-base w-[20%] text-center">Sílaba Tónica</th>
+                <th class="p-4 font-bold text-cozy-dark text-sm md:text-base w-[35%] text-center">Clasificación (Selecciona una)</th>
+                <th class="p-4 font-bold text-cozy-dark text-sm md:text-base w-[10%] text-center">Ayuda / Estado</th>
+              </tr>
+            </thead>
+            <tbody id="interactiveTableBody" class="divide-y divide-[#EBE6DD]">
+              <!-- Las filas se generarán con JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Botón de Verificación Final -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-[#F1EDE4]">
+          <button onclick="resetTable()" class="px-5 py-3 border border-gray-300 hover:bg-gray-100 rounded-xl font-bold text-sm text-gray-600 transition-all">
+            Reiniciar Tabla
+          </button>
+          
+          <div class="flex gap-2">
+            <button onclick="showUnfinishedAlert()" id="unfinishedBtn" class="hidden px-6 py-3 bg-amber-100 text-amber-800 rounded-xl font-bold text-sm">
+              ¡Aún te faltan casillas! 🧩
+            </button>
+            <button onclick="checkAllTableAnswers()" class="px-8 py-4 bg-cozy-sage hover:bg-cozy-sagedark text-white font-extrabold rounded-2xl shadow-md transform hover:-translate-y-0.5 transition-all text-base">
+              ¡Revisar mi Tabla! 🌟
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- SECCIÓN 4: MINIJUEGO INTERACTIVO (CLASIFICADOR VELOZ) -->
+    <div id="content-juego" class="hidden space-y-8">
+      
+      <div class="bg-white rounded-3xl p-6 md:p-8 custom-shadow border border-[#EBE6DD] max-w-4xl mx-auto">
+        <div class="text-center max-w-xl mx-auto mb-8">
+          <span class="text-4xl">🏹</span>
+          <h3 class="text-xl md:text-2xl font-bold text-cozy-dark mt-2">¡El Clasificador Veloz!</h3>
+          <p class="text-sm text-gray-500 mt-1">
+            Ayuda a colocar cada palabra misteriosa en su nido de hojas correspondiente. ¡Gana 5 estrellas extras por racha perfecta!
+          </p>
+        </div>
+
+        <!-- Panel de control del juego -->
+        <div class="flex items-center justify-between bg-cozy-card rounded-2xl p-4 mb-6">
+          <div class="text-sm font-bold text-cozy-dark">
+            Racha: <span id="gameStreak" class="text-cozy-terracotta text-lg">0</span> 🔥
+          </div>
+          <div class="text-sm font-bold text-cozy-dark">
+            Puntuación: <span id="gameScore" class="text-cozy-sage text-lg">0</span> / 10
+          </div>
+          <button onclick="restartGame()" class="text-xs bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-lg font-semibold text-gray-600 transition-all">
+            Reiniciar Juego
+          </button>
+        </div>
+
+        <!-- Espacio de la carta actual -->
+        <div class="flex flex-col items-center justify-center min-h-[220px] bg-cozy-beige rounded-2xl border-2 border-dashed border-[#DFD9CD] p-6 mb-8 relative">
+          
+          <div id="gameCard" class="bg-white px-8 py-6 rounded-2xl shadow-md border border-[#E9E2D5] text-center max-w-sm w-full transform hover:scale-102 transition-all cursor-pointer" onclick="speakGameWord()">
+            <span class="text-xs text-gray-400 font-bold uppercase tracking-wider block mb-1">Palabra Misteriosa (Toca para oír 🔊)</span>
+            <h2 id="currentWord" class="text-3xl font-black text-cozy-dark tracking-wide mb-2">-</h2>
+            <div class="text-sm text-cozy-sage font-medium mt-1">
+              Separación: <span id="currentWordSyl" class="italic font-bold">-</span>
+            </div>
+          </div>
+
+          <!-- Mensaje flotante de feedback -->
+          <div id="gameFeedback" class="hidden absolute inset-0 rounded-2xl flex flex-col items-center justify-center p-6 text-center z-10">
+            <span id="gameFeedbackIcon" class="text-4xl mb-2">⭐</span>
+            <p id="gameFeedbackText" class="font-bold text-lg text-cozy-dark"></p>
+          </div>
+
+        </div>
+
+        <!-- Los 4 Nidos / Opciones de clasificación -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button onclick="submitGameAnswer('aguda')" class="group flex flex-col items-center justify-center p-4 bg-amber-50 hover:bg-amber-100/70 border border-amber-200 rounded-2xl transition-all duration-200">
+            <span class="text-3xl mb-1 group-hover:scale-110 transition-transform">🍁</span>
+            <span class="font-extrabold text-cozy-dark">Agudas</span>
+            <span class="text-[10px] text-amber-700 font-medium">Última tónica</span>
+          </button>
+
+          <button onclick="submitGameAnswer('grave')" class="group flex flex-col items-center justify-center p-4 bg-emerald-50 hover:bg-emerald-100/70 border border-emerald-200 rounded-2xl transition-all duration-200">
+            <span class="text-3xl mb-1 group-hover:scale-110 transition-transform">🍃</span>
+            <span class="font-extrabold text-cozy-dark">Graves</span>
+            <span class="text-[10px] text-emerald-700 font-medium">Penúltima tónica</span>
+          </button>
+
+          <button onclick="submitGameAnswer('esdrújula')" class="group flex flex-col items-center justify-center p-4 bg-blue-50 hover:bg-blue-100/70 border border-blue-200 rounded-2xl transition-all duration-200">
+            <span class="text-3xl mb-1 group-hover:scale-110 transition-transform">🍄</span>
+            <span class="font-extrabold text-cozy-dark">Esdrújulas</span>
+            <span class="text-[10px] text-blue-700 font-medium">Antepenúltima</span>
+          </button>
+
+          <button onclick="submitGameAnswer('sobreesdrújula')" class="group flex flex-col items-center justify-center p-4 bg-purple-50 hover:bg-purple-100/70 border border-purple-200 rounded-2xl transition-all duration-200">
+            <span class="text-3xl mb-1 group-hover:scale-110 transition-transform">🌾</span>
+            <span class="font-extrabold text-cozy-dark">Sobreesdrújula</span>
+            <span class="text-[10px] text-purple-700 font-medium">Anterior antepenúltima</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Modal de Éxito al completar todo -->
+  <div id="congratsModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-cozy-sage text-center transform scale-95 transition-all duration-300">
+      <span class="text-6xl block mb-4">🏆</span>
+      <h3 class="text-2xl font-black text-cozy-dark mb-2">¡Eres el Guardián de la Acentuación!</h3>
+      <p class="text-gray-500 text-sm mb-6">
+        Has completado el reto de la imagen <strong class="text-cozy-clay">image_7a6f5d.png</strong> con éxito. Quill el Búho está extremadamente orgulloso de tu agudeza auditiva.
+      </p>
+      
+      <div class="bg-cozy-beige p-4 rounded-2xl mb-6">
+        <span class="text-xs text-gray-400 font-semibold block uppercase">Premio de Oro</span>
+        <span class="text-lg font-bold text-cozy-dark">Medalla del Bosque Silábico 🥇</span>
+        <div class="flex justify-center gap-1 mt-2">
+          <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
+        </div>
+      </div>
+
+      <button onclick="closeCongrats()" class="w-full py-3 bg-cozy-sage hover:bg-cozy-sagedark text-white font-bold rounded-xl transition-all">
+        ¡Súper, gracias! Let's Go!
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let isSoundOn = true;
+    let starCount = 0;
+    let audioCtx = null;
+    let spanishVoice = null;
+
+    // Inicializar Web Audio API y Voz del Dispositivo
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Cargar voces en español nativas de alta fidelidad para la pronunciación final
+    function loadSpanishVoices() {
+      if ('speechSynthesis' in window) {
+        const voices = window.speechSynthesis.getVoices();
+        spanishVoice = voices.find(v => v.lang === 'es-ES' && v.name.includes('Google')) ||
+                       voices.find(v => v.lang === 'es-MX' && v.name.includes('Google')) ||
+                       voices.find(v => v.lang === 'es-ES') ||
+                       voices.find(v => v.lang.startsWith('es')) ||
+                       null;
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = loadSpanishVoices;
+      loadSpanishVoices();
+    }
+
+    // Sintetizar tonos de madera orgánicos (Chime para tónica, madera apagada para átona)
+    function playOrganicBeep(pitch, duration, type = 'sine') {
+      if (!isSoundOn) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        osc.type = type;
+        osc.frequency.setValueAtTime(pitch, ctx.currentTime);
+        
+        // Envolvente suave y percusiva (ataque rápido, decaimiento exponencial)
+        gainNode.gain.setValueAtTime(0.25, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {
+        console.log("Audio contextual no habilitado por el navegador o desactivado", e);
+      }
+    }
+
+    // NUEVO MOTOR DE AUDIO HÍBRIDO (SIN DELETREOS)
+    // 1. Reproduce los golpes de madera rítmicos para cada sílaba.
+    // 2. Al terminar la percusión, pronuncia la PALABRA COMPLETA de forma natural y fluida.
+    function playWordRhythm(word, syllablesArray, tonicIndex) {
+      if (!isSoundOn) return;
+      
+      // Detener cualquier audio previo
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+
+      let delay = 0;
+      const beatInterval = 400; // milisegundos por sílaba
+
+      // Tocar los golpes rítmicos percusivos
+      syllablesArray.forEach((syl, index) => {
+        setTimeout(() => {
+          if (index === tonicIndex) {
+            // Golpe brillante, agudo y fuerte para la sílaba tónica
+            playOrganicBeep(480, 0.3, 'sine');
+          } else {
+            // Golpe suave, bajo y seco para las sílabas átonas
+            playOrganicBeep(220, 0.15, 'triangle');
+          }
+        }, delay);
+        delay += beatInterval;
+      });
+
+      // Al final de la secuencia rítmica, se pronuncia la palabra completa de manera natural
+      setTimeout(() => {
+        speakWord(word);
+      }, delay + 100);
+    }
+
+    // Pronunciar texto general (Ej. Consejos del búho)
+    function speakText(text) {
+      if (!isSoundOn) return;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        if (spanishVoice) utterance.voice = spanishVoice;
+        utterance.lang = 'es-ES';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.05;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    // Pronunciación perfecta y fluida de la palabra entera
+    function speakWord(word) {
+      if (!isSoundOn) return;
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        if (spanishVoice) utterance.voice = spanishVoice;
+        utterance.lang = 'es-ES';
+        utterance.rate = 0.85;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    // Datos originales de la tabla (Sincronizado al 100% con la imagen provista "image_7a6f5d.png")
+    const TABLE_DATA = [
+      {
+        id: 1,
+        sentence: "<strong>Cambio</strong> el agua del florero cada tres días.",
+        word: "Cambio",
+        accentedWord: "Cambio",
+        correctTonic: "Cam",
+        correctClass: "grave",
+        isExample: true
+      },
+      {
+        id: 2,
+        sentence: "La pandemia <strong>cambió</strong> mis hábitos higiénicos.",
+        word: "cambió",
+        accentedWord: "cambió",
+        correctTonic: "bió",
+        correctClass: "aguda",
+        isExample: false,
+        hint: "cam-bió (lleva tilde en la última sílaba porque es aguda terminada en vocal)."
+      },
+      {
+        id: 3,
+        sentence: "El <strong>público</strong> estuvo atento al discurso.",
+        word: "público",
+        accentedWord: "público",
+        correctTonic: "pú",
+        correctClass: "esdrújula",
+        isExample: false,
+        hint: "pú-bli-co (lleva tilde porque la fuerza está en la antepenúltima sílaba)."
+      },
+      {
+        id: 4,
+        sentence: "Mi amigo <strong>publicó</strong> su libro hoy.",
+        word: "publicó",
+        accentedWord: "publicó",
+        correctTonic: "có",
+        correctClass: "aguda",
+        isExample: false,
+        hint: "pu-bli-có (lleva tilde porque la fuerza de voz está en la última sílaba)."
+      },
+      {
+        id: 5,
+        sentence: "Las <strong>medias</strong> de fútbol están mojadas.",
+        word: "medias",
+        accentedWord: "medias",
+        correctTonic: "me",
+        correctClass: "grave",
+        isExample: false,
+        hint: "me-dias (la fuerza está en la penúltima sílaba 'me', no lleva tilde porque termina en 's')."
+      },
+      {
+        id: 6,
+        sentence: "Tú <strong>medías</strong> 20 pulgadas cuando naciste.",
+        word: "medías",
+        accentedWord: "medías",
+        correctTonic: "dí",
+        correctClass: "grave",
+        isExample: false,
+        hint: "me-dí-as (hay un hiato que separa la 'í' de la 'a', la sílaba más fuerte es 'dí')."
+      },
+      {
+        id: 7,
+        sentence: "La <strong>papa</strong> es muy sabrosa.",
+        word: "papa",
+        accentedWord: "papa",
+        correctTonic: "pa",
+        correctClass: "grave",
+        isExample: false,
+        hint: "pa-pa (planta/tubérculo. La fuerza está en la penúltima 'pa')."
+      },
+      {
+        id: 8,
+        sentence: "Mi <strong>papá</strong> tiene dos hermanas mayores.",
+        word: "papá",
+        accentedWord: "papá",
+        correctTonic: "pá",
+        correctClass: "aguda",
+        isExample: false,
+        hint: "pa-pá (padre. La fuerza está en la última 'pá', lleva tilde al terminar en vocal)."
+      },
+      {
+        id: 9,
+        sentence: "<strong>Esta</strong> semana iremos de compras.",
+        word: "Esta",
+        accentedWord: "Esta",
+        correctTonic: "Es",
+        correctClass: "grave",
+        isExample: false,
+        hint: "Es-ta (la fuerza está en la penúltima sílaba 'Es')."
+      },
+      {
+        id: 10,
+        sentence: "Tu temperatura corporal <strong>está</strong> alta.",
+        word: "está",
+        accentedWord: "está",
+        correctTonic: "tá",
+        correctClass: "aguda",
+        isExample: false,
+        hint: "es-tá (la fuerza está al final 'tá', por eso lleva tilde al ser aguda terminada en vocal)."
+      },
+      {
+        id: 11,
+        sentence: "Lázaro compró un terreno <strong>rústico</strong>.",
+        word: "rústico",
+        accentedWord: "rústico",
+        correctTonic: "rús",
+        correctClass: "esdrújula",
+        isExample: false,
+        hint: "rús-ti-co (la fuerza de voz está en la antepenúltima 'rús')."
+      },
+      {
+        id: 12,
+        sentence: "Ese lápiz es mío, <strong>devuélvemelo</strong>.",
+        word: "devuélvemelo",
+        accentedWord: "devuélvemelo",
+        correctTonic: "vuél",
+        correctClass: "sobreesdrújula",
+        isExample: false,
+        hint: "de-vuél-ve-me-lo (la fuerza está antes de la antepenúltima sílaba: 'vuél')."
+      }
+    ];
+
+    // Datos del minijuego de clasificación
+    const GAME_WORDS_POOL = [
+      { word: "sofá", syl: "so-fá", tonic: "fá", cat: "aguda", tip: "Lleva el acento en la última sílaba y termina en vocal." },
+      { word: "árbol", syl: "ár-bol", tonic: "ár", cat: "grave", tip: "Lleva acento en la penúltima sílaba y termina en una consonante que no es n ni s." },
+      { word: "música", syl: "mú-si-ca", tonic: "mú", cat: "esdrújula", tip: "¡Todas las esdrújulas llevan tilde en la antepenúltima!" },
+      { word: "canción", syl: "can-ción", tonic: "ción", cat: "aguda", tip: "Termina en 'n' y tiene su fuerza en la última sílaba." },
+      { word: "lápiz", syl: "lá-piz", tonic: "lá", cat: "grave", tip: "La penúltima sílaba es la fuerte y termina en 'z'." },
+      { word: "brújula", syl: "brú-ju-la", tonic: "brú", cat: "esdrújula", tip: "La fuerza está en la antepenúltima sílaba." },
+      { word: "cántamelo", syl: "cán-ta-me-lo", tonic: "cán", cat: "sobreesdrújula", tip: "Acento antes de la antepenúltima." },
+      { word: "reloj", syl: "re-loj", tonic: "loj", cat: "aguda", tip: "Suena fuerte al final pero no lleva tilde porque no termina en n, s o vocal." },
+      { word: "azúcar", syl: "a-zú-car", tonic: "zú", cat: "grave", tip: "Penúltima sílaba fuerte." },
+      { word: "escríbeselo", syl: "es-crí-be-se-lo", tonic: "crí", cat: "sobreesdrújula", tip: "Una palabra compuesta con acento muy lejano al final." }
+    ];
+
+    let gameIndex = 0;
+    let gameScore = 0;
+    let gameStreak = 0;
+    let shuffledGameWords = [];
+
+    // Respuestas que el usuario va ingresando en la tabla
+    let userTableState = {};
+
+    // --- LÓGICA DEL JUEGO DE CORTE DE SÍLABAS (CIERRA TUS SÍLABAS) ---
+    let currentCutterWord = "BOSQUE";
+    let currentCutterSyllables = ["BOS", "QUE"];
+    let activeCuts = []; // Índices donde el usuario decidió cortar
+
+    window.onload = function() {
+      lucide.createIcons();
+      initTable();
+      updateStarCounter();
+      shuffleGame();
+      loadCutterWord('BOSQUE', ['BOS', 'QUE']);
+      
+      changeTutorMessage("¡Qué emoción tenerte aquí! Elige cualquiera de las pestañas de arriba para comenzar tu viaje por el bosque de las palabras.");
+    };
+
+    // Alternar Sonido
+    function toggleAudio() {
+      isSoundOn = !isSoundOn;
+      const icon = document.getElementById('audioIcon');
+      const status = document.getElementById('audioStatus');
+      if (isSoundOn) {
+        icon.setAttribute('data-lucide', 'volume-2');
+        status.innerText = 'Sonido: Activo';
+        changeTutorMessage("¡Sonido activado! Ahora podrás oír la acentuación silábica acústica.");
+      } else {
+        icon.setAttribute('data-lucide', 'volume-x');
+        status.innerText = 'Sonido: Silenciado';
+      }
+      lucide.createIcons();
+    }
+
+    // Actualizar Estrellas
+    function addStars(num) {
+      starCount += num;
+      updateStarCounter();
+    }
+
+    function updateStarCounter() {
+      document.getElementById('starCounter').innerText = starCount;
+    }
+
+    // Cambiar mensaje pedagógico de Quill el Búho
+    function changeTutorMessage(text) {
+      document.getElementById('tutorText').innerText = text;
+    }
+
+    // Control de Navegación de Pestañas
+    function switchTab(tabId) {
+      document.getElementById('content-teoria').classList.add('hidden');
+      document.getElementById('content-silabas').classList.add('hidden');
+      document.getElementById('content-reto').classList.add('hidden');
+      document.getElementById('content-juego').classList.add('hidden');
+      
+      document.getElementById('tab-teoria').className = "flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 text-cozy-dark hover:bg-white hover:bg-opacity-50";
+      document.getElementById('tab-silabas').className = "flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 text-cozy-dark hover:bg-white hover:bg-opacity-50";
+      document.getElementById('tab-reto').className = "flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 text-cozy-dark hover:bg-white hover:bg-opacity-50";
+      document.getElementById('tab-juego').className = "flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 text-cozy-dark hover:bg-white hover:bg-opacity-50";
+      
+      document.getElementById(`content-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).className = "flex-1 min-w-[140px] py-3 px-4 rounded-xl font-bold text-xs md:text-sm transition-all duration-200 flex items-center justify-center gap-2 tab-active shadow-sm";
+
+      if (tabId === 'teoria') {
+        changeTutorMessage("¡Excelente! En esta sección puedes estudiar las diferencias entre agudas, graves, esdrújulas y sobreesdrújulas.");
+      } else if (tabId === 'silabas') {
+        changeTutorMessage("¡Corta las palabras! Usa las tijeras para separar las letras en sílabas. ¡Pulsa el botón de escuchar para oír el ritmo acústico de las sílabas!");
+      } else if (tabId === 'reto') {
+        changeTutorMessage("Aquí está el gran reto de la imagen. Completa la tabla de sílabas tónicas y clasificaciones. ¡Fíjate bien en la palabra en negrita!");
+        calculateProgress();
+      } else if (tabId === 'juego') {
+        changeTutorMessage("¡Clasificador Veloz! Elige el nido correcto para la palabra de la tarjeta y acumula una racha increíble.");
+        restartGame();
+      }
+    }
+
+    // --- SECCIÓN 1: LÓGICA DE APLAUDIR CON RITMO ACOPLADO ---
+    function playClapPatternWithAcoustic(wordStr, syllablesArray, description, tonicIndex) {
+      const container = document.getElementById('clapSyllables');
+      const sandbox = document.getElementById('clapSandbox');
+      const visual = document.getElementById('clapVisual');
+      
+      sandbox.classList.remove('hidden');
+      container.innerHTML = '';
+      
+      document.getElementById('clapLabel').innerText = description;
+      
+      syllablesArray.forEach((syl, i) => {
+        const isTonic = i === tonicIndex;
+        const sylSpan = document.createElement('span');
+        sylSpan.id = `syl-block-${i}`;
+        sylSpan.className = `px-4 py-2 rounded-xl transition-all duration-200 border ${
+          isTonic 
+            ? 'bg-cozy-yellow bg-opacity-20 border-cozy-yellow text-cozy-dark scale-105 font-bold' 
+            : 'bg-white border-gray-200 text-gray-400'
+        }`;
+        sylSpan.innerHTML = `${syl}${isTonic ? ' 🌟' : ''}`;
+        container.appendChild(sylSpan);
+      });
+
+      // Secuencia de animación de aplausos acoplada con golpes acústicos
+      let step = 0;
+      const beatInterval = 400;
+
+      // Reproducir audio sin sílabas deletreadas
+      playWordRhythm(wordStr, syllablesArray, tonicIndex);
+
+      function runStep() {
+        if (step >= syllablesArray.length) {
+          visual.className = "text-4xl mt-4 opacity-0 transition-all duration-200";
+          return;
+        }
+
+        syllablesArray.forEach((_, i) => {
+          const block = document.getElementById(`syl-block-${i}`);
+          if (block) block.classList.remove('ring-4', 'ring-cozy-yellow');
+        });
+
+        const activeBlock = document.getElementById(`syl-block-${step}`);
+        const isTonic = step === tonicIndex;
+
+        if (activeBlock) activeBlock.classList.add('ring-4', 'ring-cozy-yellow');
+
+        if (isTonic) {
+          visual.innerText = "👏 ¡APLAUSO FUERTE! 👏";
+          visual.className = "text-4xl mt-4 opacity-100 clap-active text-cozy-terracotta font-black";
+        } else {
+          visual.innerText = "👏 (suave)";
+          visual.className = "text-3xl mt-4 opacity-50 text-gray-400 font-semibold";
+        }
+
+        step++;
+        setTimeout(runStep, beatInterval);
+      }
+
+      runStep();
+    }
+
+    // --- SECCIÓN 2: LÓGICA DE JUEGO DE CORTAR PALABRAS ---
+    function loadCutterWord(word, correctSyllables) {
+      currentCutterWord = word;
+      currentCutterSyllables = correctSyllables;
+      activeCuts = [];
+      renderCutterBoard();
+      changeTutorMessage(`Modo Cirujano: Corta la palabra "${word}". Haz clic en los espacios punteados para colocar un separador.`);
+    }
+
+    function renderCutterBoard() {
+      const container = document.getElementById('cutterContainer');
+      container.innerHTML = '';
+
+      for (let i = 0; i < currentCutterWord.length; i++) {
+        // Render letra
+        const letterBox = document.createElement('div');
+        letterBox.className = "w-12 h-12 md:w-14 md:h-14 bg-cozy-card border-2 border-[#DCD6C9] rounded-xl flex items-center justify-center text-xl md:text-2xl font-black text-cozy-dark shadow-sm";
+        letterBox.innerText = currentCutterWord[i];
+        container.appendChild(letterBox);
+
+        // Render espacio de corte (si no es la última letra)
+        if (i < currentCutterWord.length - 1) {
+          const cutIndex = i; // Índice del corte potencial despues de la letra actual
+          const isCutActive = activeCuts.includes(cutIndex);
+
+          const cutButton = document.createElement('button');
+          cutButton.onclick = () => toggleCut(cutIndex);
+          
+          if (isCutActive) {
+            cutButton.className = "px-1.5 md:px-2 py-6 bg-cozy-terracotta rounded-md text-white font-extrabold mx-1 relative z-10 transition-all shadow-inner scale-y-110";
+            cutButton.innerHTML = `<span class="text-xs">|</span>`;
+          } else {
+            cutButton.className = "scissor-btn px-2 md:px-3 py-6 bg-transparent border-2 border-dashed border-gray-300 hover:border-cozy-sage hover:bg-cozy-sage hover:bg-opacity-10 rounded-md mx-1 text-gray-400 hover:text-cozy-sage transition-all relative";
+            cutButton.innerHTML = `<i data-lucide="scissors" class="w-3.5 h-3.5 transition-transform"></i>`;
+          }
+          container.appendChild(cutButton);
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function toggleCut(index) {
+      const pos = activeCuts.indexOf(index);
+      if (pos > -1) {
+        activeCuts.splice(pos, 1);
+        playOrganicBeep(300, 0.08, 'triangle'); // Sonido de desacople
+      } else {
+        activeCuts.push(index);
+        activeCuts.sort((a, b) => a - b);
+        playOrganicBeep(450, 0.12, 'sine'); // Sonido de tijera acoplando
+      }
+      renderCutterBoard();
+    }
+
+    function resetCutter() {
+      activeCuts = [];
+      renderCutterBoard();
+    }
+
+    // Escuchar cómo se escucha con los cortes actuales del usuario
+    function hearCutterCurrentWord() {
+      const userSyllables = getUserCutterSyllables();
+      // Usar el reproductor rítmico integrado
+      playWordRhythm(currentCutterWord, userSyllables, userSyllables.length - 1);
+    }
+
+    // Obtener las sílabas construidas por los cortes del usuario
+    function getUserCutterSyllables() {
+      let syllables = [];
+      let currentSyl = "";
+
+      for (let i = 0; i < currentCutterWord.length; i++) {
+        currentSyl += currentCutterWord[i];
+        if (activeCuts.includes(i) || i === currentCutterWord.length - 1) {
+          syllables.push(currentSyl);
+          currentSyl = "";
+        }
+      }
+      return syllables;
+    }
+
+    // Verificar si las sílabas cortadas coinciden exactamente con la solución
+    function verifyCuts() {
+      const userSyls = getUserCutterSyllables();
+      const isCorrect = JSON.stringify(userSyls.map(s => s.toUpperCase())) === JSON.stringify(currentCutterSyllables.map(s => s.toUpperCase()));
+
+      if (isCorrect) {
+        addStars(5);
+        triggerConfetti();
+        changeTutorMessage(`¡Excelente cirujano! Has cortado la palabra correctamente: ${userSyls.join(' - ')}. ¡Ganaste 5 estrellas! 🦉🌟`);
+        playWordRhythm(currentCutterWord, userSyls, userSyls.length - 1);
+      } else {
+        changeTutorMessage(`¡Uh, casi! Tu separación actual es [${userSyls.join(' - ')}]. Revisa las reglas de hiato/diptongo y reajusta las tijeras.`);
+        playOrganicBeep(180, 0.3, 'sawtooth');
+      }
+    }
+
+    // Algoritmo de silabeo en español para el Laboratorio de Sílabas
+    function splitSpanishSyllables(word) {
+      const vowels = "aeiouáéóíúüAEIOUÁÉÓÍÚÜ";
+      const strongVowels = "aeoáéóAEOÁÉÓ";
+      const weakVowels = "iouíúüIOUÍÚÜ";
+      const accentedWeak = "íúÍÚ";
+
+      word = word.trim();
+      if (!word) return [];
+
+      // Diccionario de fallbacks para palabras comunes de nuestra app y asegurar precisión
+      const dictionary = {
+        "cambio": ["cam", "bio"],
+        "cambió": ["cam", "bió"],
+        "público": ["pú", "bli", "co"],
+        "publicó": ["pu", "bli", "có"],
+        "medias": ["me", "dias"],
+        "medías": ["me", "dí", "as"],
+        "papa": ["pa", "pa"],
+        "papá": ["pa", "pá"],
+        "esta": ["es", "ta"],
+        "está": ["es", "tá"],
+        "rústico": ["rús", "ti", "co"],
+        "devuélvemelo": ["de", "vuél", "ve", "me", "lo"],
+        "helicóptero": ["he", "li", "cóp", "te", "ro"],
+        "árbol": ["ár", "bol"],
+        "música": ["mú", "si", "ca"],
+        "diario": ["dia", "rio"],
+        "poeta": ["po", "e", "ta"]
+      };
+
+      const wordLower = word.toLowerCase();
+      if (dictionary[wordLower]) {
+        return dictionary[wordLower];
+      }
+
+      // Reglas procedimentales de apoyo
+      let syllables = [];
+      let i = 0;
+      let len = word.length;
+      let currentSyllable = "";
+
+      while (i < len) {
+        currentSyllable += word[i];
+        
+        let isNextVowel = (i + 1 < len) && vowels.includes(word[i + 1]);
+        let isCurrentVowel = vowels.includes(word[i]);
+
+        if (isCurrentVowel && !isNextVowel && i + 1 < len) {
+          let isGroup = false;
+          if (i + 2 < len) {
+            let pair = (word[i + 1] + word[i + 2]).toLowerCase();
+            if (["cl", "cr", "pl", "pr", "bl", "br", "dr", "tr", "fl", "fr", "gl", "gr", "ch", "ll", "rr"].includes(pair)) {
+              isGroup = true;
+            }
+          }
+
+          if (isGroup) {
+            syllables.push(currentSyllable);
+            currentSyllable = "";
+          } else {
+            if (i + 2 < len && vowels.includes(word[i+2])) {
+              syllables.push(currentSyllable);
+              currentSyllable = "";
+            } else if (i + 1 < len && !vowels.includes(word[i+1]) && (i + 2 < len && !vowels.includes(word[i+2]))) {
+              currentSyllable += word[i+1];
+              syllables.push(currentSyllable);
+              currentSyllable = "";
+              i++;
+            }
+          }
+        }
+        
+        if (isCurrentVowel && isNextVowel && i + 1 < len) {
+          let v1 = word[i];
+          let v2 = word[i + 1];
+          if (strongVowels.includes(v1) && strongVowels.includes(v2)) {
+            syllables.push(currentSyllable);
+            currentSyllable = "";
+          } else if (accentedWeak.includes(v1) || accentedWeak.includes(v2)) {
+            syllables.push(currentSyllable);
+            currentSyllable = "";
+          }
+        }
+
+        i++;
+      }
+
+      if (currentSyllable) {
+        syllables.push(currentSyllable);
+      }
+
+      return syllables.filter(s => s.length > 0);
+    }
+
+    // Analizador de palabras del usuario en el laboratorio
+    function analyzeCustomWord() {
+      const input = document.getElementById('customWordInput').value.trim();
+      if (!input) return;
+
+      const syllables = splitSpanishSyllables(input);
+      const resultBox = document.getElementById('analysisResult');
+      const resultText = document.getElementById('resultSyllables');
+
+      resultBox.classList.remove('hidden');
+      resultText.innerText = syllables.join(' - ');
+
+      let tonicIndex = findTonicHeuristic(syllables);
+
+      const btnHear = document.getElementById('btnHearResult');
+      btnHear.onclick = () => {
+        playWordRhythm(input, syllables, tonicIndex);
+      };
+
+      // Auto reproducir ritmo y palabra
+      playWordRhythm(input, syllables, tonicIndex);
+    }
+
+    // Heurística simple para encontrar la tónica
+    function findTonicHeuristic(syllables) {
+      const accents = "áéóíúÁÉÓÍÚ";
+      for (let i = 0; i < syllables.length; i++) {
+        for (let char of syllables[i]) {
+          if (accents.includes(char)) return i;
+        }
+      }
+
+      const lastSyl = syllables[syllables.length - 1].toLowerCase();
+      const lastChar = lastSyl[lastSyl.length - 1];
+      if (syllables.length > 1) {
+        if ("aeiouäns".includes(lastChar)) {
+          return syllables.length - 2; // Penúltima
+        }
+      }
+
+      return syllables.length - 1; // Última
+    }
+
+
+    // --- SECCIÓN 3: LÓGICA DE LA TABLA RETO ---
+    function initTable() {
+      const tbody = document.getElementById('interactiveTableBody');
+      tbody.innerHTML = '';
+
+      TABLE_DATA.forEach((row) => {
+        if (!userTableState[row.id]) {
+          if (row.isExample) {
+            userTableState[row.id] = {
+              tonic: row.correctTonic,
+              selectedClass: row.correctClass,
+              checked: true,
+              correct: true
+            };
+          } else {
+            userTableState[row.id] = {
+              tonic: '',
+              selectedClass: '',
+              checked: false,
+              correct: false
+            };
+          }
+        }
+
+        const state = userTableState[row.id];
+        const tr = document.createElement('tr');
+        tr.id = `table-row-${row.id}`;
+        tr.className = `transition-all duration-200 ${row.isExample ? 'bg-[#F9F7F2]' : 'hover:bg-gray-50'}`;
+
+        const tdSentence = document.createElement('td');
+        tdSentence.className = "p-4 text-sm md:text-base text-cozy-dark font-medium";
+        
+        const syls = splitSpanishSyllables(row.word);
+        const tonicIdx = findTonicHeuristic(syls);
+
+        // Al presionar el botón de sonido de la tabla, se reproduce la campana y la palabra integrada
+        tdSentence.innerHTML = `
+          <div class="flex items-center gap-2">
+            <button onclick="playWordRhythm('${row.word}', ['${syls.join("', '")}'], ${tonicIdx})" class="p-1.5 hover:bg-cozy-card rounded-lg text-cozy-sage transition-all inline-flex items-center" title="Escuchar pronunciación rítmica">
+              <i data-lucide="volume-2" class="w-4 h-4 text-cozy-sage"></i>
+            </button>
+            <span>${row.sentence}</span>
+          </div>
+        `;
+
+        const tdTonic = document.createElement('td');
+        tdTonic.className = "p-4 text-center";
+        
+        if (row.isExample) {
+          tdTonic.innerHTML = `
+            <div class="font-extrabold text-cozy-sage bg-cozy-card py-2 px-4 rounded-xl border border-dashed border-[#DFD9CD] inline-block min-w-[70px]">
+              ${row.correctTonic}
+            </div>
+          `;
+        } else {
+          tdTonic.innerHTML = `
+            <input 
+              type="text" 
+              id="input-tonic-${row.id}" 
+              value="${state.tonic}"
+              oninput="handleTonicInput(${row.id}, this.value)"
+              placeholder="Escribe..." 
+              class="w-full max-w-[110px] text-center font-bold px-3 py-2 bg-white rounded-xl border-2 border-[#EBE6DD] focus:border-cozy-sage focus:outline-none transition-all placeholder:text-gray-300 placeholder:font-normal"
+            />
+          `;
+        }
+
+        const tdClass = document.createElement('td');
+        tdClass.className = "p-4";
+        
+        if (row.isExample) {
+          tdClass.innerHTML = `
+            <div class="flex justify-center gap-1.5 flex-wrap">
+              <span class="px-3 py-1 bg-cozy-sage text-white text-xs font-bold rounded-lg uppercase">Grave</span>
+            </div>
+          `;
+        } else {
+          tdClass.innerHTML = `
+            <div class="flex justify-center gap-1 flex-wrap">
+              <button onclick="selectCategory(${row.id}, 'aguda')" id="btn-${row.id}-aguda" class="px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border border-transparent ${state.selectedClass === 'aguda' ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-[#F2ECE0] text-gray-500 hover:bg-[#EBE4D5]' }">
+                Aguda
+              </button>
+              <button onclick="selectCategory(${row.id}, 'grave')" id="btn-${row.id}-grave" class="px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border border-transparent ${state.selectedClass === 'grave' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-[#F2ECE0] text-gray-500 hover:bg-[#EBE4D5]' }">
+                Grave
+              </button>
+              <button onclick="selectCategory(${row.id}, 'esdrújula')" id="btn-${row.id}-esdrújula" class="px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border border-transparent ${state.selectedClass === 'esdrújula' ? 'bg-blue-100 text-blue-800 border-blue-300' : 'bg-[#F2ECE0] text-gray-500 hover:bg-[#EBE4D5]' }">
+                Esdrújula
+              </button>
+              <button onclick="selectCategory(${row.id}, 'sobreesdrújula')" id="btn-${row.id}-sobreesdrújula" class="px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border border-transparent ${state.selectedClass === 'sobreesdrújula' ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-[#F2ECE0] text-gray-500 hover:bg-[#EBE4D5]' }">
+                S.esdrújula
+              </button>
+            </div>
+          `;
+        }
+
+        const tdHelp = document.createElement('td');
+        tdHelp.className = "p-4 text-center";
+        
+        if (row.isExample) {
+          tdHelp.innerHTML = `<span class="text-emerald-600 font-bold flex items-center justify-center gap-1 text-xs">✨ Ejemplo</span>`;
+        } else {
+          let statusHTML = '';
+          if (state.checked) {
+            if (state.correct) {
+              statusHTML = `<span class="text-emerald-600 font-bold text-xs">✅ ¡Bien!</span>`;
+            } else {
+              statusHTML = `<span class="text-rose-500 font-bold text-xs">❌ Revisa</span>`;
+            }
+          } else {
+            statusHTML = `
+              <button onclick="showRowHint(${row.id})" class="p-2 bg-cozy-yellow bg-opacity-30 hover:bg-opacity-50 text-amber-800 rounded-xl transition-all inline-flex items-center gap-1 text-xs font-bold" title="Obtener pista de Quill">
+                💡 Pista
+              </button>
+            `;
+          }
+          tdHelp.innerHTML = `<div id="status-container-${row.id}" class="flex items-center justify-center">${statusHTML}</div>`;
+        }
+
+        tr.appendChild(tdSentence);
+        tr.appendChild(tdTonic);
+        tr.appendChild(tdClass);
+        tr.appendChild(tdHelp);
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+      calculateProgress();
+    }
+
+    function handleTonicInput(id, value) {
+      userTableState[id].tonic = value.trim();
+      calculateProgress();
+    }
+
+    function selectCategory(id, category) {
+      userTableState[id].selectedClass = category;
+      
+      const cats = ['aguda', 'grave', 'esdrújula', 'sobreesdrújula'];
+      cats.forEach((cat) => {
+        const btn = document.getElementById(`btn-${id}-${cat}`);
+        if (!btn) return;
+        if (cat === category) {
+          let themeClasses = '';
+          if (cat === 'aguda') themeClasses = 'bg-amber-100 text-amber-800 border-amber-300';
+          if (cat === 'grave') themeClasses = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+          if (cat === 'esdrújula') themeClasses = 'bg-blue-100 text-blue-800 border-blue-300';
+          if (cat === 'sobreesdrújula') themeClasses = 'bg-purple-100 text-purple-800 border-purple-300';
+          
+          btn.className = `px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${themeClasses}`;
+        } else {
+          btn.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border border-transparent bg-[#F2ECE0] text-gray-500 hover:bg-[#EBE4D5]';
+        }
+      });
+
+      calculateProgress();
+    }
+
+    function showRowHint(id) {
+      const row = TABLE_DATA.find(r => r.id === id);
+      changeTutorMessage(`Pista para '${row.word}': La separación en sílabas es ${row.hint}`);
+      const syls = splitSpanishSyllables(row.word);
+      playWordRhythm(row.word, syls, findTonicHeuristic(syls));
+    }
+
+    function calculateProgress() {
+      let totalRows = TABLE_DATA.length - 1; // Sin contar el ejemplo
+      let filledRows = 0;
+
+      TABLE_DATA.forEach((row) => {
+        if (row.isExample) return;
+        const state = userTableState[row.id];
+        if (state.tonic !== '' && state.selectedClass !== '') {
+          filledRows++;
+        }
+      });
+
+      const percentage = Math.round((filledRows / totalRows) * 100);
+      const bar = document.getElementById('tableProgressBar');
+      if (bar) bar.style.width = `${percentage}%`;
+      const txt = document.getElementById('progressText');
+      if (txt) txt.innerText = `${percentage}% (${filledRows} de ${totalRows} listos)`;
+    }
+
+    function checkAllTableAnswers() {
+      let totalToReview = TABLE_DATA.length - 1;
+      let correctCount = 0;
+      let incomplete = false;
+
+      TABLE_DATA.forEach((row) => {
+        if (row.isExample) return;
+        const state = userTableState[row.id];
+        
+        if (state.tonic === '' || state.selectedClass === '') {
+          incomplete = true;
+          return;
+        }
+
+        const userTonicNorm = state.tonic.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const correctTonicNorm = row.correctTonic.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        
+        const isTonicCorrect = (userTonicNorm === correctTonicNorm || state.tonic.toLowerCase() === row.correctTonic.toLowerCase());
+        const isClassCorrect = (state.selectedClass === row.correctClass);
+
+        state.checked = true;
+
+        const rowElement = document.getElementById(`table-row-${row.id}`);
+        const statusContainer = document.getElementById(`status-container-${row.id}`);
+
+        if (isTonicCorrect && isClassCorrect) {
+          state.correct = true;
+          correctCount++;
+          rowElement.className = "bg-emerald-50 bg-opacity-40 transition-all duration-300 hover:bg-emerald-50";
+          statusContainer.innerHTML = `<span class="text-emerald-600 font-bold text-xs flex items-center gap-1 justify-center">✅ ¡Excelente!</span>`;
+        } else {
+          state.correct = false;
+          rowElement.className = "bg-rose-50 bg-opacity-40 transition-all duration-300 hover:bg-rose-50";
+          statusContainer.innerHTML = `
+            <div class="flex flex-col items-center">
+              <span class="text-rose-500 font-bold text-xs">❌ Retry</span>
+              <button onclick="showRowHint(${row.id})" class="text-[10px] text-cozy-terracotta underline font-semibold mt-0.5">Ver pista</button>
+            </div>
+          `;
+        }
+      });
+
+      if (incomplete) {
+        const unfinishBtn = document.getElementById('unfinishedBtn');
+        unfinishBtn.classList.remove('hidden');
+        setTimeout(() => unfinishBtn.classList.add('hidden'), 4000);
+        changeTutorMessage("¡Uy! Aún tienes algunas de las casillas vacías en la tabla. Rellena la sílaba tónica y clasifica antes de revisar.");
+        return;
+      }
+
+      if (correctCount === totalToReview) {
+        addStars(20);
+        triggerConfetti();
+        document.getElementById('congratsModal').classList.remove('hidden');
+        changeTutorMessage("¡Guau! ¡Has completado toda la tabla a la perfección! Eres un auténtico experto de la acentuación.");
+      } else {
+        const starsGained = correctCount * 2;
+        addStars(starsGained);
+        changeTutorMessage(`¡Buen intento! Conseguiste solucionar ${correctCount} de ${totalToReview} palabras correctamente. Las filas marcadas en rosa necesitan una segunda revisión. ¡Tú puedes!`);
+      }
+    }
+
+    function resetTable() {
+      userTableState = {};
+      initTable();
+      changeTutorMessage("La tabla ha sido reiniciada. ¡A empezar con fuerzas renovadas!");
+    }
+
+    function closeCongrats() {
+      document.getElementById('congratsModal').classList.add('hidden');
+    }
+
+    function triggerConfetti() {
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ['#8FA89B', '#D49B86', '#E6C187', '#90AAB8']
+      });
+    }
+
+    // --- SECCIÓN 4: MINIJUEGO "CLASIFICADOR VELOZ" ---
+    function shuffleGame() {
+      shuffledGameWords = [...GAME_WORDS_POOL].sort(() => Math.random() - 0.5);
+      gameIndex = 0;
+    }
+
+    function restartGame() {
+      shuffleGame();
+      gameScore = 0;
+      gameStreak = 0;
+      document.getElementById('gameScore').innerText = "0";
+      document.getElementById('gameStreak').innerText = "0";
+      showNextGameWord();
+    }
+
+    function showNextGameWord() {
+      const feedback = document.getElementById('gameFeedback');
+      feedback.classList.add('hidden');
+      
+      const card = document.getElementById('gameCard');
+      card.classList.remove('hidden');
+
+      if (gameIndex >= shuffledGameWords.length) {
+        changeTutorMessage(`¡Has terminado la ronda de juego rápido! Tu puntuación fue de ${gameScore} sobre 10. ¡Gran trabajo entrenando tu cerebro!`);
+        if (gameScore === 10) {
+          addStars(10);
+          triggerConfetti();
+          changeTutorMessage("¡Increíble! ¡Racha perfecta en el Clasificador! Te has ganado 10 estrellas extras.");
+        }
+        restartGame();
+        return;
+      }
+
+      const wordData = shuffledGameWords[gameIndex];
+      document.getElementById('currentWord').innerText = wordData.word;
+      document.getElementById('currentWordSyl').innerText = wordData.syl;
+    }
+
+    function speakGameWord() {
+      const current = shuffledGameWords[gameIndex];
+      if (current) {
+        const syls = current.syl.split('-');
+        playWordRhythm(current.word, syls, findTonicHeuristic(syls));
+      }
+    }
+
+    function submitGameAnswer(category) {
+      const current = shuffledGameWords[gameIndex];
+      if (!current) return;
+
+      const isCorrect = current.cat === category;
+      const feedback = document.getElementById('gameFeedback');
+      const feedbackText = document.getElementById('gameFeedbackText');
+      const feedbackIcon = document.getElementById('gameFeedbackIcon');
+      const card = document.getElementById('gameCard');
+
+      card.classList.add('hidden');
+      feedback.classList.remove('hidden');
+
+      if (isCorrect) {
+        gameScore++;
+        gameStreak++;
+        addStars(2);
+        
+        feedback.className = "absolute inset-0 rounded-2xl flex flex-col items-center justify-center p-6 text-center z-10 bg-emerald-50 text-emerald-900";
+        feedbackIcon.innerText = "⭐";
+        feedbackText.innerHTML = `<span class="text-xl font-bold">¡Excelente!</span><br><span class="text-sm mt-1">'${current.word}' es ${current.cat}. ${current.tip}</span>`;
+        playOrganicBeep(520, 0.25, 'sine');
+      } else {
+        gameStreak = 0;
+        feedback.className = "absolute inset-0 rounded-2xl flex flex-col items-center justify-center p-6 text-center z-10 bg-rose-50 text-rose-950";
+        feedbackIcon.innerText = "🍃";
+        feedbackText.innerHTML = `<span class="text-xl font-bold">¡Casi!</span><br><span class="text-sm mt-1">'${current.word}' es <span class="underline font-bold">${current.cat}</span>.<br>${current.tip}</span>`;
+        playOrganicBeep(180, 0.35, 'triangle');
+      }
+
+      document.getElementById('gameScore').innerText = gameScore;
+      document.getElementById('gameStreak').innerText = gameStreak;
+
+      gameIndex++;
+      setTimeout(showNextGameWord, 3500);
+    }
+
+  </script>
+</body>
+</html>
