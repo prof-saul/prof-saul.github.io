@@ -1,1 +1,1359 @@
-<h1>Hola</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Hotel de los Electrones - Configuración Electrónica</title>
+    <!-- Tailwind CSS para el diseño responsivo y limpio -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconos amigables de Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Tipografías divertidas y legibles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Quicksand', 'sans-serif'],
+                        title: ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        cozy: {
+                            bg: '#F9F6F0',       /* Crema muy suave de fondo */
+                            dark: '#3D3A35',     /* Gris carbón suave para texto legibles */
+                            primary: '#81B29A',  /* Verde sabio/menta apagado */
+                            secondary: '#E07A5F',/* Terracota suave para destacar */
+                            accent: '#F2CC8F',   /* Arena/Amarillo mostaza suave */
+                            card: '#FFFFFF',     /* Blanco puro para tarjetas */
+                            lavender: '#A5A693', /* Tono piedra/oliva apagado */
+                            blue: '#839788',     /* Verde azulado apagado */
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F9F6F0;
+            color: #3D3A35;
+        }
+        /* Animación de órbita para los electrones */
+        @keyframes orbit {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .orbiting-electron {
+            animation: orbit var(--duration, 8s) linear infinite;
+            transform-origin: center;
+        }
+        /* Animación suave al cambiar de pestaña */
+        .tab-content {
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* Efecto bounce sutil para elementos activos */
+        .cozy-bounce:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- CABECERA -->
+    <header class="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-cozy-primary text-white p-2.5 rounded-2xl shadow-sm">
+                    <i data-lucide="atom" class="w-8 h-8 animate-spin" style="animation-duration: 10s;"></i>
+                </div>
+                <div>
+                    <h1 class="font-title text-2xl text-cozy-dark font-bold leading-tight">El Hotel de los Electrones</h1>
+                    <p class="text-xs text-gray-500 font-medium">Configuración electrónica divertida para pequeños exploradores</p>
+                </div>
+            </div>
+            
+            <!-- Barra de Navegación Interactiva -->
+            <nav class="flex bg-gray-100 p-1.5 rounded-2xl gap-1">
+                <button onclick="switchTab('teoria')" id="btn-teoria" class="tab-btn flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-cozy-primary text-white shadow-sm">
+                    <i data-lucide="book-open" class="w-4 h-4"></i> Aprende
+                </button>
+                <button onclick="switchTab('moeller')" id="btn-moeller" class="tab-btn flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all text-gray-600 hover:bg-gray-200">
+                    <i data-lucide="map" class="w-4 h-4"></i> El Mapa Mágico
+                </button>
+                <button onclick="switchTab('laboratorio')" id="btn-laboratorio" class="tab-btn flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all text-gray-600 hover:bg-gray-200">
+                    <i data-lucide="beaker" class="w-4 h-4"></i> Laboratorio
+                </button>
+                <button onclick="switchTab('juego')" id="btn-juego" class="tab-btn flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all text-gray-600 hover:bg-gray-200">
+                    <i data-lucide="gamepad-2" class="w-4 h-4"></i> ¡A Jugar!
+                </button>
+            </nav>
+
+            <!-- Control de Audio -->
+            <button onclick="toggleAudio()" id="btn-audio" class="p-2 bg-gray-100 hover:bg-gray-200 text-cozy-dark rounded-xl transition-all" title="Activar/Silenciar Sonidos">
+                <i data-lucide="volume-2" id="icon-audio" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- CUERPO PRINCIPAL -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6 md:py-8">
+
+        <!-- ================= PESTAÑA: TEORÍA ================= -->
+        <section id="tab-teoria" class="tab-content block space-y-8 animate-fade-in">
+            <!-- Introducción Cozy -->
+            <div class="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-center gap-8">
+                <div class="flex-1 space-y-4">
+                    <span class="bg-cozy-accent/40 text-cozy-secondary text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider">¡Bienvenido al Hotel!</span>
+                    <h2 class="font-title text-3xl md:text-4xl text-cozy-dark font-bold">¿Qué es la Configuración Electrónica?</h2>
+                    <p class="text-base text-gray-600 leading-relaxed">
+                        Imagina que los <strong>átomos</strong> son como edificios muy especiales. En el centro está el núcleo (¡las oficinas del hotel!), y a su alrededor viven unos personajes pequeñitos y súper saltarines llamados <strong>electrones</strong>. 
+                    </p>
+                    <p class="text-base text-gray-600 leading-relaxed">
+                        La <strong>configuración electrónica</strong> es simplemente la lista de habitaciones donde duerme cada electrón. ¡Y resulta que tienen reglas muy estrictas para elegir habitación!
+                    </p>
+                </div>
+                <div class="w-full md:w-80 flex justify-center">
+                    <!-- SVG Ilustrativo del Átomo Hotel -->
+                    <svg viewBox="0 0 200 200" class="w-48 h-48 md:w-64 md:h-64">
+                        <!-- El hotel de fondo -->
+                        <rect x="50" y="30" width="100" height="140" rx="15" fill="#E9E2D8" stroke="#3D3A35" stroke-width="3" />
+                        <rect x="70" y="20" width="60" height="20" rx="5" fill="#81B29A" stroke="#3D3A35" stroke-width="3" />
+                        <!-- Ventanas de habitaciones -->
+                        <rect x="65" y="45" width="20" height="20" rx="4" fill="#F2CC8F" stroke="#3D3A35" stroke-width="2" />
+                        <rect x="115" y="45" width="20" height="20" rx="4" fill="#F2CC8F" stroke="#3D3A35" stroke-width="2" />
+                        <rect x="65" y="75" width="20" height="20" rx="4" fill="#81B29A" stroke="#3D3A35" stroke-width="2" />
+                        <rect x="115" y="75" width="20" height="20" rx="4" fill="#81B29A" stroke="#3D3A35" stroke-width="2" />
+                        <rect x="65" y="105" width="20" height="20" rx="4" fill="#E07A5F" stroke="#3D3A35" stroke-width="2" />
+                        <rect x="115" y="105" width="20" height="20" rx="4" fill="#E07A5F" stroke="#3D3A35" stroke-width="2" />
+                        <!-- Entrada -->
+                        <path d="M90,170 L90,145 C90,140 110,140 110,145 L110,170 Z" fill="#3D3A35" />
+                        <!-- Electrón feliz en órbita -->
+                        <ellipse cx="100" cy="100" rx="90" ry="30" fill="none" stroke="#A5A693" stroke-width="2" stroke-dasharray="6,6" transform="rotate(30 100 100)" />
+                        <circle cx="178" cy="120" r="10" fill="#E07A5F" stroke="#3D3A35" stroke-width="2" />
+                        <circle cx="175" cy="117" r="2" fill="white" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Reglas de Alojamiento (Interactiva) -->
+            <div class="space-y-6">
+                <div class="text-center max-w-xl mx-auto">
+                    <h3 class="font-title text-2xl font-bold text-cozy-dark">Las 3 Reglas de Oro de nuestro Hotel</h3>
+                    <p class="text-sm text-gray-500">Haz clic en cada regla para ver cómo se organizan nuestros huéspedes.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Regla 1 -->
+                    <div onclick="playPop(); highlightRule(1)" id="rule-card-1" class="bg-white p-6 rounded-3xl border-2 border-transparent hover:border-cozy-primary shadow-sm cursor-pointer transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="w-12 h-12 bg-cozy-primary/20 text-cozy-primary rounded-2xl flex items-center justify-center mb-4">
+                            <i data-lucide="arrow-down" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-title text-lg font-bold text-cozy-dark mb-2">1. ¡Siempre abajo primero!</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                            A los electrones no les gusta subir escaleras cansados. Por eso, siempre llenan primero las habitaciones del <strong>piso más bajo posible</strong>. Esto se llama <em>Regla de Aufbau</em>.
+                        </p>
+                    </div>
+
+                    <!-- Regla 2 -->
+                    <div onclick="playPop(); highlightRule(2)" id="rule-card-2" class="bg-white p-6 rounded-3xl border-2 border-transparent hover:border-cozy-primary shadow-sm cursor-pointer transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="w-12 h-12 bg-cozy-secondary/20 text-cozy-secondary rounded-2xl flex items-center justify-center mb-4">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-title text-lg font-bold text-cozy-dark mb-2">2. Dos por cama, ¡al revés!</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                            En cada habitación (orbital) solo caben un máximo de <strong>2 electrones</strong>. Además, duermen cabeza con pies para no darse patadas. Esto es el <em>Principio de Exclusión de Pauli</em>.
+                        </p>
+                    </div>
+
+                    <!-- Regla 3 -->
+                    <div onclick="playPop(); highlightRule(3)" id="rule-card-3" class="bg-white p-6 rounded-3xl border-2 border-transparent hover:border-cozy-primary shadow-sm cursor-pointer transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="w-12 h-12 bg-cozy-accent/30 text-cozy-dark rounded-2xl flex items-center justify-center mb-4">
+                            <i data-lucide="shuffle" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-title text-lg font-bold text-cozy-dark mb-2">3. Primero uno en cada cama</h4>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                            Si una suite tiene varias camas iguales, a los electrones les gusta estar solos primero. No compartirán cama hasta que <strong>todas tengan al menos un huésped</strong>. Esta es la <em>Regla de Hund</em>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Habitaciones y Subniveles -->
+            <div class="bg-cozy-accent/20 rounded-3xl p-6 md:p-8 space-y-6">
+                <div class="max-w-2xl">
+                    <h3 class="font-title text-2xl font-bold text-cozy-dark">Tipos de Habitaciones (Subniveles)</h3>
+                    <p class="text-sm text-gray-600 mt-1">El hotel tiene 4 tipos de suites. Cada una tiene un tamaño y capacidad diferente de huéspedes.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Suite S -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4">
+                        <div class="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center font-bold text-xl font-title">s</div>
+                        <div>
+                            <h5 class="font-bold text-cozy-dark">Suite Sencilla (s)</h5>
+                            <p class="text-xs text-gray-500">1 cama. Capacidad: <strong>2</strong> electrones.</p>
+                        </div>
+                    </div>
+                    <!-- Suite P -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center font-bold text-xl font-title">p</div>
+                        <div>
+                            <h5 class="font-bold text-cozy-dark">Suite Principal (p)</h5>
+                            <p class="text-xs text-gray-500">3 camas. Capacidad: <strong>6</strong> electrones.</p>
+                        </div>
+                    </div>
+                    <!-- Suite D -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4">
+                        <div class="w-12 h-12 bg-green-100 text-green-500 rounded-full flex items-center justify-center font-bold text-xl font-title">d</div>
+                        <div>
+                            <h5 class="font-bold text-cozy-dark">Suite Doble (d)</h5>
+                            <p class="text-xs text-gray-500">5 camas. Capacidad: <strong>10</strong> electrones.</p>
+                        </div>
+                    </div>
+                    <!-- Suite F -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4">
+                        <div class="w-12 h-12 bg-purple-100 text-purple-500 rounded-full flex items-center justify-center font-bold text-xl font-title">f</div>
+                        <div>
+                            <h5 class="font-bold text-cozy-dark">Suite Familiar (f)</h5>
+                            <p class="text-xs text-gray-500">7 camas. Capacidad: <strong>14</strong> electrones.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- El gran secreto: El Diagrama de Moeller -->
+            <div class="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
+                <div class="w-full md:w-1/3 flex justify-center">
+                    <div class="relative bg-cozy-bg p-4 rounded-2xl border border-gray-200">
+                        <!-- Pequeño gráfico de flechas de Moeller -->
+                        <div class="grid grid-cols-4 gap-2 text-center font-title text-sm font-semibold text-gray-400">
+                            <div>s</div><div>p</div><div>d</div><div>f</div>
+                            <div class="bg-red-200 text-red-800 rounded p-1">1s</div><div></div><div></div><div></div>
+                            <div class="bg-red-200 text-red-800 rounded p-1">2s</div><div class="bg-blue-200 text-blue-800 rounded p-1">2p</div><div></div><div></div>
+                            <div class="bg-red-200 text-red-800 rounded p-1">3s</div><div class="bg-blue-200 text-blue-800 rounded p-1">3p</div><div class="bg-green-200 text-green-800 rounded p-1">3d</div><div></div>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/5 rounded-2xl pointer-events-none">
+                            <!-- Flecha diagonal simbólica -->
+                            <svg class="w-full h-full" viewBox="0 0 100 100">
+                                <line x1="10" y1="30" x2="90" y2="90" stroke="#E07A5F" stroke-width="4" stroke-linecap="round" stroke-dasharray="4,4"/>
+                                <polygon points="90,90 80,85 85,75" fill="#E07A5F" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 space-y-4">
+                    <h3 class="font-title text-2xl font-bold text-cozy-dark">El Tobogán Mágico: El Diagrama de Moeller</h3>
+                    <p class="text-base text-gray-600 leading-relaxed">
+                        ¿Por qué no llenamos las suites de manera normal (piso 1, luego 2, luego 3...)? ¡Porque las suites más grandes de los pisos de arriba a veces cuestan más energía que una suite pequeña del piso superior!
+                    </p>
+                    <p class="text-base text-gray-600 leading-relaxed">
+                        Para saber el orden exacto sin equivocarnos, los científicos inventaron el <strong>Diagrama de Moeller</strong> (también llamado la regla de la lluvia o del serrucho). Solo tenemos que deslizarnos por sus flechas diagonales de arriba hacia abajo para saber el camino exacto de los electrones.
+                    </p>
+                    <button onclick="switchTab('moeller')" class="bg-cozy-secondary text-white font-semibold px-6 py-3 rounded-2xl hover:bg-cozy-secondary/90 transition-all shadow-sm flex items-center gap-2">
+                        Ver el mapa en acción <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PESTAÑA: EL MAPA MÁGICO ================= -->
+        <section id="tab-moeller" class="tab-content hidden space-y-8 animate-fade-in">
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+                <span class="bg-cozy-primary/20 text-cozy-primary text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider">Visualización Interactiva</span>
+                <h2 class="font-title text-3xl font-bold text-cozy-dark">El Laberinto de Moeller</h2>
+                <p class="text-sm text-gray-600">
+                    Sigue las líneas diagonales desde el extremo superior derecho hacia abajo a la izquierda. ¡Haz clic en el botón de abajo para iluminar el camino secreto que siguen los electrones!
+                </p>
+            </div>
+
+            <!-- Panel del Diagrama e Información Dinámica -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Diagrama (Izquierda/Centro) -->
+                <div class="lg:col-span-2 bg-white border border-gray-100 p-6 rounded-3xl shadow-sm flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">El Mapa de los Pisos</span>
+                        <div class="flex gap-2">
+                            <button onclick="traceMoellerPath()" class="bg-cozy-primary text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm hover:bg-cozy-primary/90 transition-all flex items-center gap-2">
+                                <i data-lucide="play" class="w-3.5 h-3.5"></i> Ver Recorrido Animado
+                            </button>
+                            <button onclick="resetMoellerHighlight()" class="bg-gray-100 text-gray-500 text-xs font-bold px-4 py-2 rounded-xl hover:bg-gray-200 transition-all">
+                                Limpiar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- El Grid de Moeller -->
+                    <div class="relative grid grid-cols-4 gap-4 md:gap-6 p-4 bg-cozy-bg rounded-2xl border border-gray-100 max-w-lg mx-auto w-full">
+                        <!-- Cabeceras de Columnas -->
+                        <div class="text-center font-title text-lg font-bold text-red-400">s <span class="text-xs text-gray-400">(cap. 2)</span></div>
+                        <div class="text-center font-title text-lg font-bold text-blue-400">p <span class="text-xs text-gray-400">(cap. 6)</span></div>
+                        <div class="text-center font-title text-lg font-bold text-green-500">d <span class="text-xs text-gray-400">(cap. 10)</span></div>
+                        <div class="text-center font-title text-lg font-bold text-purple-400">f <span class="text-xs text-gray-400">(cap. 14)</span></div>
+
+                        <!-- Fila 1 -->
+                        <div id="cell-1s" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('1s')">1s²</div>
+                        <div class="opacity-10 pointer-events-none text-center p-3">-</div>
+                        <div class="opacity-10 pointer-events-none text-center p-3">-</div>
+                        <div class="opacity-10 pointer-events-none text-center p-3">-</div>
+
+                        <!-- Fila 2 -->
+                        <div id="cell-2s" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('2s')">2s²</div>
+                        <div id="cell-2p" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('2p')">2p⁶</div>
+                        <div class="opacity-10 pointer-events-none text-center p-3">-</div>
+                        <div class="opacity-10 pointer-events-none text-center p-3">-</div>
+
+                        <!-- Fila 3 -->
+                        <div id="cell-3s" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('3s')">3s²</div>
+                        <div id="cell-3p" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('3p')">3p⁶</div>
+                        <div id="cell-3d" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('3d')">3d¹⁰</div>
+                        <div class="opacity-10 pointer-events-none text-center p-3">-</div>
+
+                        <!-- Fila 4 -->
+                        <div id="cell-4s" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('4s')">4s²</div>
+                        <div id="cell-4p" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('4p')">4p⁶</div>
+                        <div id="cell-4d" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('4d')">4d¹⁰</div>
+                        <div id="cell-4f" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('4f')">4f¹⁴</div>
+
+                        <!-- Fila 5 -->
+                        <div id="cell-5s" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('5s')">5s²</div>
+                        <div id="cell-5p" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('5p')">5p⁶</div>
+                        <div id="cell-5d" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('5d')">5d¹⁰</div>
+                        <div id="cell-5f" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('5f')">5f¹⁴</div>
+
+                        <!-- Fila 6 -->
+                        <div id="cell-6s" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('6s')">6s²</div>
+                        <div id="cell-6p" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('6p')">6p⁶</div>
+                        <div id="cell-6d" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('6d')">6d¹⁰</div>
+                        <div class="opacity-10 pointer-events-none text-center p-3">-</div>
+
+                        <!-- Fila 7 -->
+                        <div id="cell-7s" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('7s')">7s²</div>
+                        <div id="cell-7p" class="moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm" onclick="showOrbitalInfo('7p')">7p⁶</div>
+                        <div class="opacity-10 pointer-events-none text-center p-3">-</div>
+                        <div class="opacity-10 pointer-events-none text-center p-3">-</div>
+                    </div>
+                </div>
+
+                <!-- Detalle del Subnivel (Derecha) -->
+                <div class="space-y-6">
+                    <div class="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-cozy-accent/40 rounded-xl flex items-center justify-center text-cozy-secondary">
+                                <i data-lucide="info" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="font-title text-xl font-bold text-cozy-dark">Información del Piso</h3>
+                        </div>
+                        
+                        <div id="moeller-info-box" class="space-y-3">
+                            <p class="text-sm text-gray-500">Selecciona cualquier celda en el diagrama o inicia la animación para ver detalles.</p>
+                            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center text-gray-400 text-xs">
+                                Ninguna habitación seleccionada
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- El Orden de Llenado Mágico -->
+                    <div class="bg-cozy-blue/20 p-6 rounded-3xl space-y-4">
+                        <h4 class="font-title text-lg font-bold text-cozy-dark flex items-center gap-2">
+                            <i data-lucide="list-ordered" class="w-5 h-5"></i> El Camino de Moeller
+                        </h4>
+                        <div id="moeller-sequence" class="flex flex-wrap gap-2 text-xs font-semibold text-gray-600">
+                            <!-- Secuencia generada dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PESTAÑA: LABORATORIO ================= -->
+        <section id="tab-laboratorio" class="tab-content hidden space-y-8 animate-fade-in">
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+                <span class="bg-cozy-secondary/20 text-cozy-secondary text-xs font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider">¡Manos a la obra!</span>
+                <h2 class="font-title text-3xl font-bold text-cozy-dark">El Laboratorio de Átomos Neutros</h2>
+                <p class="text-sm text-gray-600">
+                    Selecciona un elemento y ayuda a registrar a todos los electrones huéspedes en el hotel siguiendo el Diagrama de Moeller.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Selector de Elementos (3 cols) -->
+                <div class="lg:col-span-3 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                    <h3 class="font-title text-lg font-bold text-cozy-dark">Elige tu Átomo</h3>
+                    <div class="grid grid-cols-1 gap-2 overflow-y-auto max-h-[400px] pr-1" id="element-selector">
+                        <!-- Botones de elementos inyectados por JS -->
+                    </div>
+                </div>
+
+                <!-- Simulación Interactiva (5 cols) -->
+                <div class="lg:col-span-5 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between space-y-6">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                        <div>
+                            <span id="lab-element-symbol" class="text-3xl font-title font-bold text-cozy-secondary">C</span>
+                            <span id="lab-element-name" class="ml-2 font-bold text-cozy-dark">Carbono</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-gray-400 font-bold">Electrones por ubicar:</div>
+                            <div id="lab-electrons-count" class="text-xl font-title font-bold text-cozy-primary">0 / 6</div>
+                        </div>
+                    </div>
+
+                    <!-- Panel del Diagrama de Moeller Activo para Práctica -->
+                    <div class="space-y-4">
+                        <p class="text-xs text-gray-500 font-medium">Instrucción: Haz clic en la habitación que sigue en el mapa de Moeller para llenarla con electrones.</p>
+                        
+                        <!-- Mini mapa interactivo de llenado -->
+                        <div class="grid grid-cols-4 gap-2.5 p-3 bg-cozy-bg rounded-2xl border border-gray-100 text-xs">
+                            <button onclick="fillLabSublevel('1s')" id="lab-btn-1s" class="lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center">1s</button>
+                            <div class="opacity-10">-</div><div class="opacity-10">-</div><div class="opacity-10">-</div>
+
+                            <button onclick="fillLabSublevel('2s')" id="lab-btn-2s" class="lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center">2s</button>
+                            <button onclick="fillLabSublevel('2p')" id="lab-btn-2p" class="lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center">2p</button>
+                            <div class="opacity-10">-</div><div class="opacity-10">-</div>
+
+                            <button onclick="fillLabSublevel('3s')" id="lab-btn-3s" class="lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center">3s</button>
+                            <button onclick="fillLabSublevel('3p')" id="lab-btn-3p" class="lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center">3p</button>
+                            <button onclick="fillLabSublevel('3d')" id="lab-btn-3d" class="lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center">3d</button>
+                            <div class="opacity-10">-</div>
+
+                            <button onclick="fillLabSublevel('4s')" id="lab-btn-4s" class="lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center">4s</button>
+                            <button onclick="fillLabSublevel('4p')" id="lab-btn-4p" class="lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center">4p</button>
+                            <button onclick="fillLabSublevel('4d')" id="lab-btn-4d" class="lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center">4d</button>
+                            <button onclick="fillLabSublevel('4f')" id="lab-btn-4f" class="lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center">4f</button>
+                        </div>
+                    </div>
+
+                    <!-- Mensajes de Ayuda y Feedback -->
+                    <div id="lab-feedback" class="p-3 bg-cozy-accent/30 rounded-2xl border border-cozy-accent/50 text-xs text-cozy-dark font-medium flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-cozy-secondary animate-bounce"></i>
+                        <span>¡Presiona 1s para comenzar a alojar tus electrones en el hotel!</span>
+                    </div>
+
+                    <!-- Configuración escrita en progreso -->
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center justify-between">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Configuración:</span>
+                        <span id="lab-config-output" class="font-title text-lg font-bold text-cozy-dark tracking-wide">Ninguna</span>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="resetLab()" class="flex-1 bg-gray-100 text-gray-500 font-bold py-3 rounded-2xl hover:bg-gray-200 transition-all text-sm">
+                            Empezar de nuevo
+                        </button>
+                        <button onclick="autoSolveLab()" class="flex-1 bg-cozy-primary text-white font-bold py-3 rounded-2xl hover:bg-cozy-primary/90 transition-all text-sm flex items-center justify-center gap-2">
+                            <i data-lucide="wand-2" class="w-4 h-4"></i> Auto-completar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visualización Atómica Real (4 cols) -->
+                <div class="lg:col-span-4 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between space-y-6">
+                    <h3 class="font-title text-lg font-bold text-cozy-dark text-center">Vista de tu Átomo en Órbita</h3>
+                    
+                    <div class="flex-grow flex items-center justify-center min-h-[250px] relative">
+                        <!-- Representación SVG Dinámica de Órbitas -->
+                        <svg id="atom-visualizer-svg" viewBox="0 0 300 300" class="w-full max-w-[280px] h-auto">
+                            <!-- El núcleo -->
+                            <circle cx="150" cy="150" r="16" fill="#E07A5F" stroke="#3D3A35" stroke-width="2" />
+                            <text x="150" y="154" font-family="Fredoka" font-size="12" fill="white" font-weight="bold" text-anchor="middle">+</text>
+                            
+                            <!-- Órbitas concéntricas por JS -->
+                        </svg>
+                        
+                        <!-- Indicador de capas de Bohr a los lados -->
+                        <div class="absolute left-2 bottom-2 text-[10px] text-gray-400 font-medium">
+                            *Cada órbita es una capa de energía (n)
+                        </div>
+                    </div>
+
+                    <!-- Leyenda interactiva -->
+                    <div class="bg-cozy-bg p-3.5 rounded-2xl border border-gray-100 text-xs space-y-1 text-gray-500">
+                        <div class="flex justify-between font-bold text-cozy-dark">
+                            <span>Nivel de Energía (Órbita)</span>
+                            <span>Electrones alojados</span>
+                        </div>
+                        <div id="orbit-summary" class="space-y-1 pt-1.5 border-t border-gray-200/50">
+                            <!-- Resumen dinámico de electrones por nivel -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PESTAÑA: JUEGO ================= -->
+        <section id="tab-juego" class="tab-content hidden space-y-8 animate-fade-in">
+            <!-- Introducción al Desafío -->
+            <div class="bg-cozy-accent/20 p-6 md:p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="space-y-3">
+                    <span class="bg-cozy-secondary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Desafío Estelar</span>
+                    <h2 class="font-title text-3xl font-bold text-cozy-dark">¡El Gran Reto de los Átomos!</h2>
+                    <p class="text-sm text-gray-600">
+                        Resuelve las preguntas para ganar estrellas doradas y convertirte en el <strong>Gran Conserje del Hotel de Electrones</strong>. ¡Demuestra que eres el mejor!
+                    </p>
+                </div>
+                <div class="flex items-center gap-4 bg-white px-6 py-4 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="text-center">
+                        <span class="block text-xs text-gray-400 font-bold uppercase">Puntuación</span>
+                        <span id="game-score" class="font-title text-2xl font-bold text-cozy-secondary">0</span>
+                    </div>
+                    <div class="h-8 w-px bg-gray-200"></div>
+                    <div class="text-center">
+                        <span class="block text-xs text-gray-400 font-bold uppercase">Medallas</span>
+                        <span id="game-medals" class="font-title text-2xl font-bold text-cozy-primary">🏆 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interfaz del Juego -->
+            <div class="max-w-2xl mx-auto bg-white border border-gray-100 p-6 md:p-8 rounded-3xl shadow-sm space-y-6">
+                <!-- Barra de Progreso del Juego -->
+                <div class="flex justify-between items-center text-xs font-bold text-gray-400">
+                    <span>PREGUNTA <span id="game-current-q">1</span> DE 5</span>
+                    <div class="w-32 bg-gray-100 h-2 rounded-full overflow-hidden">
+                        <div id="game-progress" class="bg-cozy-primary h-full transition-all" style="width: 20%;"></div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta de Pregunta -->
+                <div id="game-card" class="space-y-6">
+                    <div class="p-5 bg-cozy-bg rounded-2xl border border-gray-100 text-center">
+                        <h3 id="game-question-text" class="font-title text-lg md:text-xl font-bold text-cozy-dark">
+                            Cargando desafío...
+                        </h3>
+                    </div>
+
+                    <!-- Opciones de Respuesta -->
+                    <div id="game-options" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Botones de opciones generados por JS -->
+                    </div>
+                </div>
+
+                <!-- Mensajes de Éxito / Error -->
+                <div id="game-feedback" class="hidden p-4 rounded-2xl font-semibold text-center text-sm transition-all">
+                    <!-- Feedback de respuesta -->
+                </div>
+
+                <!-- Botón de Siguiente Pregunta -->
+                <button onclick="nextGameQuestion()" id="game-next-btn" class="hidden w-full bg-cozy-secondary text-white font-bold py-3.5 rounded-2xl hover:bg-cozy-secondary/90 transition-all text-sm items-center justify-center gap-2">
+                    Continuar al Siguiente Desafío <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PANTALLA MODAL DE ÉXITO O FELICITACIÓN -->
+    <div id="success-modal" class="hidden fixed inset-0 bg-cozy-dark/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white max-w-sm w-full rounded-3xl p-6 border border-gray-100 shadow-xl text-center space-y-4 transform scale-95 transition-transform duration-300">
+            <div class="w-16 h-16 bg-cozy-accent/40 text-cozy-secondary rounded-full flex items-center justify-center mx-auto text-3xl animate-bounce">
+                🎉
+            </div>
+            <h3 class="font-title text-2xl font-bold text-cozy-dark" id="modal-title">¡Espectacular!</h3>
+            <p class="text-sm text-gray-500 leading-relaxed" id="modal-text">
+                Has completado la configuración electrónica para este átomo sin cometer errores. ¡Eres un maestro de la química!
+            </p>
+            <button onclick="closeModal()" class="w-full bg-cozy-primary text-white font-semibold py-3 rounded-2xl hover:bg-cozy-primary/90 transition-all shadow-sm">
+                Seguir Explorando
+            </button>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="bg-white border-t border-gray-100 py-6 mt-12 text-center text-xs text-gray-400">
+        <div class="max-w-6xl mx-auto px-4 space-y-2">
+            <p>Diseñado con cariño y paciencia pedagógica para escuelas del futuro.</p>
+            <p>© 2026 El Hotel de los Electrones. Ciencia divertida y comprensible.</p>
+        </div>
+    </footer>
+
+    <!-- LÓGICA DE JUEGOS Y SIMULACIÓN EN JAVASCRIPT -->
+    <script>
+        // --- BASE DE DATOS DE ELEMENTOS QUÍMICOS ---
+        const elementsData = [
+            { symbol: 'H', name: 'Hidrógeno', z: 1, config: ['1s¹'], orbits: [1] },
+            { symbol: 'He', name: 'Helio', z: 2, config: ['1s²'], orbits: [2] },
+            { symbol: 'Li', name: 'Litio', z: 3, config: ['1s²', '2s¹'], orbits: [2, 1] },
+            { symbol: 'Be', name: 'Berilio', z: 4, config: ['1s²', '2s²'], orbits: [2, 2] },
+            { symbol: 'B', name: 'Boro', z: 5, config: ['1s²', '2s²', '2p¹'], orbits: [2, 3] },
+            { symbol: 'C', name: 'Carbono', z: 6, config: ['1s²', '2s²', '2p²'], orbits: [2, 4] },
+            { symbol: 'N', name: 'Nitrógeno', z: 7, config: ['1s²', '2s²', '2p³'], orbits: [2, 5] },
+            { symbol: 'O', name: 'Oxígeno', z: 8, config: ['1s²', '2s²', '2p⁴'], orbits: [2, 6] },
+            { symbol: 'F', name: 'Flúor', z: 9, config: ['1s²', '2s²', '2p⁵'], orbits: [2, 7] },
+            { symbol: 'Ne', name: 'Neón', z: 10, config: ['1s²', '2s²', '2p⁶'], orbits: [2, 8] },
+            { symbol: 'Na', name: 'Sodio', z: 11, config: ['1s²', '2s²', '2p⁶', '3s¹'], orbits: [2, 8, 1] },
+            { symbol: 'Mg', name: 'Magnesio', z: 12, config: ['1s²', '2s²', '2p⁶', '3s²'], orbits: [2, 8, 2] },
+            { symbol: 'Al', name: 'Aluminio', z: 13, config: ['1s²', '2s²', '2p⁶', '3s²', '3p¹'], orbits: [2, 8, 3] },
+            { symbol: 'Si', name: 'Silicio', z: 14, config: ['1s²', '2s²', '2p⁶', '3s²', '3p²'], orbits: [2, 8, 4] },
+            { symbol: 'P', name: 'Fósforo', z: 15, config: ['1s²', '2s²', '2p⁶', '3s²', '3p³'], orbits: [2, 8, 5] },
+            { symbol: 'S', name: 'Azufre', z: 16, config: ['1s²', '2s²', '2p⁶', '3s²', '3p⁴'], orbits: [2, 8, 6] },
+            { symbol: 'Cl', name: 'Cloro', z: 17, config: ['1s²', '2s²', '2p⁶', '3s²', '3p⁵'], orbits: [2, 8, 7] },
+            { symbol: 'Ar', name: 'Argón', z: 18, config: ['1s²', '2s²', '2p⁶', '3s²', '3p⁶'], orbits: [2, 8, 8] },
+            { symbol: 'K', name: 'Potasio', z: 19, config: ['1s²', '2s²', '2p⁶', '3s²', '3p⁶', '4s¹'], orbits: [2, 8, 8, 1] },
+            { symbol: 'Ca', name: 'Calcio', z: 20, config: ['1s²', '2s²', '2p⁶', '3s²', '3p⁶', '4s²'], orbits: [2, 8, 8, 2] }
+        ];
+
+        // --- ORDEN ESTÁNDAR DEL DIAGRAMA DE MOELLER ---
+        const moellerSequence = [
+            { id: '1s', capacity: 2 },
+            { id: '2s', capacity: 2 },
+            { id: '2p', capacity: 6 },
+            { id: '3s', capacity: 2 },
+            { id: '3p', capacity: 6 },
+            { id: '4s', capacity: 2 },
+            { id: '3d', capacity: 10 },
+            { id: '4p', capacity: 6 },
+            { id: '5s', capacity: 2 },
+            { id: '4d', capacity: 10 },
+            { id: '5p', capacity: 6 },
+            { id: '6s', capacity: 2 },
+            { id: '4f', capacity: 14 },
+            { id: '5d', capacity: 10 },
+            { id: '6p', capacity: 6 },
+            { id: '7s', capacity: 2 },
+            { id: '5f', capacity: 14 },
+            { id: '6d', capacity: 10 },
+            { id: '7p', capacity: 6 }
+        ];
+
+        // --- AUDIO COMPONENTES (Web Audio API para evitar dependencias) ---
+        let audioEnabled = true;
+        let audioCtx = null;
+
+        function playSound(frequency, type, duration) {
+            if (!audioEnabled) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log("Audio no soportado o bloqueado por el navegador");
+            }
+        }
+
+        function playPop() {
+            playSound(300, 'sine', 0.1);
+        }
+
+        function playSuccess() {
+            playSound(523.25, 'triangle', 0.15); // C5
+            setTimeout(() => playSound(659.25, 'triangle', 0.15), 100); // E5
+            setTimeout(() => playSound(783.99, 'triangle', 0.3), 200); // G5
+        }
+
+        function playError() {
+            playSound(180, 'sawtooth', 0.25);
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('icon-audio');
+            if (audioEnabled) {
+                icon.setAttribute('data-lucide', 'volume-2');
+                playPop();
+            } else {
+                icon.setAttribute('data-lucide', 'volume-x');
+            }
+            lucide.createIcons();
+        }
+
+        // --- GESTIÓN DE PESTAÑAS (TABS) ---
+        function switchTab(tabId) {
+            // Reproducir sonido
+            playPop();
+
+            // Ocultar todas las pestañas
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.add('hidden'));
+
+            // Mostrar la seleccionada
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            // Actualizar botones de navegación
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.className = "tab-btn flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all text-gray-600 hover:bg-gray-200";
+            });
+
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-cozy-primary text-white shadow-sm";
+            }
+
+            // Inicializar tareas especiales por pestaña
+            if (tabId === 'laboratorio') {
+                initLaboratorio();
+            } else if (tabId === 'moeller') {
+                initMoeller();
+            } else if (tabId === 'juego') {
+                initJuego();
+            }
+        }
+
+        // --- PESTAÑA APRENDE: REGALAS INTERACTIVAS ---
+        function highlightRule(num) {
+            for (let i = 1; i <= 3; i++) {
+                const card = document.getElementById(`rule-card-${i}`);
+                if (i === num) {
+                    card.classList.add('border-cozy-primary', 'shadow-md', 'bg-cozy-primary/5');
+                } else {
+                    card.classList.remove('border-cozy-primary', 'shadow-md', 'bg-cozy-primary/5');
+                }
+            }
+        }
+
+        // --- PESTAÑA: MOELLER (RECORRIDO ANIMADO) ---
+        let isTracing = false;
+        function initMoeller() {
+            resetMoellerHighlight();
+            const sequenceContainer = document.getElementById('moeller-sequence');
+            sequenceContainer.innerHTML = '';
+            moellerSequence.forEach(s => {
+                const span = document.createElement('span');
+                span.id = `seq-${s.id}`;
+                span.className = "px-2.5 py-1.5 bg-white border border-gray-100 rounded-xl transition-all shadow-sm";
+                span.innerText = `${s.id}`;
+                sequenceContainer.appendChild(span);
+            });
+        }
+
+        function resetMoellerHighlight() {
+            const cells = document.querySelectorAll('.moeller-cell');
+            cells.forEach(cell => {
+                cell.className = "moeller-cell bg-white hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm";
+            });
+            const spans = document.getElementById('moeller-sequence').querySelectorAll('span');
+            spans.forEach(s => s.className = "px-2.5 py-1.5 bg-white border border-gray-100 rounded-xl transition-all shadow-sm");
+        }
+
+        async function traceMoellerPath() {
+            if (isTracing) return;
+            isTracing = true;
+            resetMoellerHighlight();
+
+            const path = ['1s', '2s', '2p', '3s', '3p', '4s', '3d', '4p', '5s', '4d', '5p', '6s', '4f', '5d', '6p', '7s', '5f', '6d', '7p'];
+            
+            for (let i = 0; i < path.length; i++) {
+                const subId = path[i];
+                const cell = document.getElementById(`cell-${subId}`);
+                const seq = document.getElementById(`seq-${subId}`);
+                
+                if (cell) {
+                    cell.className = "moeller-cell bg-cozy-accent border-2 border-cozy-secondary scale-105 p-3 rounded-xl text-center font-title font-bold text-cozy-dark cursor-pointer transition-all shadow-md";
+                    showOrbitalInfo(subId);
+                    playSound(200 + (i * 25), 'sine', 0.15);
+                }
+                if (seq) {
+                    seq.className = "px-2.5 py-1.5 bg-cozy-accent border border-cozy-secondary text-cozy-dark rounded-xl font-bold scale-105 shadow-sm transition-all";
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                // Regresar a un estado "visitado" suave
+                if (cell) {
+                    cell.className = "moeller-cell bg-cozy-primary/20 hover:bg-cozy-accent/30 p-3 rounded-xl border-2 border-transparent text-center font-title font-bold text-gray-700 cursor-pointer transition-all shadow-sm";
+                }
+                if (seq) {
+                    seq.className = "px-2.5 py-1.5 bg-cozy-primary/10 border border-cozy-primary/30 text-gray-600 rounded-xl font-semibold transition-all";
+                }
+            }
+            isTracing = false;
+        }
+
+        function showOrbitalInfo(subId) {
+            const level = subId.charAt(0);
+            const letter = subId.charAt(1);
+            let description = '';
+            let maxElectrons = 0;
+
+            switch(letter) {
+                case 's':
+                    maxElectrons = 2;
+                    description = `La suite <strong>S</strong> es compacta y acogedora. Tiene 1 sola cama y caben máximo <strong>${maxElectrons} electrones</strong>. ¡Siempre es la primera que se llena en cada piso!`;
+                    break;
+                case 'p':
+                    maxElectrons = 6;
+                    description = `La suite <strong>P</strong> es bastante espaciosa. Tiene 3 camas de dos plazas y puede hospedar hasta <strong>${maxElectrons} electrones</strong>.`;
+                    break;
+                case 'd':
+                    maxElectrons = 10;
+                    description = `La suite <strong>D</strong> es enorme y lujosa. Cuenta con 5 camas independientes y aloja un máximo de <strong>${maxElectrons} electrones</strong>.`;
+                    break;
+                case 'f':
+                    maxElectrons = 14;
+                    description = `La suite <strong>F</strong> es la suite familiar. Tiene 7 camas cómodas y puede acomodar hasta <strong>${maxElectrons} electrones</strong> a la vez. ¡Es súper grande!`;
+                    break;
+            }
+
+            const infoBox = document.getElementById('moeller-info-box');
+            infoBox.innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-400 font-bold uppercase">Detalles de: ${subId}</span>
+                        <span class="px-2 py-0.5 bg-cozy-primary text-white text-[10px] font-bold rounded-md">Piso ${level}</span>
+                    </div>
+                    <h4 class="font-title text-lg font-bold text-cozy-dark">Suite "${letter.toUpperCase()}" en el Piso ${level}</h4>
+                    <p class="text-xs text-gray-600 leading-relaxed">${description}</p>
+                    <div class="pt-2 flex justify-between text-[11px] text-gray-400 border-t border-gray-100">
+                        <span>Nivel de energía: n = ${level}</span>
+                        <span>Llenado máximo: Z = +${maxElectrons}</span>
+                    </div>
+                </div>
+            `;
+            playPop();
+        }
+
+        // --- PESTAÑA: LABORATORIO (SIMULADOR ACTIVO) ---
+        let currentLabElement = null;
+        let labAllocatedElectrons = 0;
+        let labHistory = []; // Registro de subniveles llenados por el usuario
+
+        function initLaboratorio() {
+            const selector = document.getElementById('element-selector');
+            selector.innerHTML = '';
+            
+            // Inyectar botones de selección de átomos neutros
+            elementsData.forEach((el, index) => {
+                const btn = document.createElement('button');
+                btn.className = `p-3 rounded-2xl flex items-center justify-between text-left transition-all ${index === 5 ? 'bg-cozy-secondary/10 border-2 border-cozy-secondary' : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'}`;
+                btn.id = `el-btn-${el.symbol}`;
+                btn.onclick = () => { selectLabElement(el); };
+                btn.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="font-title font-bold text-lg text-cozy-dark">${el.symbol}</span>
+                        <span class="text-xs font-semibold text-gray-500">${el.name}</span>
+                    </div>
+                    <span class="text-xs bg-gray-200/80 px-2 py-0.5 rounded-md font-bold text-gray-600">Z = ${el.z}</span>
+                `;
+                selector.appendChild(btn);
+            });
+
+            // Seleccionar carbono por defecto para iniciar
+            selectLabElement(elementsData[5]);
+        }
+
+        function selectLabElement(element) {
+            playPop();
+            // Limpiar selección previa en interfaz
+            if (currentLabElement) {
+                const prevBtn = document.getElementById(`el-btn-${currentLabElement.symbol}`);
+                if (prevBtn) prevBtn.className = "p-3 rounded-2xl flex items-center justify-between text-left transition-all bg-gray-50 border border-gray-200 hover:bg-gray-100";
+            }
+
+            currentLabElement = element;
+            const currentBtn = document.getElementById(`el-btn-${element.symbol}`);
+            if (currentBtn) currentBtn.className = "p-3 rounded-2xl flex items-center justify-between text-left transition-all bg-cozy-secondary/10 border-2 border-cozy-secondary";
+
+            document.getElementById('lab-element-symbol').innerText = element.symbol;
+            document.getElementById('lab-element-name').innerText = element.name;
+            
+            resetLab();
+        }
+
+        function resetLab() {
+            labAllocatedElectrons = 0;
+            labHistory = [];
+            document.getElementById('lab-electrons-count').innerText = `0 / ${currentLabElement.z}`;
+            document.getElementById('lab-config-output').innerText = "Ninguna";
+            
+            // Reset de botones del diagrama
+            const btns = document.querySelectorAll('.lab-cell-btn');
+            btns.forEach(btn => {
+                btn.className = "lab-cell-btn bg-white hover:bg-cozy-primary/20 border border-gray-200 rounded-xl p-2 font-bold transition-all text-center text-gray-700";
+            });
+
+            // Mensaje inicial amigable
+            const feedbackBox = document.getElementById('lab-feedback');
+            feedbackBox.className = "p-3 bg-cozy-accent/30 rounded-2xl border border-cozy-accent/50 text-xs text-cozy-dark font-medium flex items-center gap-2";
+            feedbackBox.innerHTML = `
+                <i data-lucide="sparkles" class="w-4 h-4 text-cozy-secondary animate-bounce"></i>
+                <span>¡Presiona <strong>1s</strong> para registrar los primeros huéspedes del ${currentLabElement.name}!</span>
+            `;
+            lucide.createIcons();
+
+            // Dibujar átomo vacío (solo núcleo)
+            drawAtom([]);
+            updateOrbitSummary([]);
+        }
+
+        function fillLabSublevel(sublevelId) {
+            if (!currentLabElement) return;
+
+            // Encontrar el índice de este subnivel en el orden correcto
+            const expectedIndex = labHistory.length;
+            if (expectedIndex >= moellerSequence.length) return;
+
+            const expectedSublevel = moellerSequence[expectedIndex];
+
+            // 1. Validar si el usuario presionó la habitación correcta
+            if (expectedSublevel.id !== sublevelId) {
+                playError();
+                const feedbackBox = document.getElementById('lab-feedback');
+                feedbackBox.className = "p-3 bg-red-50 rounded-2xl border border-red-200 text-xs text-red-700 font-semibold flex items-center gap-2 animate-shake";
+                feedbackBox.innerHTML = `
+                    <i data-lucide="x-circle" class="w-4 h-4 text-red-500"></i>
+                    <span>¡Ups! Los electrones prefieren bajar por el tobogán. Deberías llenar la suite <strong>${expectedSublevel.id}</strong>.</span>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            // 2. Calcular cuántos electrones meter en este subnivel
+            const remainingElectrons = currentLabElement.z - labAllocatedElectrons;
+            if (remainingElectrons <= 0) {
+                playError();
+                return;
+            }
+
+            const electronsToPlace = Math.min(expectedSublevel.capacity, remainingElectrons);
+            labAllocatedElectrons += electronsToPlace;
+
+            // Registrar en historial
+            labHistory.push({ id: sublevelId, count: electronsToPlace });
+
+            // Reproducir sonido exitoso de escala ascendente
+            playSound(220 + (labHistory.length * 40), 'sine', 0.2);
+
+            // 3. Actualizar UI del Diagrama
+            const btn = document.getElementById(`lab-btn-${sublevelId}`);
+            if (btn) {
+                btn.className = "lab-cell-btn bg-cozy-primary text-white border-2 border-cozy-primary rounded-xl p-2 font-bold transition-all text-center shadow-sm";
+                btn.innerHTML = `${sublevelId}<sup>${electronsToPlace}</sup>`;
+            }
+
+            // 4. Actualizar visualizador y textos
+            document.getElementById('lab-electrons-count').innerText = `${labAllocatedElectrons} / ${currentLabElement.z}`;
+            
+            // Construir string de configuración
+            const configString = labHistory.map(h => `${h.id}<sup>${h.count}</sup>`).join(' ');
+            document.getElementById('lab-config-output').innerHTML = configString;
+
+            // Feedback dinámico amigable
+            const feedbackBox = document.getElementById('lab-feedback');
+            feedbackBox.className = "p-3 bg-green-50 rounded-2xl border border-green-200 text-xs text-green-700 font-medium flex items-center gap-2";
+            
+            if (labAllocatedElectrons === currentLabElement.z) {
+                playSuccess();
+                feedbackBox.innerHTML = `
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-green-500 animate-bounce"></i>
+                    <span>¡Fantástico! Todos los <strong>${currentLabElement.z}</strong> electrones del ${currentLabElement.name} están perfectamente registrados.</span>
+                `;
+                openModal(`¡Buen trabajo con el ${currentLabElement.name}!`, `Has ubicado de forma correcta y ordenada todos los electrones siguiendo el diagrama de Moeller.`);
+            } else {
+                const nextExpected = moellerSequence[labHistory.length].id;
+                feedbackBox.innerHTML = `
+                    <i data-lucide="arrow-right-circle" class="w-4 h-4 text-cozy-primary animate-pulse"></i>
+                    <span>¡Habitación ${sublevelId} llena! Ahora, el tobogán nos lleva a la suite <strong>${nextExpected}</strong>.</span>
+                `;
+            }
+            lucide.createIcons();
+
+            // Dibujar átomo interactivo en base a los electrones asignados
+            drawAtom(labHistory);
+            updateOrbitSummary(labHistory);
+        }
+
+        function autoSolveLab() {
+            if (!currentLabElement) return;
+            resetLab();
+            
+            let tempAllocated = 0;
+            let tempHistory = [];
+
+            for (let i = 0; i < moellerSequence.length; i++) {
+                const step = moellerSequence[i];
+                const remaining = currentLabElement.z - tempAllocated;
+                if (remaining <= 0) break;
+
+                const toPlace = Math.min(step.capacity, remaining);
+                tempAllocated += toPlace;
+                tempHistory.push({ id: step.id, count: toPlace });
+
+                // Actualizar celda
+                const btn = document.getElementById(`lab-btn-${step.id}`);
+                if (btn) {
+                    btn.className = "lab-cell-btn bg-cozy-primary text-white border border-cozy-primary rounded-xl p-2 font-bold transition-all text-center";
+                    btn.innerHTML = `${step.id}<sup>${toPlace}</sup>`;
+                }
+            }
+
+            labAllocatedElectrons = tempAllocated;
+            labHistory = tempHistory;
+
+            document.getElementById('lab-electrons-count').innerText = `${labAllocatedElectrons} / ${currentLabElement.z}`;
+            const configString = labHistory.map(h => `${h.id}<sup>${h.count}</sup>`).join(' ');
+            document.getElementById('lab-config-output').innerHTML = configString;
+
+            const feedbackBox = document.getElementById('lab-feedback');
+            feedbackBox.className = "p-3 bg-cozy-primary/10 rounded-2xl border border-cozy-primary/30 text-xs text-cozy-dark font-medium flex items-center gap-2";
+            feedbackBox.innerHTML = `
+                <i data-lucide="wand-2" class="w-4 h-4 text-cozy-primary"></i>
+                <span>¡Completado mágicamente! Observa cómo se ordenan los electrones en sus órbitas circulares.</span>
+            `;
+            lucide.createIcons();
+            playSuccess();
+
+            drawAtom(labHistory);
+            updateOrbitSummary(labHistory);
+        }
+
+        // --- DIBUJADO DINÁMICO DE UN ÁTOMO (SVG) ---
+        function drawAtom(history) {
+            const svg = document.getElementById('atom-visualizer-svg');
+            
+            // Limpiar contenido antiguo excepto el núcleo fijo
+            svg.innerHTML = `
+                <!-- El núcleo central amigable -->
+                <circle cx="150" cy="150" r="18" fill="#E07A5F" stroke="#3D3A35" stroke-width="2" />
+                <text x="150" y="154" font-family="Fredoka" font-size="12" fill="white" font-weight="bold" text-anchor="middle">+</text>
+            `;
+
+            // Agrupar los electrones por nivel de energía (el número 'n' antes de la letra)
+            const electronsByOrbit = {};
+            history.forEach(item => {
+                const orbitLevel = parseInt(item.id.charAt(0)); // Ej: '1' de '1s'
+                if (!electronsByOrbit[orbitLevel]) {
+                    electronsByOrbit[orbitLevel] = 0;
+                }
+                electronsByOrbit[orbitLevel] += item.count;
+            });
+
+            // Dibujar las órbitas existentes y sus electrones
+            const maxOrbits = Math.max(...Object.keys(electronsByOrbit).map(Number), 1);
+            
+            for (let orbit = 1; orbit <= maxOrbits; orbit++) {
+                const radius = 22 + (orbit * 28); // Radio concéntrico creciente
+                const electronCount = electronsByOrbit[orbit] || 0;
+
+                // 1. Dibujar línea de la órbita (anillo)
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", "150");
+                circle.setAttribute("cy", "150");
+                circle.setAttribute("r", radius);
+                circle.setAttribute("fill", "none");
+                circle.setAttribute("stroke", "#A5A693");
+                circle.setAttribute("stroke-width", "1.5");
+                circle.setAttribute("stroke-dasharray", "4,4");
+                svg.appendChild(circle);
+
+                // 2. Dibujar electrones a lo largo de este anillo de órbita
+                if (electronCount > 0) {
+                    // Grupo rotatorio para la animación fluida
+                    const orbitGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    orbitGroup.setAttribute("class", "orbiting-electron");
+                    // Velocidades diferentes para cada órbita para dinamismo
+                    orbitGroup.setAttribute("style", `--duration: ${12 - (orbit * 2)}s`);
+
+                    for (let i = 0; i < electronCount; i++) {
+                        const angle = (i * 2 * Math.PI) / electronCount; // Distribuir uniformemente
+                        const ex = 150 + radius * Math.cos(angle);
+                        const ey = 150 + radius * Math.sin(angle);
+
+                        // Esfera del electrón
+                        const eCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        eCircle.setAttribute("cx", ex);
+                        eCircle.setAttribute("cy", ey);
+                        eCircle.setAttribute("r", "7");
+                        eCircle.setAttribute("fill", "#F2CC8F");
+                        eCircle.setAttribute("stroke", "#3D3A35");
+                        eCircle.setAttribute("stroke-width", "1.5");
+                        orbitGroup.appendChild(eCircle);
+
+                        // Brillo interno del electrón
+                        const eGlow = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        eGlow.setAttribute("cx", ex - 2);
+                        eGlow.setAttribute("cy", ey - 2);
+                        eGlow.setAttribute("r", "1.5");
+                        eGlow.setAttribute("fill", "white");
+                        orbitGroup.appendChild(eGlow);
+                    }
+                    svg.appendChild(orbitGroup);
+                }
+            }
+        }
+
+        function updateOrbitSummary(history) {
+            const summaryContainer = document.getElementById('orbit-summary');
+            summaryContainer.innerHTML = '';
+
+            const electronsByOrbit = {};
+            history.forEach(item => {
+                const orbitLevel = parseInt(item.id.charAt(0));
+                if (!electronsByOrbit[orbitLevel]) {
+                    electronsByOrbit[orbitLevel] = 0;
+                }
+                electronsByOrbit[orbitLevel] += item.count;
+            });
+
+            const keys = Object.keys(electronsByOrbit).sort();
+            if (keys.length === 0) {
+                summaryContainer.innerHTML = '<div class="text-[11px] text-gray-400 text-center">Sin huéspedes registrados aún</div>';
+                return;
+            }
+
+            keys.forEach(orbit => {
+                const row = document.createElement('div');
+                row.className = "flex justify-between items-center py-1 text-cozy-dark font-semibold";
+                row.innerHTML = `
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 bg-cozy-secondary rounded-full"></span>
+                        <span>Órbita nº ${orbit} (Piso ${orbit}):</span>
+                    </div>
+                    <span class="bg-white border border-gray-200 px-2.5 py-0.5 rounded-lg text-xs font-bold text-cozy-secondary shadow-sm">${electronsByOrbit[orbit]} e⁻</span>
+                `;
+                summaryContainer.appendChild(row);
+            });
+        }
+
+        // --- SISTEMA DEL JUEGO (RETO ESTELAR) ---
+        let gameScore = 0;
+        let gameMedals = 0;
+        let currentQuestionIndex = 0;
+        let selectedAnswersHistory = [];
+
+        const gameQuestions = [
+            {
+                text: "¿Qué suite o habitación es la más pequeña de todas y solo puede hospedar a un máximo de 2 electrones?",
+                options: [
+                    { text: "Suite Principal (p)", correct: false },
+                    { text: "Suite Sencilla (s)", correct: true },
+                    { text: "Suite Doble (d)", correct: false },
+                    { text: "Suite Familiar (f)", correct: false }
+                ]
+            },
+            {
+                text: "Según el tobogán del Diagrama de Moeller, ¿qué habitación se debe llenar inmediatamente después de llenar la suite 2p?",
+                options: [
+                    { text: "La suite 3s", correct: true },
+                    { text: "La suite 3p", correct: false },
+                    { text: "La suite 2s", correct: false },
+                    { text: "La suite 1s", correct: false }
+                ]
+            },
+            {
+                text: "Si un átomo neutro tiene un número atómico Z = 6 (como el Carbono), ¿cuántos electrones totales debemos ubicar en sus habitaciones?",
+                options: [
+                    { text: "3 electrones", correct: false },
+                    { text: "12 electrones", correct: false },
+                    { text: "6 electrones", correct: true },
+                    { text: "8 electrones", correct: false }
+                ]
+            },
+            {
+                text: "¿Cuál de las siguientes es la configuración electrónica correcta del Helio (Z = 2)?",
+                options: [
+                    { text: "1s²", correct: true },
+                    { text: "1s¹ 2s¹", correct: false },
+                    { text: "2s²", correct: false },
+                    { text: "1s² 2s²", correct: false }
+                ]
+            },
+            {
+                text: "¿Por qué los electrones no llenan siempre el piso 3 entero antes de subir al piso 4?",
+                options: [
+                    { text: "Porque se cansan de esperar", correct: false },
+                    { text: "Porque la habitación 4s requiere menos energía que la suite de lujo 3d", correct: true },
+                    { text: "Porque la suite 3d siempre está clausurada", correct: false },
+                    { text: "Porque les gusta más el color del piso 4", correct: false }
+                ]
+            }
+        ];
+
+        function initJuego() {
+            currentQuestionIndex = 0;
+            document.getElementById('game-score').innerText = gameScore;
+            loadGameQuestion();
+        }
+
+        function loadGameQuestion() {
+            const feedback = document.getElementById('game-feedback');
+            feedback.classList.add('hidden');
+            document.getElementById('game-next-btn').classList.add('hidden');
+
+            const q = gameQuestions[currentQuestionIndex];
+            
+            // Actualizar barra de progreso
+            document.getElementById('game-current-q').innerText = currentQuestionIndex + 1;
+            const percentage = ((currentQuestionIndex + 1) / gameQuestions.length) * 100;
+            document.getElementById('game-progress').style.width = `${percentage}%`;
+
+            // Establecer texto
+            document.getElementById('game-question-text').innerText = q.text;
+
+            // Renderizar opciones
+            const optionsContainer = document.getElementById('game-options');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-cozy-primary rounded-2xl font-semibold text-cozy-dark transition-all text-sm flex items-center justify-between cozy-bounce";
+                btn.onclick = () => { selectGameOption(btn, opt.correct); };
+                btn.innerHTML = `
+                    <span>${opt.text}</span>
+                    <i data-lucide="circle" class="w-4 h-4 text-gray-300"></i>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+            lucide.createIcons();
+        }
+
+        function selectGameOption(selectedBtn, isCorrect) {
+            // Deshabilitar el resto de botones para que no sigan clickeando
+            const buttons = document.getElementById('game-options').querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            const feedback = document.getElementById('game-feedback');
+            feedback.classList.remove('hidden');
+
+            if (isCorrect) {
+                playSuccess();
+                gameScore += 20;
+                document.getElementById('game-score').innerText = gameScore;
+
+                selectedBtn.className = "w-full text-left p-4 bg-green-50 border-2 border-green-500 rounded-2xl font-bold text-green-800 transition-all text-sm flex items-center justify-between";
+                selectedBtn.querySelector('i').setAttribute('data-lucide', 'check-circle-2');
+                selectedBtn.querySelector('i').className = "w-5 h-5 text-green-600";
+
+                feedback.className = "p-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl font-semibold text-center text-sm animate-bounce";
+                feedback.innerText = "¡Excelente respuesta! Has ganado +20 puntos. ⭐";
+            } else {
+                playError();
+                selectedBtn.className = "w-full text-left p-4 bg-red-50 border-2 border-red-500 rounded-2xl font-bold text-red-800 transition-all text-sm flex items-center justify-between";
+                selectedBtn.querySelector('i').setAttribute('data-lucide', 'x-circle');
+                selectedBtn.querySelector('i').className = "w-5 h-5 text-red-600";
+
+                feedback.className = "p-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl font-semibold text-center text-sm";
+                feedback.innerText = "¡Casi lo logras! Revisa el tobogán de Moeller e inténtalo en la siguiente.";
+
+                // Iluminar la correcta para aprender
+                highlightCorrectAnswer();
+            }
+            lucide.createIcons();
+
+            // Mostrar botón Siguiente
+            document.getElementById('game-next-btn').classList.remove('hidden');
+            document.getElementById('game-next-btn').style.display = 'flex';
+        }
+
+        function highlightCorrectAnswer() {
+            const q = gameQuestions[currentQuestionIndex];
+            const buttons = document.getElementById('game-options').querySelectorAll('button');
+            
+            q.options.forEach((opt, idx) => {
+                if (opt.correct) {
+                    buttons[idx].className = "w-full text-left p-4 bg-green-50 border-2 border-green-200 rounded-2xl font-bold text-green-700 transition-all text-sm flex items-center justify-between";
+                }
+            });
+        }
+
+        function nextGameQuestion() {
+            playPop();
+            currentQuestionIndex++;
+            if (currentQuestionIndex < gameQuestions.length) {
+                loadGameQuestion();
+            } else {
+                // Final del juego
+                finishGame();
+            }
+        }
+
+        function finishGame() {
+            document.getElementById('game-next-btn').classList.add('hidden');
+            const card = document.getElementById('game-card');
+            
+            let medalEarned = "🥉 Medalla de Bronce";
+            if (gameScore >= 100) {
+                medalEarned = "🏆 Medalla de Diamante (Perfecto)";
+                gameMedals += 1;
+            } else if (gameScore >= 80) {
+                medalEarned = "🥈 Medalla de Plata";
+                gameMedals += 1;
+            } else if (gameScore >= 60) {
+                medalEarned = "🥉 Medalla de Bronce";
+                gameMedals += 1;
+            }
+
+            document.getElementById('game-medals').innerText = `🏆 ${gameMedals}`;
+
+            card.innerHTML = `
+                <div class="text-center p-8 bg-cozy-bg rounded-3xl border border-gray-100 space-y-6">
+                    <div class="text-5xl animate-bounce">🏆</div>
+                    <h3 class="font-title text-2xl font-bold text-cozy-dark">¡Felicidades, Conserje Científico!</h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        Has terminado todos los desafíos del hotel. Has acumulado un total de <strong>${gameScore} puntos</strong> y te has ganado el derecho a usar la medalla:
+                    </p>
+                    <div class="py-3 px-6 bg-white border border-gray-200 rounded-2xl max-w-xs mx-auto font-bold text-cozy-secondary shadow-sm text-lg">
+                        ${medalEarned}
+                    </div>
+                    <button onclick="restartGame()" class="w-full bg-cozy-primary text-white font-bold py-3.5 rounded-2xl hover:bg-cozy-primary/90 transition-all shadow-sm">
+                        Jugar de nuevo
+                    </button>
+                </div>
+            `;
+            playSuccess();
+        }
+
+        function restartGame() {
+            gameScore = 0;
+            currentQuestionIndex = 0;
+            // Restaurar estructura original de la tarjeta del juego
+            const card = document.getElementById('game-card');
+            card.innerHTML = `
+                <div class="p-5 bg-cozy-bg rounded-2xl border border-gray-100 text-center">
+                    <h3 id="game-question-text" class="font-title text-lg md:text-xl font-bold text-cozy-dark">
+                        Cargando desafío...
+                    </h3>
+                </div>
+                <div id="game-options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            `;
+            initJuego();
+        }
+
+        // --- SISTEMA DEL DIÁLOGO MODAL ---
+        function openModal(title, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            
+            const modal = document.getElementById('success-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            playPop();
+            const modal = document.getElementById('success-modal');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // --- INICIALIZACIÓN GLOBAL ---
+        window.onload = function() {
+            lucide.createIcons();
+            // Iniciar por defecto en la pestaña de teoría
+            switchTab('teoria');
+        };
+    </script>
+</body>
+</html>
