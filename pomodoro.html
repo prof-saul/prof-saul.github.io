@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Educativo Cozy</title>
+    
+    <!-- Fuentes amigables y cozy (Quicksand) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Iconos de Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Quicksand', 'sans-serif'],
+                    },
+                    colors: {
+                        cozy: {
+                            light: '#FAF6F0',
+                            brown: '#8B7355',
+                            green: '#8F9779',
+                            blue: '#98A8B0',
+                            dark: '#4A3F35'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            transition: background-image 0.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Efecto de cristal esmerilado para que se vea cozy pero legible */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(139, 115, 85, 0.15);
+        }
+
+        /* Overlay cálido sobre el fondo para no lastimar la vista */
+        .bg-overlay {
+            background: linear-gradient(135deg, rgba(250, 246, 240, 0.4) 0%, rgba(139, 115, 85, 0.3) 100%);
+        }
+
+        /* Transiciones suaves para botones */
+        button {
+            transition: all 0.2s ease;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Ocultar barra de desplazamiento en la lista de tareas */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(139, 115, 85, 0.3);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-cozy-dark font-sans" id="body-bg" style="background-image: url('https://images.unsplash.com/photo-1519682337058-a94d519337bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+    
+    <!-- Overlay principal para suavizar la imagen de fondo -->
+    <div class="fixed inset-0 bg-overlay z-0 pointer-events-none"></div>
+
+    <!-- Contenedor Principal -->
+    <div class="relative z-10 flex flex-col min-h-screen p-4 md:p-8 max-w-6xl mx-auto">
+        
+        <!-- Cabecera: Título y Controles de ventana -->
+        <header class="flex justify-between items-center mb-6 glass-panel rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+                <i class="ph-fill ph-book-open text-3xl text-cozy-brown"></i>
+                <h1 class="text-2xl font-bold text-cozy-brown tracking-wide">Aula Enfocada</h1>
+            </div>
+            <div class="flex gap-4">
+                <button id="btn-info" class="p-2 rounded-full hover:bg-white/50 text-cozy-brown" title="¿Qué es Pomodoro?">
+                    <i class="ph ph-info text-2xl"></i>
+                </button>
+                <button id="btn-fullscreen" class="p-2 rounded-full hover:bg-white/50 text-cozy-brown" title="Pantalla Completa">
+                    <i class="ph ph-corners-out text-2xl"></i>
+                </button>
+                <button id="btn-settings" class="p-2 rounded-full hover:bg-white/50 text-cozy-brown" title="Configuración">
+                    <i class="ph ph-gear text-2xl"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Área Central: Temporizador y Tareas -->
+        <main class="flex-1 flex flex-col lg:flex-row gap-6 items-center lg:items-stretch justify-center">
+            
+            <!-- Panel del Temporizador (Principal) -->
+            <div class="glass-panel rounded-3xl p-8 md:p-12 flex flex-col items-center justify-center w-full lg:w-2/3 shadow-2xl relative overflow-hidden">
+                
+                <!-- Indicador de Fase Actual -->
+                <div id="phase-badge" class="px-6 py-2 rounded-full text-lg font-semibold mb-6 flex items-center gap-2 bg-cozy-brown/10 text-cozy-brown border border-cozy-brown/20 transition-colors duration-500">
+                    <i id="phase-icon" class="ph-fill ph-brain"></i>
+                    <span id="phase-text">Tiempo de Enfoque</span>
+                </div>
+
+                <!-- Temporizador Gigante -->
+                <div id="timer-display" class="text-8xl md:text-9xl font-bold tracking-tighter text-cozy-dark mb-8 tabular-nums drop-shadow-sm">
+                    25:00
+                </div>
+
+                <!-- Controles del Temporizador -->
+                <div class="flex items-center gap-6 mb-8">
+                    <button id="btn-reset" class="w-14 h-14 flex items-center justify-center rounded-full bg-white/40 hover:bg-white/60 shadow-sm border border-white/50 text-cozy-dark" title="Reiniciar">
+                        <i class="ph ph-arrow-counter-clockwise text-2xl"></i>
+                    </button>
+                    
+                    <button id="btn-play-pause" class="w-20 h-20 flex items-center justify-center rounded-full bg-cozy-brown text-white shadow-lg hover:bg-cozy-dark transition-colors duration-300">
+                        <i id="play-icon" class="ph-fill ph-play text-4xl ml-2"></i>
+                    </button>
+                    
+                    <button id="btn-skip" class="w-14 h-14 flex items-center justify-center rounded-full bg-white/40 hover:bg-white/60 shadow-sm border border-white/50 text-cozy-dark" title="Saltar Fase">
+                        <i class="ph ph-step-forward text-2xl"></i>
+                    </button>
+                </div>
+
+                <!-- Progreso y Ciclos -->
+                <div class="w-full max-w-md">
+                    <div class="flex justify-between text-sm font-medium text-cozy-dark/70 mb-2">
+                        <span>Progreso de la sesión</span>
+                        <span id="cycle-count">Ciclo: 1/4</span>
+                    </div>
+                    <div class="w-full h-3 bg-white/40 rounded-full overflow-hidden border border-white/30">
+                        <div id="progress-bar" class="h-full bg-cozy-brown w-0 transition-all duration-1000 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Lateral: Lista de Tareas -->
+            <div class="glass-panel rounded-3xl p-6 w-full lg:w-1/3 flex flex-col h-96 lg:h-auto">
+                <div class="flex items-center gap-2 mb-4 text-cozy-brown">
+                    <i class="ph-fill ph-check-square-offset text-2xl"></i>
+                    <h2 class="text-xl font-bold">Tareas de Hoy</h2>
+                </div>
+                
+                <form id="task-form" class="flex gap-2 mb-4">
+                    <input type="text" id="task-input" placeholder="¿Qué vamos a estudiar?" class="flex-1 bg-white/50 border border-white/60 rounded-xl px-4 py-2 outline-none focus:bg-white/80 focus:ring-2 focus:ring-cozy-brown/50 transition-all placeholder:text-cozy-dark/40 text-cozy-dark font-medium">
+                    <button type="submit" class="bg-cozy-brown text-white p-2 rounded-xl hover:bg-cozy-dark">
+                        <i class="ph ph-plus text-xl"></i>
+                    </button>
+                </form>
+
+                <ul id="task-list" class="flex-1 overflow-y-auto flex flex-col gap-2 pr-2">
+                    <!-- Las tareas se inyectan aquí -->
+                </ul>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal de Configuración -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="glass-panel w-full max-w-2xl rounded-3xl p-8 m-4 max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300" id="settings-content">
+            <div class="flex justify-between items-center mb-6 border-b border-cozy-dark/10 pb-4">
+                <h2 class="text-2xl font-bold text-cozy-brown flex items-center gap-2">
+                    <i class="ph-fill ph-sliders-horizontal"></i> Configuración
+                </h2>
+                <button id="btn-close-settings" class="text-cozy-dark/50 hover:text-cozy-dark p-1 rounded-full hover:bg-black/5">
+                    <i class="ph ph-x text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-8">
+                <!-- Sección Tiempos -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 text-cozy-dark">Tiempos (minutos)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white/40 p-4 rounded-2xl border border-white/50">
+                            <label class="block text-sm font-medium text-cozy-dark/70 mb-2">Enfoque</label>
+                            <input type="number" id="setting-focus" min="1" max="120" value="25" class="w-full bg-white/60 rounded-xl px-3 py-2 text-center text-xl font-bold text-cozy-dark outline-none focus:ring-2 focus:ring-cozy-brown/50 border border-white">
+                        </div>
+                        <div class="bg-white/40 p-4 rounded-2xl border border-white/50">
+                            <label class="block text-sm font-medium text-cozy-dark/70 mb-2">Descanso Corto</label>
+                            <input type="number" id="setting-short-break" min="1" max="30" value="5" class="w-full bg-white/60 rounded-xl px-3 py-2 text-center text-xl font-bold text-cozy-dark outline-none focus:ring-2 focus:ring-cozy-green/50 border border-white">
+                        </div>
+                        <div class="bg-white/40 p-4 rounded-2xl border border-white/50">
+                            <label class="block text-sm font-medium text-cozy-dark/70 mb-2">Descanso Largo</label>
+                            <input type="number" id="setting-long-break" min="1" max="60" value="15" class="w-full bg-white/60 rounded-xl px-3 py-2 text-center text-xl font-bold text-cozy-dark outline-none focus:ring-2 focus:ring-cozy-blue/50 border border-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección Alarma -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 text-cozy-dark">Alarma</h3>
+                    <div class="flex items-center gap-4 bg-white/40 p-4 rounded-2xl border border-white/50">
+                        <select id="setting-sound" class="flex-1 bg-white/60 rounded-xl px-4 py-2 font-medium text-cozy-dark outline-none focus:ring-2 focus:ring-cozy-brown/50 border border-white cursor-pointer">
+                            <option value="bell">Campana Suave (Relajante)</option>
+                            <option value="marimba">Marimba Alegre</option>
+                            <option value="gentle">Acorde Cálido</option>
+                        </select>
+                        <button id="btn-test-sound" class="bg-cozy-brown/10 text-cozy-brown px-4 py-2 rounded-xl hover:bg-cozy-brown/20 font-medium flex items-center gap-2 border border-cozy-brown/20">
+                            <i class="ph-fill ph-speaker-high"></i> Probar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sección Fondos -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 text-cozy-dark">Fondo de Pantalla (Estética Cozy)</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <button class="bg-preset w-full h-20 rounded-xl bg-cover bg-center border-2 border-transparent hover:border-cozy-brown/50 transition-all focus:border-cozy-brown overflow-hidden" data-bg="https://images.unsplash.com/photo-1519682337058-a94d519337bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" style="background-image: url('https://images.unsplash.com/photo-1519682337058-a94d519337bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80');" title="Biblioteca Lofi"></button>
+                        
+                        <button class="bg-preset w-full h-20 rounded-xl bg-cover bg-center border-2 border-transparent hover:border-cozy-brown/50 transition-all focus:border-cozy-brown overflow-hidden" data-bg="https://images.unsplash.com/photo-1449247709967-d4461a6a6103?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" style="background-image: url('https://images.unsplash.com/photo-1449247709967-d4461a6a6103?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80');" title="Escritorio Cálido"></button>
+                        
+                        <button class="bg-preset w-full h-20 rounded-xl bg-cover bg-center border-2 border-transparent hover:border-cozy-brown/50 transition-all focus:border-cozy-brown overflow-hidden" data-bg="https://images.unsplash.com/photo-1497604401993-f2e922e5cb0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" style="background-image: url('https://images.unsplash.com/photo-1497604401993-f2e922e5cb0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80');" title="Naturaleza y Libros"></button>
+                        
+                        <button class="bg-preset w-full h-20 rounded-xl bg-cover bg-center border-2 border-transparent hover:border-cozy-brown/50 transition-all focus:border-cozy-brown overflow-hidden" data-bg="https://images.unsplash.com/photo-1600555379765-f82335a7b1b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" style="background-image: url('https://images.unsplash.com/photo-1600555379765-f82335a7b1b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80');" title="Acuarela Plantas"></button>
+                    </div>
+                    <div class="bg-white/40 p-4 rounded-2xl border border-white/50">
+                        <label class="block text-sm font-medium text-cozy-dark/70 mb-2">O pega la URL de tu propia imagen:</label>
+                        <input type="text" id="setting-custom-bg" placeholder="https://ejemplo.com/imagen.jpg" class="w-full bg-white/60 rounded-xl px-4 py-2 font-medium text-cozy-dark outline-none focus:ring-2 focus:ring-cozy-brown/50 border border-white placeholder:text-cozy-dark/30">
+                    </div>
+                </div>
+
+                <!-- Botón Guardar -->
+                <button id="btn-save-settings" class="w-full bg-cozy-brown text-white font-bold text-lg py-3 rounded-2xl shadow-lg hover:bg-cozy-dark transition-colors duration-300">
+                    Guardar Configuración
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Información -->
+    <div id="info-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="glass-panel w-full max-w-2xl rounded-3xl p-8 m-4 max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300" id="info-content">
+            <div class="flex justify-between items-center mb-6 border-b border-cozy-dark/10 pb-4">
+                <h2 class="text-2xl font-bold text-cozy-brown flex items-center gap-2">
+                    <i class="ph-fill ph-info"></i> La Técnica Pomodoro
+                </h2>
+                <button id="btn-close-info" class="text-cozy-dark/50 hover:text-cozy-dark p-1 rounded-full hover:bg-black/5">
+                    <i class="ph ph-x text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-cozy-dark leading-relaxed font-medium">
+                <p>La <strong>Técnica Pomodoro</strong> es un método de gestión del tiempo creado para mejorar la productividad y reducir la fatiga mental durante el estudio o trabajo.</p>
+                <p>La idea principal es dividir tus sesiones de estudio en bloques de tiempo manejables, separados por pausas que permiten a tu cerebro descansar y asimilar la información.</p>
+                
+                <h3 class="font-bold text-lg text-cozy-brown mt-6 mb-2">¿Cómo funciona?</h3>
+                <ol class="list-decimal list-inside space-y-3 ml-2">
+                    <li><strong>Planifica:</strong> Escribe en la lista las tareas o temas que vas a estudiar.</li>
+                    <li><strong>Enfócate:</strong> Inicia el temporizador (tradicionalmente 25 minutos) y dedica ese tiempo 100% a la tarea, sin distracciones.</li>
+                    <li><strong>Descansa:</strong> Cuando suene la alarma, toma un <em>descanso corto</em> (5 minutos). ¡Levántate, estírate o toma agua!</li>
+                    <li><strong>Recarga:</strong> Cada 4 ciclos completados, toma un <em>descanso largo</em> (15 a 30 minutos) para recuperar energías antes de empezar de nuevo.</li>
+                </ol>
+
+                <div class="mt-6 p-4 bg-cozy-brown/10 rounded-2xl border border-cozy-brown/20 text-sm">
+                    <i class="ph-fill ph-lightbulb mr-1 text-cozy-brown"></i> <strong>Tip:</strong> Todos aprendemos a diferentes ritmos. Usa el panel de configuración para ajustar los tiempos a lo que mejor te funcione.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Lógica -->
+    <script>
+        // --- ESTADO GLOBAL ---
+        let timer;
+        let isRunning = false;
+        let timeLeft = 0; // en segundos
+        let totalTimeForPhase = 0; // para barra de progreso
+        
+        // Fases: 'focus', 'shortBreak', 'longBreak'
+        let currentPhase = 'focus'; 
+        let pomodorosCompleted = 0;
+        let tasks = [];
+
+        // Configuraciones por defecto (en minutos)
+        let settings = {
+            focus: 25,
+            shortBreak: 5,
+            longBreak: 15,
+            sound: 'bell',
+            background: 'https://images.unsplash.com/photo-1519682337058-a94d519337bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'
+        };
+
+        // --- ELEMENTOS DEL DOM ---
+        const elTimerDisplay = document.getElementById('timer-display');
+        const elPlayIcon = document.getElementById('play-icon');
+        const elBtnPlayPause = document.getElementById('btn-play-pause');
+        const elBtnReset = document.getElementById('btn-reset');
+        const elBtnSkip = document.getElementById('btn-skip');
+        const elProgressBar = document.getElementById('progress-bar');
+        const elPhaseBadge = document.getElementById('phase-badge');
+        const elPhaseText = document.getElementById('phase-text');
+        const elPhaseIcon = document.getElementById('phase-icon');
+        const elCycleCount = document.getElementById('cycle-count');
+        const elBodyBg = document.getElementById('body-bg');
+
+        const elSettingsModal = document.getElementById('settings-modal');
+        const elSettingsContent = document.getElementById('settings-content');
+        const elBtnSettings = document.getElementById('btn-settings');
+        const elBtnCloseSettings = document.getElementById('btn-close-settings');
+        const elBtnSaveSettings = document.getElementById('btn-save-settings');
+
+        const elInfoModal = document.getElementById('info-modal');
+        const elInfoContent = document.getElementById('info-content');
+        const elBtnInfo = document.getElementById('btn-info');
+        const elBtnCloseInfo = document.getElementById('btn-close-info');
+
+        const elInputFocus = document.getElementById('setting-focus');
+        const elInputShort = document.getElementById('setting-short-break');
+        const elInputLong = document.getElementById('setting-long-break');
+        const elInputSound = document.getElementById('setting-sound');
+        const elInputCustomBg = document.getElementById('setting-custom-bg');
+        const elBgPresets = document.querySelectorAll('.bg-preset');
+        const elBtnTestSound = document.getElementById('btn-test-sound');
+
+        const elTaskForm = document.getElementById('task-form');
+        const elTaskInput = document.getElementById('task-input');
+        const elTaskList = document.getElementById('task-list');
+        const elBtnFullscreen = document.getElementById('btn-fullscreen');
+
+        // --- INICIALIZACIÓN ---
+        function init() {
+            loadSettings();
+            loadTasks();
+            applySettingsToUI();
+            setPhase('focus');
+        }
+
+        // --- GESTIÓN DE CONFIGURACIÓN (LOCALSTORAGE) ---
+        function loadSettings() {
+            const saved = localStorage.getItem('cozyPomodoroSettings');
+            if (saved) {
+                settings = { ...settings, ...JSON.parse(saved) };
+            }
+        }
+
+        function saveSettings() {
+            const newSettings = {
+                focus: parseInt(elInputFocus.value) || 25,
+                shortBreak: parseInt(elInputShort.value) || 5,
+                longBreak: parseInt(elInputLong.value) || 15,
+                sound: elInputSound.value,
+                background: elInputCustomBg.value.trim() || settings.background
+            };
+            
+            settings = newSettings;
+            localStorage.setItem('cozyPomodoroSettings', JSON.stringify(settings));
+            applySettingsToUI();
+            
+            // Si el temporizador no está corriendo, actualizar el tiempo en pantalla
+            if (!isRunning) {
+                setPhase(currentPhase);
+            }
+            closeSettings();
+        }
+
+        function applySettingsToUI() {
+            elInputFocus.value = settings.focus;
+            elInputShort.value = settings.shortBreak;
+            elInputLong.value = settings.longBreak;
+            elInputSound.value = settings.sound;
+            
+            if (settings.background) {
+                elBodyBg.style.backgroundImage = `url("${settings.background}")`;
+            }
+        }
+
+        // --- LÓGICA DEL TEMPORIZADOR ---
+        function setPhase(phase) {
+            currentPhase = phase;
+            clearInterval(timer);
+            isRunning = false;
+            elPlayIcon.classList.replace('ph-pause', 'ph-play');
+            elPlayIcon.classList.remove('ml-0');
+            elPlayIcon.classList.add('ml-2');
+
+            // Configurar UI según la fase
+            elPhaseBadge.className = 'px-6 py-2 rounded-full text-lg font-semibold mb-6 flex items-center gap-2 border transition-colors duration-500';
+            
+            if (phase === 'focus') {
+                timeLeft = settings.focus * 60;
+                elPhaseText.textContent = 'Tiempo de Enfoque';
+                elPhaseIcon.className = 'ph-fill ph-brain';
+                elPhaseBadge.classList.add('bg-cozy-brown/10', 'text-cozy-brown', 'border-cozy-brown/20');
+                elProgressBar.className = 'h-full w-0 transition-all duration-1000 rounded-full bg-cozy-brown';
+            } else if (phase === 'shortBreak') {
+                timeLeft = settings.shortBreak * 60;
+                elPhaseText.textContent = 'Descanso Corto';
+                elPhaseIcon.className = 'ph-fill ph-coffee';
+                elPhaseBadge.classList.add('bg-cozy-green/10', 'text-cozy-green', 'border-cozy-green/20');
+                elProgressBar.className = 'h-full w-0 transition-all duration-1000 rounded-full bg-cozy-green';
+            } else if (phase === 'longBreak') {
+                timeLeft = settings.longBreak * 60;
+                elPhaseText.textContent = 'Descanso Largo';
+                elPhaseIcon.className = 'ph-fill ph-armchair';
+                elPhaseBadge.classList.add('bg-cozy-blue/10', 'text-cozy-blue', 'border-cozy-blue/20');
+                elProgressBar.className = 'h-full w-0 transition-all duration-1000 rounded-full bg-cozy-blue';
+            }
+
+            totalTimeForPhase = timeLeft;
+            updateDisplay();
+            updateCycleDisplay();
+        }
+
+        function toggleTimer() {
+            // Inicializar Audio Context (requiere interacción del usuario)
+            initAudioContext();
+
+            if (isRunning) {
+                clearInterval(timer);
+                isRunning = false;
+                elPlayIcon.classList.replace('ph-pause', 'ph-play');
+                elPlayIcon.classList.remove('ml-0');
+                elPlayIcon.classList.add('ml-2');
+            } else {
+                isRunning = true;
+                elPlayIcon.classList.replace('ph-play', 'ph-pause');
+                elPlayIcon.classList.remove('ml-2');
+                elPlayIcon.classList.add('ml-0');
+                timer = setInterval(tick, 1000);
+            }
+        }
+
+        function tick() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                updateDisplay();
+            } else {
+                completePhase();
+            }
+        }
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            elTimerDisplay.textContent = formattedTime;
+            document.title = `${formattedTime} - Aula Enfocada`;
+
+            // Actualizar barra de progreso
+            if (totalTimeForPhase > 0) {
+                const progressPercentage = ((totalTimeForPhase - timeLeft) / totalTimeForPhase) * 100;
+                elProgressBar.style.width = `${progressPercentage}%`;
+            } else {
+                elProgressBar.style.width = '0%';
+            }
+        }
+
+        function updateCycleDisplay() {
+            const currentCycleNum = (pomodorosCompleted % 4) + 1;
+            elCycleCount.textContent = `Ciclo: ${currentCycleNum}/4`;
+        }
+
+        function completePhase() {
+            clearInterval(timer);
+            playAlarm(settings.sound);
+            
+            if (currentPhase === 'focus') {
+                pomodorosCompleted++;
+                if (pomodorosCompleted % 4 === 0) {
+                    setPhase('longBreak');
+                } else {
+                    setPhase('shortBreak');
+                }
+            } else {
+                setPhase('focus');
+            }
+            
+            // Iniciar automáticamente la siguiente fase
+            toggleTimer();
+        }
+
+        function skipPhase() {
+            if (confirm('¿Seguro que deseas saltar esta fase?')) {
+                if (currentPhase === 'focus') {
+                    pomodorosCompleted++;
+                    if (pomodorosCompleted % 4 === 0) {
+                        setPhase('longBreak');
+                    } else {
+                        setPhase('shortBreak');
+                    }
+                } else {
+                    setPhase('focus');
+                }
+            }
+        }
+
+        // --- SISTEMA DE AUDIO (Web Audio API) ---
+        // Genera sonidos hermosos sin depender de archivos externos
+        let audioCtx = null;
+        
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playAlarm(type) {
+            initAudioContext();
+            if (!audioCtx) return;
+
+            const t = audioCtx.currentTime;
+
+            if (type === 'bell') {
+                // Acorde suave tipo cuenco tibetano/campana
+                const freqs = [440, 554.37, 659.25]; // La Mayor
+                freqs.forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, t);
+                    
+                    gain.gain.setValueAtTime(0, t);
+                    gain.gain.linearRampToValueAtTime(0.3 / freqs.length, t + 0.1 + (i*0.05));
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 3 + i);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(t);
+                    osc.stop(t + 4 + i);
+                });
+            } else if (type === 'marimba') {
+                // Sonido percusivo alegre (3 notas)
+                const notes = [523.25, 659.25, 783.99]; // Do, Mi, Sol
+                notes.forEach((freq, i) => {
+                    const timeOffset = t + (i * 0.15);
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, timeOffset);
+                    
+                    gain.gain.setValueAtTime(0, timeOffset);
+                    gain.gain.linearRampToValueAtTime(0.4, timeOffset + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, timeOffset + 0.5);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start(timeOffset);
+                    osc.stop(timeOffset + 0.6);
+                });
+            } else if (type === 'gentle') {
+                // Acorde muy cálido y lento
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(329.63, t); // Mi
+                osc.frequency.linearRampToValueAtTime(440, t + 1); // Desliza a La
+                
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.4, t + 1);
+                gain.gain.linearRampToValueAtTime(0, t + 3);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(t);
+                osc.stop(t + 3);
+            }
+        }
+
+        // --- GESTIÓN DE TAREAS (TODO LIST) ---
+        function loadTasks() {
+            const saved = localStorage.getItem('cozyPomodoroTasks');
+            if (saved) {
+                tasks = JSON.parse(saved);
+                renderTasks();
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem('cozyPomodoroTasks', JSON.stringify(tasks));
+        }
+
+        function renderTasks() {
+            elTaskList.innerHTML = '';
+            if (tasks.length === 0) {
+                elTaskList.innerHTML = '<li class="text-cozy-dark/50 text-sm text-center py-4 italic">No hay tareas. ¡Agrega una para enfocarte!</li>';
+                return;
+            }
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = `flex items-center justify-between p-3 rounded-xl border transition-all ${task.done ? 'bg-white/30 border-white/20' : 'bg-white/60 border-white/60 shadow-sm'}`;
+                
+                li.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden cursor-pointer flex-1" onclick="toggleTask(${index})">
+                        <div class="w-5 h-5 rounded border ${task.done ? 'bg-cozy-brown border-cozy-brown text-white flex items-center justify-center' : 'border-cozy-dark/30'} flex-shrink-0 transition-colors">
+                            ${task.done ? '<i class="ph-bold ph-check text-xs"></i>' : ''}
+                        </div>
+                        <span class="truncate font-medium ${task.done ? 'line-through text-cozy-dark/40' : 'text-cozy-dark'}">${task.text}</span>
+                    </div>
+                    <button onclick="deleteTask(${index})" class="text-cozy-dark/30 hover:text-red-400 p-1 rounded transition-colors ml-2">
+                        <i class="ph-fill ph-trash"></i>
+                    </button>
+                `;
+                elTaskList.appendChild(li);
+            });
+        }
+
+        function addTask(e) {
+            e.preventDefault();
+            const text = elTaskInput.value.trim();
+            if (text) {
+                tasks.push({ text, done: false });
+                elTaskInput.value = '';
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        // Exponer funciones al window para los eventos inline (onclick)
+        window.toggleTask = (index) => {
+            tasks[index].done = !tasks[index].done;
+            saveTasks();
+            renderTasks();
+        };
+
+        window.deleteTask = (index) => {
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+        };
+
+        // --- PANTALLA COMPLETA ---
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error al intentar modo pantalla completa: ${err.message}`);
+                });
+                elBtnFullscreen.innerHTML = '<i class="ph ph-corners-in text-2xl"></i>';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    elBtnFullscreen.innerHTML = '<i class="ph ph-corners-out text-2xl"></i>';
+                }
+            }
+        }
+
+        // --- MODAL DE CONFIGURACIÓN ---
+        function openSettings() {
+            elSettingsModal.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                elSettingsContent.classList.remove('scale-95');
+                elSettingsContent.classList.add('scale-100');
+            }, 10);
+            
+            // Cargar valores actuales en los inputs
+            elInputFocus.value = settings.focus;
+            elInputShort.value = settings.shortBreak;
+            elInputLong.value = settings.longBreak;
+            elInputSound.value = settings.sound;
+            elInputCustomBg.value = settings.background;
+        }
+
+        function closeSettings() {
+            elSettingsContent.classList.remove('scale-100');
+            elSettingsContent.classList.add('scale-95');
+            setTimeout(() => {
+                elSettingsModal.classList.add('opacity-0', 'pointer-events-none');
+            }, 300);
+        }
+
+        // --- MODAL DE INFORMACIÓN ---
+        function openInfo() {
+            elInfoModal.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                elInfoContent.classList.remove('scale-95');
+                elInfoContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeInfo() {
+            elInfoContent.classList.remove('scale-100');
+            elInfoContent.classList.add('scale-95');
+            setTimeout(() => {
+                elInfoModal.classList.add('opacity-0', 'pointer-events-none');
+            }, 300);
+        }
+
+        // --- EVENT LISTENERS ---
+        elBtnPlayPause.addEventListener('click', toggleTimer);
+        elBtnReset.addEventListener('click', () => {
+            if(confirm('¿Reiniciar el temporizador actual?')) setPhase(currentPhase);
+        });
+        elBtnSkip.addEventListener('click', skipPhase);
+        
+        elTaskForm.addEventListener('submit', addTask);
+        elBtnFullscreen.addEventListener('click', toggleFullscreen);
+
+        elBtnSettings.addEventListener('click', openSettings);
+        elBtnCloseSettings.addEventListener('click', closeSettings);
+        elBtnSaveSettings.addEventListener('click', saveSettings);
+        
+        elBtnInfo.addEventListener('click', openInfo);
+        elBtnCloseInfo.addEventListener('click', closeInfo);
+
+        // Cerrar modal clickeando afuera
+        elSettingsModal.addEventListener('click', (e) => {
+            if (e.target === elSettingsModal) closeSettings();
+        });
+        elInfoModal.addEventListener('click', (e) => {
+            if (e.target === elInfoModal) closeInfo();
+        });
+
+        // Selección rápida de fondos predeterminados
+        elBgPresets.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const url = btn.getAttribute('data-bg');
+                elInputCustomBg.value = url;
+                // Efecto visual de selección (opcional)
+                elBgPresets.forEach(b => b.classList.remove('ring-4', 'ring-cozy-brown/50'));
+                btn.classList.add('ring-4', 'ring-cozy-brown/50');
+            });
+        });
+
+        // Probar sonido
+        elBtnTestSound.addEventListener('click', () => {
+            const soundType = elInputSound.value;
+            playAlarm(soundType);
+        });
+
+        // Iniciar
+        init();
+
+    </script>
+</body>
+</html>
