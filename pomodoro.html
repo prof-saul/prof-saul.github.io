@@ -455,7 +455,7 @@
             const seconds = timeLeft % 60;
             const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             elTimerDisplay.textContent = formattedTime;
-            document.title = `${formattedTime} - Aula Enfocada`;
+            document.title = `${formattedTime} - Pomodoro Educativo`;
 
             // Actualizar barra de progreso
             if (totalTimeForPhase > 0) {
