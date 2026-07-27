@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio Estudiantil | Filtro</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'boho-bg': '#1E1B18',      /* Fondo oscuro profundo */
+                        'boho-card': '#2A2622',    /* Fondo de tarjetas ligeramente más claro */
+                        'boho-text': '#E8E3DF',    /* Texto claro crema */
+                        'boho-text-muted': '#A49C94', /* Texto secundario gris cálido */
+                        'boho-primary': '#D98977', /* Terracota más brillante para contraste */
+                        'boho-primary-hover': '#C17767',
+                        'boho-secondary': '#9CAEA4', /* Verde salvia suavizado */
+                        'boho-accent': '#E5C59F',  /* Mostaza/arena vibrante */
+                        'boho-border': '#3D3833'   /* Bordes sutiles oscuros */
+                    },
+                    fontFamily: {
+                        'sans': ['"Nunito"', 'sans-serif'],
+                        'serif': ['"Lora"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #1E1B18;
+            color: #E8E3DF;
+        }
+        h1, h2, h3, .font-serif {
+            font-family: 'Lora', serif;
+        }
+        /* Sombras para modo oscuro */
+        .cozy-shadow {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+        }
+        .input-focus:focus {
+            outline: none;
+            border-color: #D98977;
+            box-shadow: 0 0 0 3px rgba(217, 137, 119, 0.2);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Estilos personalizados para el select en modo oscuro */
+        select option {
+            background-color: #2A2622;
+            color: #E8E3DF;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-boho-bg text-boho-text antialiased p-4 md:p-8 flex items-center justify-center selection:bg-boho-primary selection:text-white">
+
+    <div id="login-screen" class="w-full max-w-md mx-auto bg-boho-card border border-boho-border rounded-3xl cozy-shadow p-8 md:p-10 text-center transition-all duration-500">
+        <div class="mb-8 text-boho-accent">
+            <svg class="w-20 h-20 mx-auto drop-shadow-[0_0_15px_rgba(229,197,159,0.3)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+        </div>
+        <h1 class="text-4xl font-serif font-semibold mb-3 tracking-wide">Acceso Seguro</h1>
+        <p class="text-base text-boho-text-muted mb-8 font-light">Introduce la clave para ver las puntuaciones.</p>
+        
+        <form id="login-form" class="space-y-6">
+            <div class="relative">
+                <input type="password" id="password" placeholder="Contraseña" class="w-full px-5 py-4 rounded-2xl border-2 border-boho-border bg-boho-bg text-boho-text placeholder-boho-text-muted input-focus transition-all text-center text-lg tracking-widest" required>
+            </div>
+            <p id="login-error" class="text-red-400 text-sm hidden font-medium bg-red-900/20 py-2 rounded-lg">Clave incorrecta.</p>
+            <button type="submit" class="w-full bg-boho-primary hover:bg-boho-primary-hover text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-[0_4px_15px_rgba(217,137,119,0.3)] hover:shadow-[0_6px_20px_rgba(217,137,119,0.5)] transform hover:-translate-y-1">
+                Ingresar
+            </button>
+        </form>
+    </div>
+
+    <div id="main-screen" class="hidden w-full max-w-6xl mx-auto flex-col h-full fade-in">
+        <header class="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-boho-border pb-6">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-boho-accent mb-2 tracking-tight">Directorio de Puntuaciones</h1>
+                <p class="text-boho-text-muted text-lg">Consulta el rendimiento estudiantil</p>
+            </div>
+            <button id="logout-btn" class="text-sm font-bold text-boho-text-muted bg-boho-border hover:bg-boho-text hover:text-boho-bg px-5 py-2.5 rounded-xl transition-all duration-300 inline-flex items-center justify-center gap-2 self-start md:self-auto border border-transparent">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                Cerrar Sesión
+            </button>
+        </header>
+
+        <div class="bg-boho-card p-6 md:p-8 rounded-3xl cozy-shadow mb-10 border border-boho-border flex flex-col md:flex-row gap-6 relative overflow-hidden">
+            <!-- Detalle decorativo -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-boho-primary rounded-full mix-blend-overlay filter blur-3xl opacity-10"></div>
+            
+            <div class="flex-1 relative z-10">
+                <label for="filter-grado" class="block text-sm font-bold text-boho-text-muted mb-3 uppercase tracking-wider">Filtrar por Grado</label>
+                <div class="relative">
+                    <select id="filter-grado" class="w-full px-5 py-4 rounded-2xl border-2 border-boho-border bg-boho-bg input-focus text-boho-text appearance-none cursor-pointer text-lg font-medium">
+                        <option value="ALL">Todos los grados</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-boho-text-muted">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-1 relative z-10">
+                <label for="filter-seccion" class="block text-sm font-bold text-boho-text-muted mb-3 uppercase tracking-wider">Filtrar por Sección</label>
+                <div class="relative">
+                    <select id="filter-seccion" class="w-full px-5 py-4 rounded-2xl border-2 border-boho-border bg-boho-bg input-focus text-boho-text appearance-none cursor-pointer text-lg font-medium">
+                        <option value="ALL">Todas las secciones</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-boho-text-muted">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-6 flex justify-between items-center text-sm font-bold text-boho-secondary uppercase tracking-widest px-2">
+            <span id="results-count" class="bg-boho-secondary/10 px-4 py-2 rounded-lg">0 Estudiantes Encontrados</span>
+        </div>
+        
+        <div class="bg-boho-card border border-boho-border rounded-3xl cozy-shadow overflow-hidden pb-4">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-boho-bg/50 border-b border-boho-border text-boho-text-muted text-sm uppercase tracking-wider font-bold">
+                            <th class="p-4 pl-6 md:p-6 md:pl-8">Estudiante</th>
+                            <th class="p-4 md:p-6 text-center">Puntos</th>
+                            <th class="p-4 md:p-6 hidden sm:table-cell">Grado</th>
+                            <th class="p-4 md:p-6 hidden md:table-cell">Sección</th>
+                            <th class="p-4 pr-6 md:p-6 md:pr-8 text-right text-xs opacity-70">NIE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="students-table-body" class="divide-y divide-boho-border/50">
+                        <!-- Las filas de estudiantes se insertarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Contenedor para el mensaje de no hay registros -->
+            <div id="no-results-message" class="hidden text-center py-16">
+                <svg class="w-16 h-16 mx-auto text-boho-text-muted mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p class="text-boho-text-muted font-serif text-xl">No hay registros con estos filtros.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const data = [
+            { "NIE": 10199853, "ESTUDIANTE": "ALAS SOLÓRZANO, MELANY BREIGGETT", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 2 },
+            { "NIE": 10344104, "ESTUDIANTE": "CALDERON OLMEDO, ERMIS OBDULIO", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 1 },
+            { "NIE": 10332548, "ESTUDIANTE": "CONTRERAS PAZ, EMMANUEL ALEJANDRO", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 2 },
+            { "NIE": 20199878, "ESTUDIANTE": "GÓMEZ CLAVEL, JOSÉ OVIDIO", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 0 },
+            { "NIE": 10154498, "ESTUDIANTE": "GONZÁLEZ VALENCIA, ALEJANDRA YANETH", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 1 },
+            { "NIE": 10154573, "ESTUDIANTE": "GUTIÉRREZ MEJÍA, NICOL CAROLINA", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 2 },
+            { "NIE": 10306657, "ESTUDIANTE": "GUTIERREZ OSEGUEDA, RAFAEL ENRIQUE", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 2 },
+            { "NIE": 19948183, "ESTUDIANTE": "HERNÁNDEZ MEJÍA, JOSUÉ DAVID", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 0 },
+            { "NIE": 10154594, "ESTUDIANTE": "HERNÁNDEZ RODRÍGUEZ, NATASHA GABRIELA", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 1 },
+            { "NIE": 10118697, "ESTUDIANTE": "IBÁÑEZ PÉREZ, ORLANDO OSMÍN", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 2 },
+            { "NIE": 10154773, "ESTUDIANTE": "MEJIA PEREZ, JOSE GODOFREDO", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 2 },
+            { "NIE": 20373993, "ESTUDIANTE": "MENJÍVAR GIRÓN, WILMER ALEXANDER", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 2 },
+            { "NIE": 10154818, "ESTUDIANTE": "ORELLANA ANAYA, VALERIA DESIREE", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 1 },
+            { "NIE": 10158587, "ESTUDIANTE": "PEREZ ERAZO, RICARDO JAVIER", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 1 },
+            { "NIE": 20374007, "ESTUDIANTE": "RAMÍREZ HERNÁNDEZ, EMELY JULISSA", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 0 },
+            { "NIE": 10154902, "ESTUDIANTE": "RIVAS MANCIA, ANDERSON GAEL", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 2 },
+            { "NIE": 10158629, "ESTUDIANTE": "SALGUERO PEREZ, KELVIN DANIEL", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 2 },
+            { "NIE": 20275523, "ESTUDIANTE": "VALLE CLAVEL, JOSE JEREMIAS", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 1 },
+            { "NIE": 10154913, "ESTUDIANTE": "VASQUEZ HENRIQUEZ, RUTH NOEMI", "GRADO": "Sexto Grado", "SECCION": "A - Vespertino ", "PUNTOS": 0 },
+            { "NIE": 20339358, "ESTUDIANTE": "ALEMAN TOBIAS, ASHLIE GRACIELA", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20192548, "ESTUDIANTE": "AQUINO ESPINOZA, XAVIER ISAAC", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 10316097, "ESTUDIANTE": "CHAVARRÍA GARCÍA, TRANSITO ANTONIO", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20373997, "ESTUDIANTE": "DERAS VASQUEZ, VICTOR ANTONIO", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 10155402, "ESTUDIANTE": "DURAN HERNANDEZ, YUNY JOSUE", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 10156802, "ESTUDIANTE": "ESCALÓN FLORES, MELANY ARIEL", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 10155427, "ESTUDIANTE": "FUENTES GUARDADO, JOSUE EMILIO", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20275433, "ESTUDIANTE": "GALÁN LÓPEZ, XIOMARA MARICELA", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20298815, "ESTUDIANTE": "GUTIERREZ LANDAVERDE, KATHERINE YANETH", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20373999, "ESTUDIANTE": "HERNANDEZ AREVALO, JOSE ALEXANDER", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20374000, "ESTUDIANTE": "HERNÁNDEZ HERNÁNDEZ, ALEXIS ADONAY", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20374001, "ESTUDIANTE": "HERNÁNDEZ MENJIVAR, STEVEN VLADIMIR", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20275434, "ESTUDIANTE": "HUEZO LANDAVERDE, MARIA ISABEL", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20373992, "ESTUDIANTE": "LOPEZ ESTRADA, JOSE ENRIQUE", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 10155550, "ESTUDIANTE": "MARTINEZ DIAZ, EDWIN GEOVANNY", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 10155577, "ESTUDIANTE": "MENJIVAR PEREZ, MADISON JOHENY", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 10105411, "ESTUDIANTE": "MENJIVAR PONCE, WILLIAM ANTONIO", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20275435, "ESTUDIANTE": "MURCIA ALAS, EMELY VANESSA", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20398112, "ESTUDIANTE": "MURCIA RODRIGUEZ, DELMY SUGEY", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20374003, "ESTUDIANTE": "ORELLANA ALVARADO, JUAN JOSE", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20298818, "ESTUDIANTE": "ORELLANA MARTINEZ, MARED STEVEN", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20374006, "ESTUDIANTE": "PORTILLO MONTES, DARIANA MAYERLI", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20374008, "ESTUDIANTE": "RAMIREZ RIVERA, JOHANNA ESTEFANY", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20298825, "ESTUDIANTE": "RIVERA HERNÁNDEZ, IKER DAMIAN", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20275526, "ESTUDIANTE": "RODRIGUEZ QUIJANO, LUIS ALEXANDER", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20051075, "ESTUDIANTE": "SÁNCHEZ RAMÍREZ, ELÍAS EZEQUIEL", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20184092, "ESTUDIANTE": "SOLÒRZANO RECINOS, RICARDO ALEXANDER", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20298827, "ESTUDIANTE": "TREJO LEMUS, VALERIA NICOLE", "GRADO": "Septimo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 10156710, "ESTUDIANTE": "ALVARADO RAMIREZ, MARCELA YAMILETH", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20154334, "ESTUDIANTE": "CARDOZA ROMERO, FABIO ALEJANDRO", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 10156751, "ESTUDIANTE": "CARTAGENA ROSA, ARIELA JOHANA", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20169522, "ESTUDIANTE": "CÓRDOVA MEJÍA, DANIEL ERNESTO", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 10156847, "ESTUDIANTE": "FRANCO PORTILLO, JOSE ABRAHAN", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 10156862, "ESTUDIANTE": "GUTIERREZ OSEGUEDA, VERONICA ELIZABETH", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20298823, "ESTUDIANTE": "HERNÁNDEZ TORRES, DAYANA SARAI", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 19926922, "ESTUDIANTE": "LANDAVERDE REYES, ANGEL GUSTAVO", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20275525, "ESTUDIANTE": "LÓPEZ LANDAVERDE, JONATHAN WILFREDO", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20275483, "ESTUDIANTE": "OCHOA ALFARO, MADELYN NALLELY", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20192782, "ESTUDIANTE": "PERALTA DIAZ, ALEJANDRO ENMANUEL", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20275484, "ESTUDIANTE": "PÉREZ MARTÍNEZ, RUTH SARAÍ", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20373989, "ESTUDIANTE": "PORTILLO ALVARADO, FRANKLIN ANTONIO", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20118985, "ESTUDIANTE": "SALGUERO MURCIA, PABLO IVÁN", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20275489, "ESTUDIANTE": "VALLE GUARDADO, LISSETH ALEXANDRA", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20275490, "ESTUDIANTE": "VÁSQUEZ MENA, GUILLERMO RIQUELMI", "GRADO": "Octavo Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 10156678, "ESTUDIANTE": "AGUILAR ARGUMEDO, BRANDON ANTONIO", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20348624, "ESTUDIANTE": "DIAZ MANCIA, SULEYMI DARISSLEY", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 10156784, "ESTUDIANTE": "DIAZ MURCIA, JOHAN RICARDO", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 0 },
+            { "NIE": 19948176, "ESTUDIANTE": "GONZALEZ LEMUS, HELEN DAYANA", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20118990, "ESTUDIANTE": "GUEVARA DERAS, MARÍA CRISTINA", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 10109278, "ESTUDIANTE": "LANDAVERDE CARBAJAL, DAYSI ABIGAIL", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20275479, "ESTUDIANTE": "LANDAVERDE GUILLÉN, DANIELA JOHANA", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20275518, "ESTUDIANTE": "LEMUS RODRÍGUEZ, ELIAS ERNESTO", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20194491, "ESTUDIANTE": "MARTÍNEZ VÁSQUEZ, CRISTHIAN ERNESTO", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 10156770, "ESTUDIANTE": "MENJÍVAR DÍAZ, BYRON ALEXANDER", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20275481, "ESTUDIANTE": "MORALES LANDAVERDE, MARJORIE DANIELA", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20033182, "ESTUDIANTE": "NERIOS LANDAVERDE, ERIC SALVADOR", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20118983, "ESTUDIANTE": "PÉREZ HUEZO, DAYANA NICOLE", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20373990, "ESTUDIANTE": "PORTILLO RAMÍREZ, JOSÉ SANTIAGO", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20275488, "ESTUDIANTE": "RIVERA MÉNDEZ, JOSÉ DANIEL", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20118984, "ESTUDIANTE": "SALGUERO BAIRES, DANIELA ARELY", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20118999, "ESTUDIANTE": "SOLÓRZANO ALVARADO, JUAN DIEGO", "GRADO": "Octavo Grado", "SECCION": "B - Vespertino", "PUNTOS": 2 },
+            { "NIE": 19852670, "ESTUDIANTE": "AREVALO VILLANUEVA, KEIRY ADRIANA", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20275516, "ESTUDIANTE": "CLAVEL GARCÍA, JOSE ALEJANDRO", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20118987, "ESTUDIANTE": "DERAS HERNÁNDEZ, FLOR ENEYDA", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20118988, "ESTUDIANTE": "DERAS LEMUS, ALBERTO ANTONIO", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20348628, "ESTUDIANTE": "DIAZ MANCIA, GADIEL ISAAC", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20118993, "ESTUDIANTE": "HUEZO OSEGUEDA, KAREN ABIGAIL", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 19826944, "ESTUDIANTE": "MEJIA AGUILAR, SELENA ABIGAIL", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20118994, "ESTUDIANTE": "MEJÍA CASCO, ARMANDO EFRAÍN", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20275519, "ESTUDIANTE": "MÉNDEZ ARÉVALO, REYES JOSUE", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20275520, "ESTUDIANTE": "MOLINA PORTILLO, EMMANUEL ALEXANDER", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20118996, "ESTUDIANTE": "OCHOA MOLINA, MARISOL ABIGAIL", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 20032705, "ESTUDIANTE": "ORELLANA DÍAZ, JEANESY MICHELLE", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20118997, "ESTUDIANTE": "PÉREZ VILLANUEVA, KIMBERLY ELIZABETH", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 19948188, "ESTUDIANTE": "PORTILLO PÉREZ, STEVEN ALESSANDRO", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20275522, "ESTUDIANTE": "PORTILLO VÁSQUEZ, JONATAN JOSE", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 19948189, "ESTUDIANTE": "REGALADO OSEGUEDA, ROSA ESTEFANY", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20374031, "ESTUDIANTE": "RIVERA ALVARADO, DAVID ALEXANDER", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 19866121, "ESTUDIANTE": "ROMERO HERNÁNDEZ, EMELY SAMARIA", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 19948190, "ESTUDIANTE": "SALVADOR OSEGUEDA, FABIOLA ANGELIE", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 2 },
+            { "NIE": 19844321, "ESTUDIANTE": "SALVADOR TEJADA, HELLEN ESTEFANY", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 19956513, "ESTUDIANTE": "SOSA RIVERA, JEFFRY ANTONIO", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 },
+            { "NIE": 20119000, "ESTUDIANTE": "VASQUEZ HENRIQUEZ, MERARY ISAMAR", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 0 },
+            { "NIE": 20051076, "ESTUDIANTE": "VILLALTA GUTIÉRREZ, JAVIER STEVEN", "GRADO": "Noveno Grado", "SECCION": "A - Vespertino", "PUNTOS": 1 }
+        ];
+
+        const CORRECT_PASSWORD = "aguaje2026";
+        const loginForm = document.getElementById('login-form');
+        const passwordInput = document.getElementById('password');
+        const loginError = document.getElementById('login-error');
+        const loginScreen = document.getElementById('login-screen');
+        const mainScreen = document.getElementById('main-screen');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const inputVal = passwordInput.value;
+            if (inputVal === CORRECT_PASSWORD) {
+                loginError.classList.add('hidden');
+                loginScreen.classList.add('hidden');
+                document.body.classList.remove('items-center', 'justify-center');
+                mainScreen.classList.remove('hidden');
+                mainScreen.classList.add('flex');
+                passwordInput.value = '';
+                initApp();
+            } else {
+                loginError.classList.remove('hidden');
+                passwordInput.classList.add('border-red-500', 'bg-red-900/10');
+                setTimeout(() => passwordInput.classList.remove('border-red-500', 'bg-red-900/10'), 2000);
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            mainScreen.classList.add('hidden');
+            mainScreen.classList.remove('flex');
+            document.body.classList.add('items-center', 'justify-center');
+            loginScreen.classList.remove('hidden');
+        });
+
+        const selectGrado = document.getElementById('filter-grado');
+        const selectSeccion = document.getElementById('filter-seccion');
+        const studentsTableBody = document.getElementById('students-table-body');
+        const resultsCount = document.getElementById('results-count');
+        const noResultsMessage = document.getElementById('no-results-message');
+
+        function initApp() {
+            const gradosUnicos = [...new Set(data.map(item => item.GRADO))].sort();
+            selectGrado.innerHTML = '<option value="ALL">Todos los grados</option>';
+            gradosUnicos.forEach(grado => {
+                const option = document.createElement('option');
+                option.value = grado;
+                option.textContent = grado;
+                selectGrado.appendChild(option);
+            });
+
+            const seccionesUnicas = [...new Set(data.map(item => item.SECCION.trim()))].sort();
+            selectSeccion.innerHTML = '<option value="ALL">Todas las secciones</option>';
+            seccionesUnicas.forEach(seccion => {
+                const option = document.createElement('option');
+                option.value = seccion;
+                option.textContent = seccion;
+                selectSeccion.appendChild(option);
+            });
+
+            renderStudents();
+        }
+
+        function renderStudents() {
+            const gradoFilter = selectGrado.value;
+            const seccionFilter = selectSeccion.value;
+
+            const filteredData = data.filter(student => {
+                const matchGrado = gradoFilter === 'ALL' || student.GRADO === gradoFilter;
+                const matchSeccion = seccionFilter === 'ALL' || student.SECCION.trim() === seccionFilter;
+                return matchGrado && matchSeccion;
+            });
+
+            resultsCount.textContent = `${filteredData.length} Estudiante${filteredData.length !== 1 ? 's' : ''}`;
+            studentsTableBody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+                studentsTableBody.parentElement.classList.add('hidden'); // Ocultar tabla completa si no hay datos
+                return;
+            } else {
+                noResultsMessage.classList.add('hidden');
+                studentsTableBody.parentElement.classList.remove('hidden');
+            }
+
+            filteredData.forEach(student => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-boho-bg/80 transition-colors duration-200 group';
+                
+                // Lógica de colores para los puntos en la tabla
+                let pointsStyle = 'text-boho-text-muted bg-boho-bg border-boho-border'; // 0 puntos
+                let pointsTextClass = 'text-boho-text-muted';
+                
+                if (student.PUNTOS > 1) {
+                    pointsStyle = 'text-white bg-gradient-to-br from-boho-primary to-boho-primary-hover border-boho-primary shadow-[0_0_10px_rgba(217,137,119,0.3)]';
+                    pointsTextClass = 'text-boho-primary';
+                } else if (student.PUNTOS === 1) {
+                    pointsStyle = 'text-boho-bg bg-boho-accent border-boho-accent shadow-[0_0_8px_rgba(229,197,159,0.2)]';
+                    pointsTextClass = 'text-boho-accent';
+                }
+
+                row.innerHTML = `
+                    <td class="p-4 pl-6 md:p-6 md:pl-8 align-middle">
+                        <div class="font-serif font-bold text-lg md:text-xl text-white group-hover:text-boho-accent transition-colors duration-300">
+                            ${student.ESTUDIANTE}
+                        </div>
+                        <!-- Mostrar grado y sección en móvil debajo del nombre -->
+                        <div class="sm:hidden text-xs text-boho-text-muted mt-1 flex items-center gap-2">
+                            <span>${student.GRADO}</span>
+                            <span class="w-1 h-1 rounded-full bg-boho-border"></span>
+                            <span>${student.SECCION.trim()}</span>
+                        </div>
+                    </td>
+                    
+                    <td class="p-4 md:p-6 align-middle text-center">
+                        <div class="inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full border-2 ${pointsStyle} transform group-hover:scale-110 transition-transform duration-300">
+                            <span class="text-xl md:text-2xl font-black leading-none">${student.PUNTOS}</span>
+                        </div>
+                    </td>
+                    
+                    <td class="p-4 md:p-6 align-middle hidden sm:table-cell text-boho-text-muted font-medium">
+                        ${student.GRADO}
+                    </td>
+                    
+                    <td class="p-4 md:p-6 align-middle hidden md:table-cell text-boho-text-muted font-medium">
+                        ${student.SECCION.trim()}
+                    </td>
+                    
+                    <td class="p-4 pr-6 md:p-6 md:pr-8 align-middle text-right">
+                        <span class="font-mono text-xs bg-boho-bg/50 px-2 py-1.5 rounded border border-boho-border text-boho-text-muted opacity-70">
+                            ${student.NIE}
+                        </span>
+                    </td>
+                `;
+                studentsTableBody.appendChild(row);
+            });
+        }
+
+        selectGrado.addEventListener('change', renderStudents);
+        selectSeccion.addEventListener('change', renderStudents);
+    </script>
+</body>
+</html>
