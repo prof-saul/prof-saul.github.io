@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventura Lógica 3D - Aprende a Programar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Fira+Code:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Nav animations */
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #38bdf8;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Interactive Gate styles */
+        .gate-node {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .gate-node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+        }
+        .wire {
+            transition: stroke 0.3s ease;
+        }
+        .wire.active {
+            stroke: #22c55e; /* Green for true */
+            filter: drop-shadow(0 0 5px #22c55e);
+        }
+        .wire.inactive {
+            stroke: #ef4444; /* Red for false */
+        }
+        
+        /* Switch styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ef4444;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "0";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            color: #ef4444;
+            font-weight: bold;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #22c55e;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            content: "1";
+            color: #22c55e;
+        }
+
+        /* 3D Container */
+        #canvas-container {
+            width: 100%;
+            height: 600px;
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        #game-ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        #level-info {
+            pointer-events: auto;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hide sections initially */
+        .section-content {
+            display: none;
+        }
+        .section-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="antialiased flex flex-col min-h-screen selection:bg-sky-500 selection:text-white">
+
+    <nav class="fixed w-full z-50 glass-panel border-b-0 border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <svg class="w-8 h-8 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <span class="font-black text-xl tracking-wider text-white">LÓGICA<span class="text-sky-400">9</span></span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#teoria" onclick="showSection('teoria')" class="nav-link active text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-bold">Teoría</a>
+                        <a href="#practica" onclick="showSection('practica')" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-bold">Laboratorio</a>
+                        <a href="#juego" onclick="showSection('juego')" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-bold">Desafío 3D</a>
+                    </div>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-300 hover:text-white focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-slate-800 border-t border-slate-700">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#teoria" onclick="showSection('teoria'); closeMobileMenu()" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-bold">Teoría</a>
+                <a href="#practica" onclick="showSection('practica'); closeMobileMenu()" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-bold">Laboratorio</a>
+                <a href="#juego" onclick="showSection('juego'); closeMobileMenu()" class="block text-gray-300 hover:text-white px-3 py-2 rounded-md text-base font-bold">Desafío 3D</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="pt-24 pb-12 px-4 text-center relative overflow-hidden">
+        <!-- Decoración de fondo -->
+        <div class="absolute top-0 left-1/2 w-full -translate-x-1/2 h-full opacity-20 pointer-events-none" style="background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(15,23,42,0) 70%);"></div>
+        <h1 class="text-5xl md:text-6xl font-black mb-4 z-10 relative">Aprende a pensar como <br/><span class="gradient-text">un Programador</span></h1>
+        <p class="text-xl text-slate-400 max-w-2xl mx-auto z-10 relative">Domina la lógica de programación, las compuertas y los operadores que hacen funcionar a las computadoras.</p>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-20">
+
+        <section id="teoria" class="section-content active space-y-12">
+            
+            <div class="glass-panel p-8 rounded-2xl">
+                <h2 class="text-3xl font-bold mb-6 text-sky-400 flex items-center gap-3">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                    ¿Qué es la Lógica de Programación?
+                </h2>
+                <p class="text-lg text-slate-300 leading-relaxed mb-4">
+                    La lógica de programación es la <strong>habilidad de pensar paso a paso</strong> para resolver un problema. Antes de escribir código en lenguajes como Python, JavaScript o C++, necesitas saber <em>qué</em> instrucciones darle a la computadora y en <em>qué orden</em>.
+                </p>
+                <div class="bg-slate-800/50 border border-slate-700 p-4 rounded-xl mt-6">
+                    <h3 class="text-xl font-semibold mb-2 text-indigo-400">El concepto Booleano (Verdadero o Falso)</h3>
+                    <p class="text-slate-300">En el corazón de las computadoras, todo se reduce a dos estados: <strong>1 (Verdadero / Encendido)</strong> y <strong>0 (Falso / Apagado)</strong>. Toda decisión que toma una máquina se basa en estas dos opciones.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Operadores Lógicos -->
+                <div class="glass-panel p-8 rounded-2xl">
+                    <h2 class="text-3xl font-bold mb-6 text-purple-400">Operadores Lógicos</h2>
+                    <p class="text-slate-300 mb-6">En programación, usamos operadores lógicos para combinar condiciones y tomar decisiones.</p>
+                    
+                    <div class="space-y-6">
+                        <!-- AND -->
+                        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-purple-500 transition-colors">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-xl font-bold text-white">AND (Y)</h3>
+                                <span class="code-font bg-slate-900 px-3 py-1 rounded text-purple-300">&amp;&amp;</span>
+                            </div>
+                            <p class="text-sm text-slate-400 mb-3">Devuelve Verdadero <strong>SOLO SI AMBAS</strong> condiciones son verdaderas.</p>
+                            <div class="code-font text-xs bg-black/50 p-3 rounded-lg text-gray-300">
+                                <span class="text-blue-400">if</span> (tengo_dinero <span class="text-purple-400">&amp;&amp;</span> tengo_tiempo) {<br>
+                                &nbsp;&nbsp;<span class="text-green-400">// Voy al cine</span><br>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- OR -->
+                        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-purple-500 transition-colors">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-xl font-bold text-white">OR (O)</h3>
+                                <span class="code-font bg-slate-900 px-3 py-1 rounded text-purple-300">||</span>
+                            </div>
+                            <p class="text-sm text-slate-400 mb-3">Devuelve Verdadero si <strong>AL MENOS UNA</strong> condición es verdadera.</p>
+                            <div class="code-font text-xs bg-black/50 p-3 rounded-lg text-gray-300">
+                                <span class="text-blue-400">if</span> (llueve <span class="text-purple-400">||</span> hace_frio) {<br>
+                                &nbsp;&nbsp;<span class="text-green-400">// Llevo abrigo</span><br>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- NOT -->
+                        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-purple-500 transition-colors">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-xl font-bold text-white">NOT (NO)</h3>
+                                <span class="code-font bg-slate-900 px-3 py-1 rounded text-purple-300">!</span>
+                            </div>
+                            <p class="text-sm text-slate-400 mb-3"><strong>INVIERTE</strong> el valor. Lo verdadero se vuelve falso, y viceversa.</p>
+                            <div class="code-font text-xs bg-black/50 p-3 rounded-lg text-gray-300">
+                                <span class="text-blue-400">if</span> (<span class="text-purple-400">!</span>estoy_cansado) {<br>
+                                &nbsp;&nbsp;<span class="text-green-400">// Sigo estudiando</span><br>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compuertas Lógicas -->
+                <div class="glass-panel p-8 rounded-2xl">
+                    <h2 class="text-3xl font-bold mb-6 text-green-400">Compuertas Lógicas</h2>
+                    <p class="text-slate-300 mb-6">Son los componentes electrónicos físicos dentro de los procesadores que implementan las operaciones lógicas.</p>
+                    
+                    <div class="space-y-6">
+                        <!-- Puerta AND -->
+                        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 flex items-center gap-4">
+                            <div class="w-16 h-16 bg-slate-900 rounded-lg flex items-center justify-center border border-slate-600 shrink-0">
+                                <!-- SVG AND Gate -->
+                                <svg width="40" height="40" viewBox="0 0 100 100">
+                                    <path d="M 20 20 L 50 20 A 30 30 0 0 1 80 50 A 30 30 0 0 1 50 80 L 20 80 Z" fill="none" stroke="#4ade80" stroke-width="6"/>
+                                    <line x1="0" y1="35" x2="20" y2="35" stroke="white" stroke-width="4"/>
+                                    <line x1="0" y1="65" x2="20" y2="65" stroke="white" stroke-width="4"/>
+                                    <line x1="80" y1="50" x2="100" y2="50" stroke="white" stroke-width="4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white mb-1">Compuerta AND</h3>
+                                <p class="text-sm text-slate-400">La salida es 1 (Alta) <strong>solo si</strong> ambas entradas son 1.</p>
+                            </div>
+                        </div>
+
+                        <!-- Puerta OR -->
+                        <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 flex items-center gap-4">
+                            <div class="w-16 h-16 bg-slate-900 rounded-lg flex items-center justify-center border border-slate-600 shrink-0">
+                                <!-- SVG OR Gate -->
+                                <svg width="40" height="40" viewBox="0 0 100 100">
+                                    <path d="M 20 20 C 50 20 80 40 85 50 C 80 60 50 80 20 80 C 35 65 35 35 20 20 Z" fill="none" stroke="#4ade80" stroke-width="6"/>
+                                    <line x1="0" y1="35" x2="25" y2="35" stroke="white" stroke-width="4"/>
+                                    <line x1="0" y1="65" x2="25" y2="65" stroke="white" stroke-width="4"/>
+                                    <line x1="85" y1="50" x2="100" y2="50" stroke="white" stroke-width="4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white mb-1">Compuerta OR</h3>
+                                <p class="text-sm text-slate-400">La salida es 1 (Alta) si <strong>al menos una</strong> entrada es 1.</p>
+                            </div>
+                        </div>
+
+                         <!-- Puerta NOT -->
+                         <div class="bg-slate-800 rounded-xl p-5 border border-slate-700 flex items-center gap-4">
+                            <div class="w-16 h-16 bg-slate-900 rounded-lg flex items-center justify-center border border-slate-600 shrink-0">
+                                <!-- SVG NOT Gate -->
+                                <svg width="40" height="40" viewBox="0 0 100 100">
+                                    <path d="M 30 20 L 70 50 L 30 80 Z" fill="none" stroke="#4ade80" stroke-width="6"/>
+                                    <circle cx="75" cy="50" r="5" fill="none" stroke="#4ade80" stroke-width="4"/>
+                                    <line x1="10" y1="50" x2="30" y2="50" stroke="white" stroke-width="4"/>
+                                    <line x1="80" y1="50" x2="100" y2="50" stroke="white" stroke-width="4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white mb-1">Compuerta NOT (Inversor)</h3>
+                                <p class="text-sm text-slate-400">Tiene una sola entrada. Su salida es el <strong>inverso</strong> de la entrada (1 pasa a 0, y 0 a 1).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="practica" class="section-content">
+            <div class="glass-panel p-8 rounded-2xl">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-indigo-400 mb-4">Laboratorio de Circuitos Lógicos</h2>
+                    <p class="text-slate-300">Interactúa con los interruptores (entradas) para ver cómo responden las diferentes compuertas lógicas y observa la salida (bombillo).</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Panel de Control (Izquierda) -->
+                    <div class="bg-slate-800/80 p-6 rounded-xl border border-slate-700 flex flex-col gap-6">
+                        <h3 class="text-xl font-bold text-white border-b border-slate-600 pb-2">1. Selecciona una Compuerta</h3>
+                        <div class="flex flex-col gap-3">
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-slate-700 transition">
+                                <input type="radio" name="gateType" value="AND" class="w-5 h-5 text-indigo-500 focus:ring-indigo-500" checked onchange="updateCircuit()">
+                                <span class="font-bold text-lg">AND</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-slate-700 transition">
+                                <input type="radio" name="gateType" value="OR" class="w-5 h-5 text-indigo-500 focus:ring-indigo-500" onchange="updateCircuit()">
+                                <span class="font-bold text-lg">OR</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-slate-700 transition">
+                                <input type="radio" name="gateType" value="NOT" class="w-5 h-5 text-indigo-500 focus:ring-indigo-500" onchange="updateCircuit()">
+                                <span class="font-bold text-lg">NOT</span> <span class="text-xs text-slate-400">(Usa solo Entrada A)</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-slate-700 transition">
+                                <input type="radio" name="gateType" value="XOR" class="w-5 h-5 text-indigo-500 focus:ring-indigo-500" onchange="updateCircuit()">
+                                <span class="font-bold text-lg">XOR</span> <span class="text-xs text-slate-400">(O Exclusivo)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Visualizador del Circuito (Centro y Derecha) -->
+                    <div class="lg:col-span-2 bg-slate-900 rounded-xl border border-slate-700 p-8 flex flex-col items-center justify-center relative min-h-[400px]">
+                        
+                        <div class="flex items-center justify-between w-full max-w-2xl relative z-10">
+                            <!-- Entradas -->
+                            <div class="flex flex-col gap-16 w-32">
+                                <div class="flex flex-col items-center gap-2">
+                                    <span class="font-bold text-slate-300">Entrada A</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="inputA" onchange="updateCircuit()">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="flex flex-col items-center gap-2" id="inputB-container">
+                                    <span class="font-bold text-slate-300">Entrada B</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="inputB" onchange="updateCircuit()">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Área de la compuerta y cables -->
+                            <div class="flex-grow flex items-center justify-center relative">
+                                <!-- Cables visuales SVG de fondo -->
+                                <svg class="absolute inset-0 w-full h-full -z-10 pointer-events-none" style="min-width: 300px;">
+                                    <!-- Cable A -->
+                                    <path id="wireA" d="M 0 35 L 100 35 C 130 35, 130 80, 160 80" fill="none" stroke="#ef4444" stroke-width="4" class="wire inactive"/>
+                                    <!-- Cable B -->
+                                    <path id="wireB" d="M 0 185 L 100 185 C 130 185, 130 140, 160 140" fill="none" stroke="#ef4444" stroke-width="4" class="wire inactive"/>
+                                    <!-- Cable Salida -->
+                                    <line id="wireOut" x1="260" y1="110" x2="350" y2="110" stroke="#ef4444" stroke-width="4" class="wire inactive"/>
+                                </svg>
+
+                                <!-- Icono de la compuerta dinámica -->
+                                <div id="gateSymbol" class="gate-node bg-slate-800 p-4 rounded-xl border-2 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.3)] z-10">
+                                    <!-- Se inyecta por JS -->
+                                    <svg width="80" height="80" viewBox="0 0 100 100" id="svg-AND">
+                                        <path d="M 20 20 L 50 20 A 30 30 0 0 1 80 50 A 30 30 0 0 1 50 80 L 20 80 Z" fill="none" stroke="#6366f1" stroke-width="6"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Salida (Bombillo) -->
+                            <div class="flex flex-col items-center gap-4 w-32">
+                                <span class="font-bold text-slate-300">Salida</span>
+                                <div id="bulb" class="w-16 h-16 rounded-full border-4 border-slate-600 bg-slate-800 transition-all duration-300 flex items-center justify-center shadow-lg">
+                                    <svg id="bulbIcon" class="w-8 h-8 text-slate-600 transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"></path></svg>
+                                </div>
+                                <span id="outputState" class="font-bold text-2xl font-mono text-red-500">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Ecuación / Explicación Dinámica -->
+                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-800/90 py-2 px-6 rounded-full border border-slate-700 text-center w-max backdrop-blur-sm">
+                            <p id="logicEquation" class="code-font text-lg text-yellow-300 font-bold tracking-wider">A &amp;&amp; B = Salida</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="juego" class="section-content">
+            <div class="glass-panel p-2 md:p-6 rounded-2xl">
+                <div class="mb-4 px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-sky-400">Desafío 3D: Repara el Servidor</h2>
+                        <p class="text-slate-300 text-sm mt-1">El servidor central ha perdido energía. Arregla los circuitos lógicos para reactivarlo.</p>
+                    </div>
+                    <button onclick="initGame()" id="startBtn" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition hover:-translate-y-1">
+                        Iniciar Desafío 3D
+                    </button>
+                </div>
+
+                <div id="canvas-container" class="relative bg-black hidden">
+                    <!-- UI overlay for the game -->
+                    <div id="game-ui" class="w-full h-full flex flex-col justify-between p-4 pointer-events-none">
+                        
+                        <div class="flex justify-between items-start pointer-events-none w-full pr-8">
+                            <div id="level-info" class="bg-slate-900/80 p-4 rounded-xl border border-sky-500/50 backdrop-blur-md pointer-events-auto">
+                                <h3 id="level-title" class="text-xl font-bold text-yellow-400 mb-1">Nivel 1: Compuerta AND</h3>
+                                <p id="level-desc" class="text-sm text-slate-300">Activa ambos interruptores para pasar la energía.</p>
+                            </div>
+                            
+                            <div class="bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-700 flex gap-2">
+                                <div id="heart1" class="text-red-500 text-2xl">❤️</div>
+                                <div id="heart2" class="text-red-500 text-2xl">❤️</div>
+                                <div id="heart3" class="text-red-500 text-2xl">❤️</div>
+                            </div>
+                        </div>
+
+                        <!-- Controles del juego 3D -->
+                        <div class="self-center mb-6 pointer-events-auto flex gap-6 bg-slate-900/90 p-4 rounded-2xl border border-slate-600 shadow-2xl">
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Switch 1</span>
+                                <button onclick="toggleGameSwitch(1)" id="gameSwitch1" class="w-16 h-16 rounded-full bg-slate-700 border-4 border-slate-800 shadow-[inset_0_4px_4px_rgba(0,0,0,0.5)] active:shadow-[inset_0_8px_8px_rgba(0,0,0,0.8)] transition-all font-black text-2xl text-slate-500 hover:bg-slate-600 flex items-center justify-center">0</button>
+                            </div>
+                            
+                            <div class="flex items-center justify-center px-4">
+                                <span id="gameGateSymbol" class="text-3xl font-black text-sky-400">&amp;&amp;</span>
+                            </div>
+
+                            <div class="flex flex-col items-center gap-2" id="gameSwitch2Container">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Switch 2</span>
+                                <button onclick="toggleGameSwitch(2)" id="gameSwitch2" class="w-16 h-16 rounded-full bg-slate-700 border-4 border-slate-800 shadow-[inset_0_4px_4px_rgba(0,0,0,0.5)] active:shadow-[inset_0_8px_8px_rgba(0,0,0,0.8)] transition-all font-black text-2xl text-slate-500 hover:bg-slate-600 flex items-center justify-center">0</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Overlay de victoria/derrota -->
+                    <div id="game-overlay" class="absolute inset-0 bg-black/80 z-20 flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-500">
+                        <h2 id="overlay-title" class="text-5xl font-black text-white mb-4 drop-shadow-lg text-center px-4"></h2>
+                        <p id="overlay-msg" class="text-xl text-slate-300 mb-8 text-center max-w-md px-4"></p>
+                        <button id="overlay-btn" class="bg-sky-500 hover:bg-sky-400 text-white font-bold py-3 px-8 rounded-full text-xl shadow-[0_0_20px_rgba(14,165,233,0.5)] transition-transform hover:scale-105"></button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-8 text-center text-slate-500 text-sm mt-auto">
+        <p>Aventura Lógica 3D &copy; 2026. Diseñado para estudiantes de 9° grado.</p>
+        <p class="mt-2">Utilizando HTML, CSS, JavaScript y Three.js</p>
+    </footer>
+
+    <!-- Custom Modal instead of alert() -->
+    <div id="customModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden bg-black/60 backdrop-blur-sm">
+        <div class="bg-slate-800 border border-slate-600 p-6 rounded-xl shadow-2xl max-w-sm w-full transform scale-95 opacity-0 transition-all duration-300" id="modalContent">
+            <h3 class="text-xl font-bold text-white mb-2" id="modalTitle">Mensaje</h3>
+            <p class="text-slate-300 mb-6" id="modalText">Contenido del mensaje.</p>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="bg-sky-500 hover:bg-sky-400 text-white font-bold py-2 px-4 rounded transition-colors">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Navegación y UI Base ---
+        function showSection(sectionId) {
+            // Ocultar todas
+            document.querySelectorAll('.section-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            // Quitar active de nav links
+            document.querySelectorAll('.nav-link').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Mostrar seleccionada
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Marcar nav link (buscamos ambos, desktop y mobile)
+            document.querySelectorAll(`.nav-link[href="#${sectionId}"]`).forEach(el => {
+                el.classList.add('active');
+            });
+        }
+
+        // Mobile menu toggle
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        function closeMobileMenu() {
+            mobileMenu.classList.add('hidden');
+        }
+
+        // Custom Modal Logic
+        function showModal(title, text) {
+            const modal = document.getElementById('customModal');
+            const content = document.getElementById('modalContent');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalText').innerText = text;
+            
+            modal.classList.remove('hidden');
+            // Timeout to allow display block to apply before animating opacity
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('customModal');
+            const content = document.getElementById('modalContent');
+            
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // --- Lógica del Laboratorio 2D ---
+        
+        // Símbolos SVG para el visualizador 2D
+        const gateSVGs = {
+            'AND': `<svg width="60" height="60" viewBox="0 0 100 100"><path d="M 20 20 L 50 20 A 30 30 0 0 1 80 50 A 30 30 0 0 1 50 80 L 20 80 Z" fill="none" stroke="#6366f1" stroke-width="6"/></svg>`,
+            'OR': `<svg width="60" height="60" viewBox="0 0 100 100"><path d="M 20 20 C 50 20 80 40 85 50 C 80 60 50 80 20 80 C 35 65 35 35 20 20 Z" fill="none" stroke="#6366f1" stroke-width="6"/></svg>`,
+            'NOT': `<svg width="60" height="60" viewBox="0 0 100 100"><path d="M 30 20 L 70 50 L 30 80 Z" fill="none" stroke="#6366f1" stroke-width="6"/><circle cx="75" cy="50" r="5" fill="none" stroke="#6366f1" stroke-width="4"/></svg>`,
+            'XOR': `<svg width="60" height="60" viewBox="0 0 100 100"><path d="M 30 20 C 60 20 90 40 95 50 C 90 60 60 80 30 80 C 45 65 45 35 30 20 Z" fill="none" stroke="#6366f1" stroke-width="6"/><path d="M 15 20 C 30 35 30 65 15 80" fill="none" stroke="#6366f1" stroke-width="6"/></svg>`
+        };
+
+        function updateCircuit() {
+            // 1. Obtener valores
+            const gateType = document.querySelector('input[name="gateType"]:checked').value;
+            const inputA = document.getElementById('inputA').checked;
+            const inputB = document.getElementById('inputB').checked;
+            
+            // 2. Manejar visibilidad de Input B (NOT solo usa A)
+            const inputBContainer = document.getElementById('inputB-container');
+            const wireB = document.getElementById('wireB');
+            
+            if (gateType === 'NOT') {
+                inputBContainer.style.opacity = '0.3';
+                inputBContainer.style.pointerEvents = 'none';
+                wireB.style.display = 'none';
+                // Adjust wire A for NOT gate visual
+                document.getElementById('wireA').setAttribute('d', 'M 0 35 L 100 35 C 130 35, 130 110, 160 110');
+            } else {
+                inputBContainer.style.opacity = '1';
+                inputBContainer.style.pointerEvents = 'auto';
+                wireB.style.display = 'block';
+                // Reset wire A
+                document.getElementById('wireA').setAttribute('d', 'M 0 35 L 100 35 C 130 35, 130 80, 160 80');
+            }
+
+            // 3. Actualizar símbolo de la compuerta
+            document.getElementById('gateSymbol').innerHTML = gateSVGs[gateType];
+
+            // 4. Calcular lógica
+            let output = false;
+            let equation = "";
+
+            switch (gateType) {
+                case 'AND':
+                    output = inputA && inputB;
+                    equation = `${inputA ? 1 : 0} AND ${inputB ? 1 : 0} = ${output ? 1 : 0}`;
+                    break;
+                case 'OR':
+                    output = inputA || inputB;
+                    equation = `${inputA ? 1 : 0} OR ${inputB ? 1 : 0} = ${output ? 1 : 0}`;
+                    break;
+                case 'NOT':
+                    output = !inputA;
+                    equation = `NOT ${inputA ? 1 : 0} = ${output ? 1 : 0}`;
+                    break;
+                case 'XOR':
+                    // XOR: True if inputs are different
+                    output = inputA !== inputB;
+                    equation = `${inputA ? 1 : 0} XOR ${inputB ? 1 : 0} = ${output ? 1 : 0}`;
+                    break;
+            }
+
+            // 5. Actualizar interfaz visual
+            
+            // Cables
+            const wA = document.getElementById('wireA');
+            const wB = document.getElementById('wireB');
+            const wOut = document.getElementById('wireOut');
+
+            inputA ? (wA.classList.add('active'), wA.classList.remove('inactive')) : (wA.classList.add('inactive'), wA.classList.remove('active'));
+            inputB ? (wB.classList.add('active'), wB.classList.remove('inactive')) : (wB.classList.add('inactive'), wB.classList.remove('active'));
+            output ? (wOut.classList.add('active'), wOut.classList.remove('inactive')) : (wOut.classList.add('inactive'), wOut.classList.remove('active'));
+
+            // Bombillo
+            const bulb = document.getElementById('bulb');
+            const bulbIcon = document.getElementById('bulbIcon');
+            const outputState = document.getElementById('outputState');
+
+            if (output) {
+                bulb.classList.remove('bg-slate-800', 'border-slate-600');
+                bulb.classList.add('bg-yellow-400', 'border-yellow-200', 'shadow-[0_0_30px_rgba(250,204,21,0.6)]');
+                bulbIcon.classList.replace('text-slate-600', 'text-white');
+                outputState.innerText = "1";
+                outputState.classList.replace('text-red-500', 'text-green-400');
+            } else {
+                bulb.classList.add('bg-slate-800', 'border-slate-600');
+                bulb.classList.remove('bg-yellow-400', 'border-yellow-200', 'shadow-[0_0_30px_rgba(250,204,21,0.6)]');
+                bulbIcon.classList.replace('text-white', 'text-slate-600');
+                outputState.innerText = "0";
+                outputState.classList.replace('text-green-400', 'text-red-500');
+            }
+
+            // Ecuación
+            document.getElementById('logicEquation').innerText = equation;
+        }
+
+        // Inicializar circuito al cargar
+        document.addEventListener('DOMContentLoaded', updateCircuit);
+
+
+        // --- JUEGO 3D ---
+        
+        let scene, camera, renderer;
+        let animationId;
+        let gameActive = false;
+        
+        // Elementos 3D interactivos
+        let serverCore, wireMaterialA, wireMaterialB, wireMaterialOut;
+        let particles = [];
+        let connectionLines = [];
+
+        // Estado del juego
+        let currentLevel = 0;
+        let lives = 3;
+        let pSwitch1 = false;
+        let pSwitch2 = false;
+
+        const levels = [
+            { id: 'AND', name: 'Nivel 1: El Puente AND', desc: 'El servidor necesita DOS fuentes de energía. Activa ambos interruptores.', gate: 'AND', symbol: '&&', target: true, winMsg: '¡Excelente! Ambos interruptores encendidos = 1.' },
+            { id: 'OR', name: 'Nivel 2: Redundancia OR', desc: 'Con que un generador funcione es suficiente. Enciende AL MENOS UNO.', gate: 'OR', symbol: '||', target: true, winMsg: '¡Bien hecho! Uno o ambos encendidos = 1.' },
+            { id: 'NOT', name: 'Nivel 3: El Inversor NOT', desc: 'El sistema está atascado en sobrecarga (1). Usa el interruptor 1 para APAGARLO y que la salida sea 1.', gate: 'NOT', symbol: '!', target: true, winMsg: '¡Lógica invertida exitosamente! Entrada 0 -> Salida 1.' },
+            { id: 'XOR', name: 'Nivel 4: Exclusividad XOR', desc: '¡Peligro de cortocircuito! Solo un generador debe estar activo, NO AMBOS NI NINGUNO.', gate: 'XOR', symbol: '^', target: true, winMsg: '¡Perfecto! Diferentes entradas = 1.' }
+        ];
+
+        function initGame() {
+            const container = document.getElementById('canvas-container');
+            const startBtn = document.getElementById('startBtn');
+            
+            container.classList.remove('hidden');
+            startBtn.style.display = 'none';
+            
+            // Si ya hay un canvas, no recrear la escena completa
+            if (renderer) {
+                resetGame();
+                return;
+            }
+
+            // 1. Setup básico Three.js
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x0f172a, 0.05);
+
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 5, 12);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            // Shadow map
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            
+            container.appendChild(renderer.domElement);
+
+            // Manejo de resize
+            window.addEventListener('resize', () => {
+                if(container && camera && renderer) {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+            });
+
+            // 2. Luces
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+            scene.add(ambientLight);
+
+            const spotLight = new THREE.SpotLight(0x38bdf8, 1.5);
+            spotLight.position.set(0, 15, 5);
+            spotLight.angle = Math.PI / 4;
+            spotLight.penumbra = 0.5;
+            spotLight.castShadow = true;
+            scene.add(spotLight);
+
+            const gridHelper = new THREE.GridHelper(40, 40, 0x334155, 0x1e293b);
+            gridHelper.position.y = -2;
+            scene.add(gridHelper);
+
+            // 3. Crear el Servidor Central (Meta)
+            const coreGeometry = new THREE.IcosahedronGeometry(2, 1);
+            const coreMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x334155,
+                emissive: 0x000000,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            serverCore = new THREE.Mesh(coreGeometry, coreMaterial);
+            serverCore.position.set(0, 1, -2);
+            serverCore.castShadow = true;
+            scene.add(serverCore);
+
+            // Núcleo interno brillante
+            const innerCoreGeom = new THREE.OctahedronGeometry(1.2);
+            const innerCoreMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            serverCore.innerCore = new THREE.Mesh(innerCoreGeom, innerCoreMat);
+            serverCore.add(serverCore.innerCore);
+
+            // 4. Crear Nodos/Interruptores (Representación visual)
+            const nodeGeo = new THREE.CylinderGeometry(1, 1, 0.5, 16);
+            const nodeMatInactive = new THREE.MeshPhongMaterial({ color: 0xef4444 });
+            
+            const node1 = new THREE.Mesh(nodeGeo, nodeMatInactive.clone());
+            node1.position.set(-4, -1, 3);
+            scene.add(node1);
+            
+            const node2 = new THREE.Mesh(nodeGeo, nodeMatInactive.clone());
+            node2.position.set(4, -1, 3);
+            scene.add(node2);
+
+            // Compuerta central
+            const gateGeo = new THREE.BoxGeometry(2, 1, 2);
+            const gateMat = new THREE.MeshPhongMaterial({ color: 0x3b82f6 });
+            const logicGateMesh = new THREE.Mesh(gateGeo, gateMat);
+            logicGateMesh.position.set(0, -0.5, 1);
+            scene.add(logicGateMesh);
+
+            // 5. Cables (Cilindros)
+            wireMaterialA = new THREE.MeshBasicMaterial({ color: 0x334155 });
+            wireMaterialB = new THREE.MeshBasicMaterial({ color: 0x334155 });
+            wireMaterialOut = new THREE.MeshBasicMaterial({ color: 0x334155 });
+
+            // Función helper para crear tubos
+            function createWire(startPoint, endPoint, material) {
+                const path = new THREE.LineCurve3(startPoint, endPoint);
+                const tubeGeometry = new THREE.TubeGeometry(path, 20, 0.1, 8, false);
+                return new THREE.Mesh(tubeGeometry, material);
+            }
+
+            const wireA = createWire(node1.position, logicGateMesh.position, wireMaterialA);
+            const wireB = createWire(node2.position, logicGateMesh.position, wireMaterialB);
+            const wireOut = createWire(logicGateMesh.position, serverCore.position, wireMaterialOut);
+            
+            scene.add(wireA);
+            scene.add(wireB);
+            scene.add(wireOut);
+
+            // 6. Partículas para efecto de datos
+            const particlesGeo = new THREE.BufferGeometry();
+            const particlesCount = 200;
+            const posArray = new Float32Array(particlesCount * 3);
+            for(let i=0; i<particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 15;
+            }
+            particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 0.1,
+                color: 0x38bdf8,
+                transparent: true,
+                opacity: 0.5
+            });
+            const particlesMesh = new THREE.Points(particlesGeo, particleMaterial);
+            scene.add(particlesMesh);
+            particles.push(particlesMesh);
+
+            // Iniciar ciclo
+            resetGame();
+            animate();
+        }
+
+        function resetGame() {
+            currentLevel = 0;
+            lives = 3;
+            updateHearts();
+            loadLevel();
+            gameActive = true;
+            document.getElementById('game-overlay').classList.add('hidden');
+            document.getElementById('game-overlay').classList.remove('opacity-100');
+            document.getElementById('game-overlay').classList.add('opacity-0');
+        }
+
+        function loadLevel() {
+            if (currentLevel >= levels.length) {
+                showGameOver(true);
+                return;
+            }
+
+            const lvl = levels[currentLevel];
+            
+            // Actualizar UI HTML
+            document.getElementById('level-title').innerText = lvl.name;
+            document.getElementById('level-desc').innerText = lvl.desc;
+            document.getElementById('gameGateSymbol').innerText = lvl.symbol;
+            
+            // Reset switches visual y lógico
+            pSwitch1 = false;
+            pSwitch2 = (lvl.gate === 'NOT') ? false : false; // NOT uses input 1, logic handles it
+
+            const btn1 = document.getElementById('gameSwitch1');
+            const btn2 = document.getElementById('gameSwitch2');
+            
+            btn1.innerText = "0";
+            btn1.classList.remove('bg-green-500', 'text-white');
+            btn1.classList.add('bg-slate-700', 'text-slate-500');
+
+            if (lvl.gate === 'NOT') {
+                document.getElementById('gameSwitch2Container').style.visibility = 'hidden';
+                // Start NOT with input 1 (so output is 0 and fails initially) to force interaction
+                pSwitch1 = true; 
+                btn1.innerText = "1";
+                btn1.classList.add('bg-green-500', 'text-white');
+                btn1.classList.remove('bg-slate-700', 'text-slate-500');
+            } else {
+                document.getElementById('gameSwitch2Container').style.visibility = 'visible';
+                btn2.innerText = "0";
+                btn2.classList.remove('bg-green-500', 'text-white');
+                btn2.classList.add('bg-slate-700', 'text-slate-500');
+            }
+
+            updateGameLogic();
+        }
+
+        function toggleGameSwitch(num) {
+            if (!gameActive) return;
+
+            const btn = document.getElementById(`gameSwitch${num}`);
+            let isActive = false;
+
+            if (num === 1) {
+                pSwitch1 = !pSwitch1;
+                isActive = pSwitch1;
+            } else {
+                pSwitch2 = !pSwitch2;
+                isActive = pSwitch2;
+            }
+
+            // Visual update HTML button
+            if (isActive) {
+                btn.innerText = "1";
+                btn.classList.add('bg-green-500', 'text-white');
+                btn.classList.remove('bg-slate-700', 'text-slate-500');
+            } else {
+                btn.innerText = "0";
+                btn.classList.remove('bg-green-500', 'text-white');
+                btn.classList.add('bg-slate-700', 'text-slate-500');
+            }
+
+            updateGameLogic();
+        }
+
+        function updateGameLogic() {
+            const lvl = levels[currentLevel];
+            let output = false;
+
+            // 1. Calcular Lógica Real
+            switch (lvl.gate) {
+                case 'AND': output = pSwitch1 && pSwitch2; break;
+                case 'OR':  output = pSwitch1 || pSwitch2; break;
+                case 'NOT': output = !pSwitch1; break;
+                case 'XOR': output = pSwitch1 !== pSwitch2; break;
+            }
+
+            // 2. Actualizar Materiales 3D (Cables)
+            const colorActive = new THREE.Color(0x22c55e); // Verde
+            const colorInactive = new THREE.Color(0x334155); // Gris oscuro
+
+            if(wireMaterialA) {
+                wireMaterialA.color = pSwitch1 ? colorActive : colorInactive;
+                wireMaterialA.emissive = pSwitch1 ? colorActive : new THREE.Color(0x000000);
+            }
+            if(wireMaterialB && lvl.gate !== 'NOT') {
+                wireMaterialB.color = pSwitch2 ? colorActive : colorInactive;
+                wireMaterialB.emissive = pSwitch2 ? colorActive : new THREE.Color(0x000000);
+            } else if (wireMaterialB) {
+                 wireMaterialB.color = colorInactive;
+                 wireMaterialB.emissive = new THREE.Color(0x000000);
+            }
+
+            if(wireMaterialOut) {
+                wireMaterialOut.color = output ? colorActive : new THREE.Color(0xef4444); // Salida mala es roja
+                wireMaterialOut.emissive = output ? colorActive : new THREE.Color(0x550000);
+            }
+
+            // 3. Actualizar Servidor 3D
+            if (serverCore) {
+                if (output === lvl.target) {
+                    serverCore.material.emissive = new THREE.Color(0x0ea5e9); // Azul brillante
+                    serverCore.innerCore.material.color = new THREE.Color(0x0ea5e9);
+                } else {
+                    serverCore.material.emissive = new THREE.Color(0x000000);
+                    serverCore.innerCore.material.color = new THREE.Color(0xff0000); // Rojo error
+                }
+            }
+
+            // 4. Evaluar Victoria de Nivel
+            if (output === lvl.target) {
+                gameActive = false; // Pausar inputs
+                
+                // Efecto de partículas de victoria en el render loop (simulado con rotación rápida)
+                setTimeout(() => {
+                    showModal("¡Nivel Completado!", lvl.winMsg);
+                    currentLevel++;
+                    setTimeout(() => {
+                        gameActive = true;
+                        loadLevel();
+                    }, 500); // Pequeña pausa antes del sig nivel
+                }, 1000); // Dar 1 seg para ver la animación verde
+            } else {
+                // Lógica de fallo. Si ambos switches han sido tocados y está mal (para AND/OR/XOR)
+                // Opcional: implementar sistema de vidas estricto. Por ahora, dejamos que intenten.
+            }
+        }
+
+        function updateHearts() {
+            for(let i=1; i<=3; i++) {
+                const h = document.getElementById(`heart${i}`);
+                if (i <= lives) {
+                    h.style.opacity = '1';
+                } else {
+                    h.style.opacity = '0.2';
+                }
+            }
+        }
+
+        function showGameOver(win) {
+            const overlay = document.getElementById('game-overlay');
+            const title = document.getElementById('overlay-title');
+            const msg = document.getElementById('overlay-msg');
+            const btn = document.getElementById('overlay-btn');
+
+            overlay.classList.remove('hidden');
+            // Animate in
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                overlay.classList.add('opacity-100');
+            }, 50);
+
+            if (win) {
+                title.innerText = "¡SISTEMA RESTAURADO!";
+                title.className = "text-5xl font-black text-green-400 mb-4 drop-shadow-[0_0_15px_rgba(74,222,128,0.8)] text-center px-4";
+                msg.innerText = "Has dominado las compuertas lógicas y reparado el servidor principal. ¡Tienes mente de programador!";
+                btn.innerText = "Volver a Jugar";
+                btn.onclick = resetGame;
+            } else {
+                title.innerText = "FALLO DEL SISTEMA";
+                title.className = "text-5xl font-black text-red-500 mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)] text-center px-4";
+                msg.innerText = "El servidor se ha colapsado. Revisa la lógica e inténtalo de nuevo.";
+                btn.innerText = "Reintentar";
+                btn.onclick = resetGame;
+            }
+        }
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+
+            if (serverCore) {
+                // Rotación base
+                serverCore.rotation.y += 0.01;
+                serverCore.rotation.x += 0.005;
+
+                // Si ganamos, rota rápido
+                if (serverCore.innerCore.material.color.getHex() === 0x0ea5e9) {
+                     serverCore.rotation.y += 0.04;
+                }
+                
+                // Efecto de latido del núcleo
+                const scale = 1 + Math.sin(Date.now() * 0.005) * 0.1;
+                serverCore.innerCore.scale.set(scale, scale, scale);
+            }
+
+            // Animar partículas
+            if (particles.length > 0) {
+                particles[0].rotation.y += 0.002;
+                particles[0].rotation.x += 0.001;
+            }
+
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
