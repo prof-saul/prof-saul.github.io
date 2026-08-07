@@ -238,77 +238,80 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA 3: EDITOR DE HISTORIETA -->
-            <div id="tabEditor" class="hidden flex flex-col h-full w-full">
+            <!-- PESTAÑA 3: EDITOR DE HISTORIETA (Estilo Scratch) -->
+            <div id="tabEditor" class="hidden flex-row h-full w-full overflow-hidden">
                 
-                <!-- Barra de Herramientas Superior del Editor -->
-                <div class="bg-white border-b border-gray-200 p-2 flex items-center justify-between shadow-sm shrink-0">
-                    <div class="flex items-center gap-2 overflow-x-auto" id="editorToolbar">
-                        <!-- Botones de herramientas, se inyectan dinámicamente sus menús -->
-                        <div class="relative group">
-                            <button class="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded text-sm font-medium text-gray-700 flex items-center gap-2">
-                                <i class="fa-solid fa-users text-indigo-500"></i> Añadir Personaje
-                            </button>
-                            <div class="absolute left-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-50 p-2 max-h-64 overflow-y-auto" id="menuAddCharacter">
-                                <!-- Llenado por JS -->
-                            </div>
+                <!-- Barra Lateral de Herramientas (Estilo Scratch) -->
+                <div class="w-64 bg-white border-r border-gray-200 flex flex-col shrink-0 overflow-y-auto shadow-sm z-20">
+                    <div class="p-3 bg-indigo-50 border-b border-indigo-100 sticky top-0 z-10 text-center">
+                        <span class="font-bold text-indigo-800 comic-font text-lg"><i class="fa-solid fa-toolbox mr-1"></i> Herramientas</span>
+                    </div>
+                    
+                    <!-- Personajes -->
+                    <div class="p-4 border-b border-gray-200">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"><i class="fa-solid fa-users text-indigo-500"></i> Reparto</h4>
+                        <div id="menuAddCharacter" class="grid grid-cols-2 gap-2">
+                            <!-- Llenado por JS -->
                         </div>
+                    </div>
 
-                        <div class="relative group">
-                            <button class="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded text-sm font-medium text-gray-700 flex items-center gap-2">
-                                <i class="fa-solid fa-image text-emerald-500"></i> Establecer Fondo
-                            </button>
-                            <div class="absolute left-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-50 p-2 max-h-64 overflow-y-auto" id="menuAddScene">
-                                <!-- Llenado por JS -->
-                            </div>
+                    <!-- Escenarios -->
+                    <div class="p-4 border-b border-gray-200">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"><i class="fa-solid fa-image text-emerald-500"></i> Fondos</h4>
+                        <div id="menuAddScene" class="flex flex-col gap-2">
+                            <!-- Llenado por JS -->
                         </div>
+                    </div>
 
-                        <div class="h-6 w-px bg-gray-300 mx-1"></div>
-
-                        <button id="btnAddBubble" class="bg-gray-100 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 transition">
-                            <i class="fa-regular fa-comment-dots"></i> Diálogo
-                        </button>
-                        <button id="btnAddNarrator" class="bg-gray-100 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 transition">
-                            <i class="fa-solid fa-scroll"></i> Narrador
-                        </button>
-
-                        <div class="h-6 w-px bg-gray-300 mx-1"></div>
-                        
-                        <div class="relative group">
-                            <button class="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded text-sm font-medium text-gray-700 flex items-center gap-2">
-                                <i class="fa-solid fa-tree text-green-600"></i> Utilería / Props
+                    <!-- Textos -->
+                    <div class="p-4 border-b border-gray-200">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"><i class="fa-solid fa-comment-dots text-blue-500"></i> Textos</h4>
+                        <div class="flex flex-col gap-2">
+                            <button id="btnAddBubble" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 px-3 py-2 rounded text-sm font-medium flex items-center justify-center gap-2 transition w-full">
+                                <i class="fa-regular fa-comment-dots"></i> Globo de Diálogo
                             </button>
-                            <div class="absolute left-0 top-full mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-50 p-3 grid grid-cols-5 gap-2" id="menuAddProp">
-                                <!-- Props fijos llenados por JS -->
-                            </div>
+                            <button id="btnAddNarrator" class="bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 px-3 py-2 rounded text-sm font-medium flex items-center justify-center gap-2 transition w-full">
+                                <i class="fa-solid fa-scroll"></i> Caja de Narrador
+                            </button>
                         </div>
+                    </div>
 
-                        <div class="flex-1"></div>
-                        <button id="btnDeleteObject" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded text-sm font-medium flex items-center gap-2 transition opacity-50 cursor-not-allowed" disabled>
+                    <!-- Props -->
+                    <div class="p-4 border-b border-gray-200">
+                        <h4 class="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2"><i class="fa-solid fa-tree text-green-600"></i> Utilería</h4>
+                        <div id="menuAddProp" class="grid grid-cols-4 gap-2">
+                            <!-- Llenado por JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenedor Principal del Canvas y Timeline -->
+                <div class="flex-1 flex flex-col relative overflow-hidden bg-gray-100">
+                    
+                    <!-- Barra superior de utilidades -->
+                    <div class="bg-white border-b border-gray-200 p-2 flex items-center justify-between shadow-sm shrink-0">
+                        <div class="text-sm text-gray-600 font-medium px-2">
+                            Editando Panel <span id="lblActivePanelNumber" class="text-indigo-600 font-bold text-lg px-1">1</span>
+                        </div>
+                        <button id="btnDeleteObject" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-1.5 rounded text-sm font-medium flex items-center gap-2 transition opacity-50 cursor-not-allowed border border-red-200" disabled>
                             <i class="fa-solid fa-trash-can"></i> Borrar Selección
                         </button>
                     </div>
-                </div>
 
-                <!-- Contenedor Principal del Canvas -->
-                <div class="flex-1 p-4 flex flex-col relative overflow-hidden bg-gray-100">
-                    <div class="text-center mb-2 text-sm text-gray-500 font-medium shrink-0">Panel Activo: <span id="lblActivePanelNumber" class="text-indigo-600 font-bold">1</span></div>
-                    
+                    <!-- Canvas -->
                     <div class="canvas-container-wrapper flex-1 items-center" id="canvasWrapper">
-                        <!-- El Canvas de Fabric.js. Resolución interna fija de 800x500 para exportación predecible -->
                         <canvas id="comicCanvas" width="800" height="500" class="bg-white shadow-lg border border-gray-300"></canvas>
+                    </div>
+
+                    <!-- Gestor de Paneles (Timeline) -->
+                    <div class="bg-gray-800 text-white p-3 shrink-0 flex items-center overflow-x-auto gap-3 h-32" id="panelStrip">
+                        <button id="btnAddPanel" class="w-32 h-24 bg-gray-700 hover:bg-gray-600 border-2 border-dashed border-gray-500 rounded-lg flex flex-col items-center justify-center shrink-0 transition-colors">
+                            <i class="fa-solid fa-plus text-2xl mb-1 text-gray-400"></i>
+                            <span class="text-xs font-medium text-gray-400">Nuevo Panel</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Gestor de Paneles (Timeline) -->
-                <div class="bg-gray-800 text-white p-3 shrink-0 flex items-center overflow-x-auto gap-3 h-32" id="panelStrip">
-                    <!-- Botón para añadir panel -->
-                    <button id="btnAddPanel" class="w-32 h-24 bg-gray-700 hover:bg-gray-600 border-2 border-dashed border-gray-500 rounded-lg flex flex-col items-center justify-center shrink-0 transition-colors">
-                        <i class="fa-solid fa-plus text-2xl mb-1 text-gray-400"></i>
-                        <span class="text-xs font-medium text-gray-400">Nuevo Panel</span>
-                    </button>
-                    <!-- Los paneles se inyectan aquí -->
-                </div>
             </div>
 
         </section>
@@ -546,7 +549,7 @@
             // Populate Props Menu in Editor
             PROPS.forEach(prop => {
                 const btn = document.createElement('button');
-                btn.className = 'text-3xl p-2 hover:bg-gray-100 rounded transition text-center';
+                btn.className = 'text-2xl p-1 bg-gray-50 hover:bg-gray-200 border border-gray-200 rounded transition text-center flex items-center justify-center';
                 btn.innerText = prop;
                 btn.onclick = () => addPropToCanvas(prop);
                 DOM.menuAddProp.appendChild(btn);
@@ -773,42 +776,43 @@
         /* -------------------------------------------------------------------------- */
 
         function updateEditorMenus() {
-            // Update Character Dropdown
+            // Update Character Sidebar Grid
             DOM.menuAddChar.innerHTML = '';
             if (appState.characters.length === 0) {
-                DOM.menuAddChar.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">No hay personajes. Créalos en la pestaña 1.</p>';
+                DOM.menuAddChar.innerHTML = '<p class="text-xs text-gray-400 text-center col-span-2 py-4 italic">Sin personajes.</p>';
             } else {
                 appState.characters.forEach(char => {
                     const btn = document.createElement('button');
-                    btn.className = 'w-full text-left px-2 py-2 hover:bg-indigo-50 rounded text-sm flex items-center gap-3 transition';
-                    btn.innerHTML = `<span class="text-2xl">${char.emoji}</span> <span class="font-medium truncate">${char.name}</span>`;
+                    btn.className = 'bg-gray-50 border border-gray-200 hover:border-indigo-400 hover:bg-indigo-50 rounded p-2 flex flex-col items-center justify-center gap-1 transition group';
+                    btn.innerHTML = `
+                        <span class="text-2xl group-hover:scale-110 transition-transform">${char.emoji}</span>
+                        <span class="text-[10px] font-bold text-gray-600 w-full text-center truncate">${char.name}</span>
+                    `;
                     btn.onclick = () => {
                         addCharacterToCanvas(char);
-                        document.activeElement.blur(); // close menu hack
                     };
                     DOM.menuAddChar.appendChild(btn);
                 });
             }
 
-            // Update Scene Dropdown
+            // Update Scene Sidebar List
             DOM.menuAddScene.innerHTML = '';
             if (appState.scenes.length === 0) {
-                DOM.menuAddScene.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">No hay escenarios. Créalos en la pestaña 2.</p>';
+                DOM.menuAddScene.innerHTML = '<p class="text-xs text-gray-400 text-center py-4 italic">Sin escenarios.</p>';
             } else {
                 appState.scenes.forEach(scene => {
                     const btn = document.createElement('button');
-                    btn.className = 'w-full text-left px-3 py-2 hover:bg-emerald-50 rounded text-sm font-medium transition flex justify-between items-center';
-                    btn.innerHTML = `<span>${scene.name}</span> <i class="fa-solid fa-chevron-right text-xs text-gray-400"></i>`;
+                    btn.className = 'w-full text-left px-3 py-2 bg-gray-50 border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 rounded text-xs font-bold text-gray-700 transition flex justify-between items-center';
+                    btn.innerHTML = `<span class="truncate">${scene.name}</span> <i class="fa-solid fa-plus text-emerald-500"></i>`;
                     btn.onclick = () => {
                         setSceneInCanvas(scene);
-                        document.activeElement.blur();
                     };
                     DOM.menuAddScene.appendChild(btn);
                 });
                 
                 // Add clear option
                 const clearBtn = document.createElement('button');
-                clearBtn.className = 'w-full text-left px-3 py-2 hover:bg-red-50 rounded text-sm font-medium text-red-600 transition mt-1 border-t border-gray-100';
+                clearBtn.className = 'w-full text-center px-3 py-2 bg-red-50 border border-red-100 hover:bg-red-100 rounded text-xs font-bold text-red-600 transition mt-2';
                 clearBtn.innerHTML = '<i class="fa-solid fa-eraser"></i> Quitar Fondo';
                 clearBtn.onclick = () => setSceneInCanvas(null);
                 DOM.menuAddScene.appendChild(clearBtn);
