@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Logic Lab - Recreación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
+        :root {
+            --color-bg-dark: #333333;
+            --color-grid: #4a4a4a;
+            --color-orange: #fca311;
+            --color-orange-hover: #e59400;
+            --color-panel: #ffffff;
+            --color-text-dark: #222222;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden; /* Evitar scroll */
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--color-bg-dark);
+            color: white;
+            user-select: none; /* Prevenir selección de texto accidental al arrastrar */
+        }
+
+        /* Estilos del Header */
+        header {
+            background-color: var(--color-bg-dark);
+            border-bottom: 4px solid var(--color-orange);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        header h1 {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            font-size: 24px;
+            letter-spacing: 1px;
+            margin: 0;
+            color: white;
+        }
+        header h1 span {
+            color: var(--color-orange);
+        }
+
+        /* Contenedor Principal */
+        #main-container {
+            display: flex;
+            height: calc(100vh - 54px); /* Restar altura del header aproximada */
+        }
+
+        /* Panel Lateral (Caja de Herramientas) */
+        #sidebar {
+            width: 250px;
+            background-color: var(--color-orange);
+            display: flex;
+            flex-direction: column;
+            border-right: 4px solid var(--color-orange);
+        }
+
+        .accordion-header {
+            background-color: var(--color-orange);
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+        }
+        
+        .accordion-header:hover {
+            background-color: var(--color-orange-hover);
+        }
+
+        .accordion-header::before {
+            content: "»";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .accordion-content {
+            background-color: var(--color-panel);
+            padding: 15px;
+            display: none; /* Oculto por defecto */
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: flex-start;
+            flex: 1; /* Ocupa el espacio restante cuando está abierto */
+            overflow-y: auto;
+        }
+        
+        .accordion-content.active {
+            display: flex;
+        }
+
+        /* Elementos de la caja de herramientas (Draggables) */
+        .toolbox-item {
+            width: 60px;
+            height: 60px;
+            background-color: var(--color-orange);
+            border: 2px solid #000;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
+            position: relative;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            color: black;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .toolbox-item:active {
+            cursor: grabbing;
+        }
+
+        /* Área del Canvas (Laboratorio) */
+        #lab-area {
+            flex-grow: 1;
+            position: relative;
+            background-color: var(--color-bg-dark);
+            overflow: hidden; /* Importante para el canvas infinito */
+        }
+
+        canvas {
+            display: block;
+            /* La cuadrícula se dibuja en JS para poder hacer pan/zoom si se requiere futuro */
+        }
+
+        /* Tooltip simple */
+        #tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+        }
+        
+        /* Modal Save (Simulado) */
+        #save-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: var(--color-orange);
+            padding: 30px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        
+        .modal-content h2 {
+            margin-top: 0;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .modal-content p {
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            color: black;
+            font-family: monospace;
+            margin-bottom: 20px;
+        }
+        
+        .modal-close-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            color: var(--color-orange);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        /* Botones de acción extra */
+        #action-buttons {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background-color: var(--color-orange);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+        .action-btn:hover { background-color: var(--color-orange-hover); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>THE LOGIC <span>LAB</span></h1>
+    </header>
+
+    <div id="main-container">
+        <!-- Panel Lateral -->
+        <div id="sidebar">
+            <div class="accordion-header" onclick="toggleAccordion('input-content')">Input</div>
+            <div id="input-content" class="accordion-content active">
+                <div class="toolbox-item" draggable="true" data-type="BUTTON" title="Push Button (Momentary)">Btn</div>
+                <div class="toolbox-item" draggable="true" data-type="SWITCH" title="Switch (Toggle)">Sw</div>
+                <div class="toolbox-item" draggable="true" data-type="CLOCK" title="Clock Generator">Clk</div>
+            </div>
+
+            <div class="accordion-header" onclick="toggleAccordion('logic-content')">Logic ports</div>
+            <div id="logic-content" class="accordion-content">
+                <div class="toolbox-item" draggable="true" data-type="AND" title="AND Gate">AND</div>
+                <div class="toolbox-item" draggable="true" data-type="OR" title="OR Gate">OR</div>
+                <div class="toolbox-item" draggable="true" data-type="NOT" title="NOT Gate">NOT</div>
+                <div class="toolbox-item" draggable="true" data-type="XOR" title="XOR Gate">XOR</div>
+            </div>
+
+            <div class="accordion-header" onclick="toggleAccordion('output-content')">Output</div>
+            <div id="output-content" class="accordion-content">
+                <div class="toolbox-item" draggable="true" data-type="LED_RED" title="Red LED">🔴</div>
+                <div class="toolbox-item" draggable="true" data-type="LED_GREEN" title="Green LED">🟢</div>
+            </div>
+            
+             <div class="accordion-header" onclick="toggleAccordion('extras-content')">Extras</div>
+            <div id="extras-content" class="accordion-content">
+                <div class="toolbox-item" draggable="true" data-type="SPLITTER" title="Splitter (1 to 2)">Splt</div>
+            </div>
+        </div>
+
+        <!-- Área de Trabajo -->
+        <div id="lab-area">
+            <canvas id="circuit-canvas"></canvas>
+            <div id="tooltip"></div>
+            
+            <div id="action-buttons">
+                <button class="action-btn" onclick="clearBoard()">Clear Board</button>
+                <button class="action-btn" onclick="showSaveModal()">Save / Share</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Simulado para Guardar -->
+    <div id="save-modal">
+        <div class="modal-content">
+            <h2>Thanks for saving !</h2>
+            <p>The direct link to your circuit :</p>
+            <input type="text" id="share-link" value="http://www.logic-lab-clone.com/?id=12345" readonly>
+            <button class="modal-close-btn" onclick="hideSaveModal()">✓</button>
+        </div>
+    </div>
+
+    <script>
+        // --- UTILIDADES UI ---
+        function toggleAccordion(id) {
+            document.querySelectorAll('.accordion-content').forEach(el => {
+                if(el.id !== id) el.classList.remove('active');
+            });
+            const content = document.getElementById(id);
+            content.classList.toggle('active');
+        }
+        
+        function showSaveModal() {
+            document.getElementById('save-modal').style.display = 'flex';
+            const randomId = Math.floor(Math.random() * 10000);
+            document.getElementById('share-link').value = `http://www.logic-lab-clone.com/?id=${randomId}`;
+        }
+        
+        function hideSaveModal() {
+            document.getElementById('save-modal').style.display = 'none';
+        }
+
+        // --- SISTEMA DEL CIRCUITO ---
+        const canvas = document.getElementById('circuit-canvas');
+        const ctx = canvas.getContext('2d');
+        const labArea = document.getElementById('lab-area');
+        
+        let components = [];
+        let wires = [];
+        
+        // Estado de interacción
+        const state = {
+            isDragging: false,
+            draggedComponent: null,
+            offsetX: 0,
+            offsetY: 0,
+            
+            isDrawingWire: false,
+            wireStartPort: null,
+            wireStartComponent: null,
+            mouseX: 0,
+            mouseY: 0,
+            
+            hoveredComponent: null,
+            hoveredPort: null,
+            
+            cameraX: 0,
+            cameraY: 0
+        };
+
+        // Constantes visuales
+        const GRID_SIZE = 20;
+        const PORT_RADIUS = 5;
+        const COMP_SIZE = 50; // Tamaño base para componentes cuadrados
+        
+        function resizeCanvas() {
+            canvas.width = labArea.clientWidth;
+            canvas.height = labArea.clientHeight;
+            draw();
+        }
+        window.addEventListener('resize', resizeCanvas);
+        
+        function clearBoard() {
+            components = [];
+            wires = [];
+            draw();
+        }
+
+        // --- CLASES DEL MODELO LÓGICO ---
+
+        class Port {
+            constructor(component, type, index, isInput) {
+                this.component = component;
+                this.type = type; // 'IN' o 'OUT'
+                this.index = index; // Si hay múltiples puertos
+                this.isInput = isInput;
+                this.value = false;
+                this.connections = []; // Referencias a Wires
+                
+                // Posición relativa al componente (se calcula al dibujar)
+                this.relX = 0;
+                this.relY = 0;
+            }
+            
+            // Posición absoluta en el canvas
+            get absX() { return this.component.x + this.relX; }
+            get absY() { return this.component.y + this.relY; }
+        }
+
+        class Component {
+            constructor(type, x, y) {
+                this.id = Date.now() + Math.random();
+                this.type = type;
+                this.x = x;
+                this.y = y;
+                this.width = COMP_SIZE;
+                this.height = COMP_SIZE;
+                this.inputs = [];
+                this.outputs = [];
+                this.state = false; // Estado interno (ej. para botones)
+                this.setupPorts();
+            }
+
+            setupPorts() {
+                // Configurar puertos basados en el tipo
+                switch(this.type) {
+                    case 'BUTTON':
+                    case 'SWITCH':
+                    case 'CLOCK':
+                        this.outputs.push(new Port(this, 'OUT', 0, false));
+                        break;
+                    case 'LED_RED':
+                    case 'LED_GREEN':
+                        this.inputs.push(new Port(this, 'IN', 0, true));
+                        break;
+                    case 'NOT':
+                        this.inputs.push(new Port(this, 'IN', 0, true));
+                        this.outputs.push(new Port(this, 'OUT', 0, false));
+                        // NOT es un poco más ancho en la UI original a veces
+                        this.width = 60; 
+                        this.height = 40;
+                        break;
+                    case 'AND':
+                    case 'OR':
+                    case 'XOR':
+                        this.inputs.push(new Port(this, 'IN', 0, true));
+                        this.inputs.push(new Port(this, 'IN', 1, true));
+                        this.outputs.push(new Port(this, 'OUT', 0, false));
+                        break;
+                    case 'SPLITTER':
+                        this.width = 20;
+                        this.height = 60;
+                        this.inputs.push(new Port(this, 'IN', 0, true));
+                        this.outputs.push(new Port(this, 'OUT', 0, false));
+                        this.outputs.push(new Port(this, 'OUT', 1, false));
+                        break;
+                }
+            }
+
+            updateLogic() {
+                // Leer entradas
+                const inValues = this.inputs.map(p => p.value);
+                
+                switch(this.type) {
+                    case 'BUTTON':
+                    case 'SWITCH':
+                        this.outputs[0].value = this.state;
+                        break;
+                    case 'CLOCK':
+                        // El reloj se actualiza en el loop principal basado en el tiempo
+                        this.outputs[0].value = this.state;
+                        break;
+                    case 'NOT':
+                        this.outputs[0].value = !inValues[0];
+                        break;
+                    case 'AND':
+                        this.outputs[0].value = inValues[0] && inValues[1];
+                        break;
+                    case 'OR':
+                        this.outputs[0].value = inValues[0] || inValues[1];
+                        break;
+                    case 'XOR':
+                        this.outputs[0].value = inValues[0] !== inValues[1];
+                        break;
+                    case 'SPLITTER':
+                        this.outputs[0].value = inValues[0];
+                        this.outputs[1].value = inValues[0];
+                        break;
+                    // LEDs no actualizan salidas, solo se dibujan basados en su entrada
+                }
+            }
+            
+            // Función para manejar clicks (ej. botones/switches)
+            interact() {
+                if(this.type === 'BUTTON') {
+                    this.state = true; // Se mantiene true solo mientras el mouse esté presionado
+                } else if (this.type === 'SWITCH') {
+                    this.state = !this.state; // Toggle
+                }
+            }
+            release() {
+                if(this.type === 'BUTTON') {
+                    this.state = false;
+                }
+            }
+        }
+
+        class Wire {
+            constructor(startPort, endPort) {
+                this.id = Date.now() + Math.random();
+                this.startPort = startPort; // Debería ser un OUT
+                this.endPort = endPort;     // Debería ser un IN
+            }
+            
+            update() {
+                if(this.startPort && this.endPort) {
+                    this.endPort.value = this.startPort.value;
+                }
+            }
+        }
+
+        function drawGrid() {
+            ctx.save();
+            ctx.beginPath(); // <-- CRÍTICO: Reiniciar el path para que no herede colores anteriores
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            
+            // Ajustar grid por cámara (futuro)
+            let startX = state.cameraX % GRID_SIZE;
+            let startY = state.cameraY % GRID_SIZE;
+
+            for (let x = startX; x < canvas.width; x += GRID_SIZE) {
+                ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height);
+            }
+            for (let y = startY; y < canvas.height; y += GRID_SIZE) {
+                ctx.moveTo(0, y); ctx.lineTo(canvas.width, y);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawComponent(c) {
+            ctx.save();
+            ctx.translate(c.x, c.y);
+
+            // Estilo base de la caja del componente
+            ctx.beginPath(); // <-- Reiniciar path
+            ctx.fillStyle = '#fca311'; // Naranja
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            
+            // Dibujar fondo y borde principal
+            ctx.fillRect(0, 0, c.width, c.height);
+            ctx.strokeRect(0, 0, c.width, c.height);
+            
+            // Sombra interna o bisel para aspecto 3D (simulado)
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.fillRect(2, 2, c.width-4, 4);
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(2, c.height-6, c.width-4, 4);
+
+            // Dibujar contenido específico según el tipo
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = 'bold 12px sans-serif';
+
+            switch(c.type) {
+                case 'BUTTON':
+                    // Dibujar botón rojo
+                    ctx.beginPath(); // <-- Reiniciar path
+                    ctx.arc(c.width/2, c.height/2, c.width/2 - 10, 0, Math.PI*2);
+                    ctx.fillStyle = c.state ? '#ff5555' : '#aa0000'; // Brilla si está presionado
+                    ctx.fill();
+                    ctx.stroke();
+                    // Relieve del botón
+                    ctx.beginPath(); // <-- Reiniciar path
+                    ctx.arc(c.width/2, c.height/2, c.width/2 - 12, 0, Math.PI, true);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                    ctx.stroke();
+                    break;
+                case 'SWITCH':
+                    // Dibujar switch
+                    ctx.beginPath(); // <-- Reiniciar path
+                    ctx.fillStyle = '#222';
+                    ctx.fillRect(10, 10, c.width-20, c.height-20);
+                    // Palanca
+                    ctx.beginPath(); // <-- Reiniciar path
+                    ctx.fillStyle = c.state ? '#00ff00' : '#ff0000';
+                    ctx.fillRect(15, c.state ? 15 : c.height/2, c.width-30, c.height/2 - 15);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText(c.state ? "ON" : "OFF", c.width/2, c.height/2);
+                    break;
+                case 'LED_RED':
+                case 'LED_GREEN':
+                    ctx.beginPath(); // <-- Reiniciar path
+                    ctx.arc(c.width/2, c.height/2, c.width/2 - 10, 0, Math.PI*2);
+                    let isOn = c.inputs[0].value;
+                    if(c.type === 'LED_RED') {
+                        ctx.fillStyle = isOn ? '#ff0000' : '#440000';
+                    } else {
+                        ctx.fillStyle = isOn ? '#00ff00' : '#004400';
+                    }
+                    ctx.fill();
+                    ctx.stroke();
+                    // Reflejo
+                    if(isOn) {
+                        ctx.beginPath(); // <-- Reiniciar path
+                        ctx.arc(c.width/2 - 5, c.height/2 - 5, 5, 0, Math.PI*2);
+                        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                        ctx.fill();
+                    }
+                    break;
+                case 'AND':
+                case 'OR':
+                case 'XOR':
+                case 'NOT':
+                    // Texto centrado para puertas lógicas
+                    ctx.fillStyle = '#000';
+                    // Fondo negro interno para el texto
+                    ctx.fillRect(5, 5, c.width-10, c.height-10);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText(c.type, c.width/2, c.height/2);
+                    break;
+                case 'CLOCK':
+                    // Representación simple de un reloj
+                    ctx.fillStyle = '#222';
+                    ctx.fillRect(5, 5, c.width-10, c.height-10);
+                    ctx.fillStyle = c.state ? '#0f0' : '#555';
+                    ctx.fillText("CLK", c.width/2, c.height/2);
+                    break;
+                 case 'SPLITTER':
+                    // Solo un bloque delgado, sin texto
+                    break;
+            }
+
+            // --- Dibujar Puertos ---
+            ctx.lineWidth = 1;
+            
+            // Puertos de entrada (Izquierda)
+            c.inputs.forEach((port, index) => {
+                let py = c.height / (c.inputs.length + 1) * (index + 1);
+                port.relX = -PORT_RADIUS;
+                port.relY = py;
+                
+                // Dibujar contacto del puerto
+                ctx.beginPath(); // <-- Reiniciar path
+                ctx.fillStyle = '#333';
+                ctx.fillRect(port.relX - 2, port.relY - 4, 4, 8);
+                
+                ctx.beginPath(); // <-- Reiniciar path
+                ctx.arc(port.relX, port.relY, PORT_RADIUS, 0, Math.PI*2);
+                ctx.fillStyle = port.value ? '#00ff00' : '#888';
+                
+                // Resaltar si está hovered
+                if(state.hoveredPort === port) {
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                } else {
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1;
+                }
+                
+                ctx.fill();
+                ctx.stroke();
+            });
+
+            // Puertos de salida (Derecha)
+            c.outputs.forEach((port, index) => {
+                let py = c.height / (c.outputs.length + 1) * (index + 1);
+                port.relX = c.width + PORT_RADIUS;
+                port.relY = py;
+                
+                // Dibujar contacto del puerto
+                ctx.beginPath(); // <-- Reiniciar path
+                ctx.fillStyle = '#333';
+                ctx.fillRect(port.relX - 2, port.relY - 4, 4, 8);
+
+                ctx.beginPath(); // <-- Reiniciar path
+                ctx.arc(port.relX, port.relY, PORT_RADIUS, 0, Math.PI*2);
+                ctx.fillStyle = port.value ? '#00ff00' : '#888';
+                
+                 if(state.hoveredPort === port) {
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                } else {
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1;
+                }
+                
+                ctx.fill();
+                ctx.stroke();
+            });
+            
+            // Resaltar componente si está en hover
+            if(state.hoveredComponent === c && !state.isDragging) {
+                ctx.beginPath(); // <-- Reiniciar path
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(-2, -2, c.width+4, c.height+4);
+            }
+
+            ctx.restore();
+        }
+
+        function drawWire(wire) {
+            if(!wire.startPort || !wire.endPort) return;
+            
+            const startX = wire.startPort.absX;
+            const startY = wire.startPort.absY;
+            const endX = wire.endPort.absX;
+            const endY = wire.endPort.absY;
+            
+            drawWirePath(startX, startY, endX, endY, wire.startPort.value);
+        }
+
+        function drawWirePath(x1, y1, x2, y2, value) {
+            ctx.save(); 
+            ctx.beginPath(); // <-- CRÍTICO: Reiniciar el path
+            ctx.moveTo(x1, y1);
+            
+            // Estilo de cable ortogonal (recto con esquinas)
+            // Calculamos un punto medio para hacer el codo
+            const midX = x1 + (x2 - x1) / 2;
+            
+            ctx.lineTo(midX, y1);
+            ctx.lineTo(midX, y2);
+            ctx.lineTo(x2, y2);
+
+            // Color del cable basado en su valor lógico
+            ctx.strokeStyle = value ? '#00ff00' : '#666'; // Verde si HIGH, Gris si LOW
+            ctx.lineWidth = 3;
+            
+            // Sombra para dar aspecto de cable físico
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            
+            ctx.stroke();
+            ctx.restore();
+            
+            // Dibujar punto de conexión
+             ctx.save();
+             ctx.beginPath(); // <-- CRÍTICO: Reiniciar el path
+             ctx.fillStyle = value ? '#00ff00' : '#666';
+             ctx.arc(x1, y1, 3, 0, Math.PI*2);
+             ctx.fill();
+             
+             ctx.beginPath(); // <-- CRÍTICO: Reiniciar el path
+             ctx.arc(x2, y2, 3, 0, Math.PI*2);
+             ctx.fill();
+             ctx.restore();
+        }
+
+        function draw() {
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+            // Limpiar todo el path pendiente antes de borrar el fondo
+            ctx.beginPath(); 
+            ctx.fillStyle = 'var(--color-bg-dark)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            drawGrid();
+
+            // Dibujar cables establecidos
+            wires.forEach(w => drawWire(w));
+
+            // Dibujar cable en progreso
+            if(state.isDrawingWire && state.wireStartPort) {
+                drawWirePath(state.wireStartPort.absX, state.wireStartPort.absY, state.mouseX, state.mouseY, state.wireStartPort.value);
+            }
+
+            // Dibujar componentes
+            components.forEach(c => drawComponent(c));
+        }
+
+        
+        let clockTick = 0;
+        const CLOCK_SPEED = 30; // frames per toggle
+
+        function logicLoop() {
+            // Manejar Clocks
+            clockTick++;
+            if(clockTick > CLOCK_SPEED) {
+                clockTick = 0;
+                components.forEach(c => {
+                    if(c.type === 'CLOCK') c.state = !c.state;
+                });
+            }
+
+            // Resetear entradas para recalcular
+            components.forEach(c => {
+                c.inputs.forEach(p => p.value = false);
+            });
+
+            // 1. Propagar valores a través de los cables
+            wires.forEach(w => w.update());
+
+            // 2. Actualizar lógica interna de los componentes
+            components.forEach(c => c.updateLogic());
+        }
+
+        function animate() {
+            logicLoop();
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        
+        // --- Drag & Drop desde Sidebar ---
+        const draggables = document.querySelectorAll('.toolbox-item');
+        
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('componentType', draggable.dataset.type);
+                // Establecer una imagen de arrastre vacía para usar nuestro propio renderizado (opcional, aquí usamos el default del navegador para simplicidad de UI)
+            });
+        });
+
+        labArea.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Permitir drop
+        });
+
+        labArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const type = e.dataTransfer.getData('componentType');
+            if(type) {
+                // Calcular posición relativa al canvas
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left - COMP_SIZE/2; // Centrar en el mouse
+                const y = e.clientY - rect.top - COMP_SIZE/2;
+                
+                // Alineación a cuadrícula (Snap to grid)
+                const snappedX = Math.round(x / GRID_SIZE) * GRID_SIZE;
+                const snappedY = Math.round(y / GRID_SIZE) * GRID_SIZE;
+
+                components.push(new Component(type, snappedX, snappedY));
+            }
+        });
+
+        // --- Interacción en el Canvas ---
+        
+        function getComponentAt(x, y) {
+            // Buscar al revés para seleccionar el último dibujado (arriba)
+            for (let i = components.length - 1; i >= 0; i--) {
+                const c = components[i];
+                if (x >= c.x && x <= c.x + c.width && y >= c.y && y <= c.y + c.height) {
+                    return c;
+                }
+            }
+            return null;
+        }
+
+        function getPortAt(x, y) {
+            const HIT_AREA = 10;
+            for (let c of components) {
+                // Revisar salidas
+                for (let p of c.outputs) {
+                    if (Math.abs(x - p.absX) < HIT_AREA && Math.abs(y - p.absY) < HIT_AREA) return p;
+                }
+                // Revisar entradas
+                for (let p of c.inputs) {
+                    if (Math.abs(x - p.absX) < HIT_AREA && Math.abs(y - p.absY) < HIT_AREA) return p;
+                }
+            }
+            return null;
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // 1. Verificar si hicimos click en un puerto (para cablear)
+            const clickedPort = getPortAt(mouseX, mouseY);
+            if (clickedPort) {
+                if(!clickedPort.isInput) { // Solo iniciar desde salidas
+                    state.isDrawingWire = true;
+                    state.wireStartPort = clickedPort;
+                    return; // No intentar arrastrar componente
+                } else {
+                    // Si clicamos una entrada, eliminar el cable conectado a ella
+                     wires = wires.filter(w => w.endPort !== clickedPort);
+                     return;
+                }
+            }
+
+            // 2. Verificar si hicimos click en un componente
+            const clickedComp = getComponentAt(mouseX, mouseY);
+            if (clickedComp) {
+                // Click derecho o shift para borrar
+                if(e.button === 2 || e.shiftKey) {
+                    // Eliminar componente y sus cables
+                    components = components.filter(c => c !== clickedComp);
+                    wires = wires.filter(w => w.startPort.component !== clickedComp && w.endPort.component !== clickedComp);
+                    return;
+                }
+
+                clickedComp.interact(); // Acciones como presionar botón
+                
+                // Iniciar arrastre
+                state.isDragging = true;
+                state.draggedComponent = clickedComp;
+                state.offsetX = mouseX - clickedComp.x;
+                state.offsetY = mouseY - clickedComp.y;
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            state.mouseX = e.clientX - rect.left;
+            state.mouseY = e.clientY - rect.top;
+
+            // Arrastrar componente
+            if (state.isDragging && state.draggedComponent) {
+                // Snap to grid
+                let rawX = state.mouseX - state.offsetX;
+                let rawY = state.mouseY - state.offsetY;
+                
+                state.draggedComponent.x = Math.round(rawX / (GRID_SIZE/2)) * (GRID_SIZE/2);
+                state.draggedComponent.y = Math.round(rawY / (GRID_SIZE/2)) * (GRID_SIZE/2);
+            }
+            
+            // Hover states
+            state.hoveredPort = getPortAt(state.mouseX, state.mouseY);
+            if(!state.hoveredPort) {
+                 state.hoveredComponent = getComponentAt(state.mouseX, state.mouseY);
+            } else {
+                state.hoveredComponent = null;
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            // Soltar componente
+            if (state.isDragging) {
+                if(state.draggedComponent) state.draggedComponent.release();
+                state.isDragging = false;
+                state.draggedComponent = null;
+            }
+
+            // Terminar dibujo de cable
+            if (state.isDrawingWire) {
+                state.isDrawingWire = false;
+                const endPort = getPortAt(state.mouseX, state.mouseY);
+                
+                // Conectar solo si es una entrada y pertenece a un componente distinto
+                if (endPort && endPort.isInput && endPort.component !== state.wireStartPort.component) {
+                    // Remover conexión existente a este puerto de entrada (solo 1 entrada permitida por puerto en lógica digital simple)
+                    wires = wires.filter(w => w.endPort !== endPort);
+                    // Crear nuevo cable
+                    wires.push(new Wire(state.wireStartPort, endPort));
+                }
+                state.wireStartPort = null;
+            }
+        });
+        
+        // Manejar salida del canvas
+        canvas.addEventListener('mouseleave', () => {
+             if (state.isDragging && state.draggedComponent) {
+                 state.draggedComponent.release();
+             }
+             state.isDragging = false;
+             state.isDrawingWire = false;
+             state.hoveredComponent = null;
+             state.hoveredPort = null;
+        });
+
+        // Prevenir menú contextual en canvas para usar click derecho
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+
+        window.onload = function() {
+            resizeCanvas();
+            // Agregar algunos componentes de ejemplo
+            components.push(new Component('BUTTON', 100, 100));
+            components.push(new Component('LED_RED', 300, 100));
+            
+            // Iniciar loop de animación
+            animate();
+        };
+
+    </script>
+</body>
+</html>
