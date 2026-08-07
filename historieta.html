@@ -640,7 +640,10 @@
                 DOM.tabContents[tabId].classList.remove('hidden');
                 DOM.tabContents[tabId].classList.add('flex');
                 updateEditorMenus(); // Refresh characters/scenes in editor dropdowns
-                if (canvas) canvas.renderAll(); // fix potential resize issues
+                if (canvas) {
+                    canvas.calcOffset(); // Recalcula la posición para clics exactos tras haber estado oculto
+                    canvas.renderAll(); // Fuerza la actualización del lienzo
+                }
             } else {
                 DOM.tabContents[tabId].classList.remove('hidden');
                 DOM.tabContents[tabId].classList.add('block');
@@ -865,18 +868,17 @@
 
             canvas.add(group);
             canvas.setActiveObject(group);
+            canvas.renderAll(); // Hacer visible inmediatamente
             queueSave();
         }
 
         function setSceneInCanvas(sceneConfig) {
             if (!canvas) return;
 
-            // 1. Remove existing background elements
-            const objects = canvas.getObjects();
-            objects.forEach(obj => {
-                if (obj.isBackgroundElement) {
-                    canvas.remove(obj);
-                }
+            // 1. Remove existing background elements de forma segura filtrando primero
+            const bgObjects = canvas.getObjects().filter(obj => obj.isBackgroundElement);
+            bgObjects.forEach(obj => {
+                canvas.remove(obj);
             });
 
             if (!sceneConfig) {
@@ -936,7 +938,7 @@
                 if (obj.isBackgroundElement) obj.sendToBack();
             });
 
-            canvas.renderAll();
+            canvas.renderAll(); // Hacer visible inmediatamente
             queueSave();
         }
 
@@ -982,6 +984,7 @@
             const textbox = new fabric.Textbox(options.text, options);
             canvas.add(textbox);
             canvas.setActiveObject(textbox);
+            canvas.renderAll(); // Hacer visible inmediatamente
             queueSave();
         }
 
@@ -1000,6 +1003,7 @@
 
             canvas.add(text);
             canvas.setActiveObject(text);
+            canvas.renderAll(); // Hacer visible inmediatamente
             queueSave();
         }
 
@@ -1011,6 +1015,7 @@
                 activeObjects.forEach(obj => {
                     canvas.remove(obj);
                 });
+                canvas.renderAll(); // Actualizar canvas tras borrar
                 queueSave();
             }
         }
