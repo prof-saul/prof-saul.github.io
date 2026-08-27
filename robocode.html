@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoboCode - ¡Aprende a programar!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css" rel="stylesheet">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #0f172a;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 4px;
+            background-color: #1e293b;
+            padding: 8px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1 / 1;
+        }
+
+        .cell {
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .cell-path { background-color: #334155; }
+        .cell-wall { background-color: #0f172a; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        
+        .gear {
+            color: #fbbf24;
+            filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5));
+        }
+
+        .goal {
+            color: #22c55e;
+            font-size: 2rem;
+            filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.8));
+        }
+
+        #robot {
+            position: absolute;
+            width: calc(100% / 6 - 8px);
+            height: calc(100% / 6 - 8px);
+            margin: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #38bdf8;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
+            z-index: 10;
+            /* El punto de origen para rotar es el centro */
+            transform-origin: center; 
+        }
+
+        .command-btn {
+            transition: all 0.2s;
+        }
+        .command-btn:hover {
+            transform: scale(1.05);
+        }
+        .command-btn:active {
+            transform: scale(0.95);
+        }
+
+        .queue-item {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        .queue-item:hover {
+            background-color: #ef4444; /* Rojo al pasar el ratón para indicar borrar */
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .custom-swal-popup {
+            border-radius: 20px !important;
+            font-family: 'Nunito', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+    <!-- Área del Juego (Izquierda) -->
+    <div class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 relative">
+        
+        <!-- Header del nivel -->
+        <div class="w-full max-w-lg flex justify-between items-end mb-4">
+            <div>
+                <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">RoboCode</h1>
+                <h2 id="level-title" class="text-xl text-gray-400 font-bold mt-1">Nivel 1</h2>
+            </div>
+            <div class="text-right">
+                <span class="text-sm text-gray-400 uppercase font-bold tracking-wider">Engranajes</span>
+                <div class="text-2xl font-black text-yellow-400">
+                    <i class="fa-solid fa-gear fa-spin mr-1"></i>
+                    <span id="gear-counter">0 / 0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor del Mapa -->
+        <div id="game-board" class="game-grid">
+            <!-- El robot -->
+            <div id="robot">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <!-- Las celdas se generarán por JavaScript -->
+        </div>
+    </div>
+
+    <!-- Panel de Control (Derecha) -->
+    <div class="w-full md:w-96 bg-gray-800 border-l border-gray-700 flex flex-col shadow-2xl z-20">
+        
+        <!-- Instrucciones -->
+        <div class="p-6 border-b border-gray-700 bg-gray-800/50">
+            <h3 class="text-lg font-bold text-white mb-2"><i class="fa-solid fa-circle-info mr-2 text-blue-400"></i>Instrucciones</h3>
+            <p class="text-gray-300 text-sm">Ayuda a Robo a recolectar todos los engranajes (<i class="fa-solid fa-gear text-yellow-400"></i>) y llegar a la base verde (<i class="fa-solid fa-satellite-dish text-green-400"></i>). Usa las flechas para crear tu programa y presiona Ejecutar.</p>
+        </div>
+
+        <!-- Botones de Comandos -->
+        <div class="p-6">
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Bloques de Control</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="addCommand('UP')" class="command-btn bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-xl font-bold flex flex-col items-center shadow-lg shadow-blue-900/50">
+                    <i class="fa-solid fa-arrow-up text-2xl mb-1"></i> Arriba
+                </button>
+                <button onclick="addCommand('DOWN')" class="command-btn bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-xl font-bold flex flex-col items-center shadow-lg shadow-blue-900/50">
+                    <i class="fa-solid fa-arrow-down text-2xl mb-1"></i> Abajo
+                </button>
+                <button onclick="addCommand('LEFT')" class="command-btn bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-xl font-bold flex flex-col items-center shadow-lg shadow-blue-900/50">
+                    <i class="fa-solid fa-arrow-left text-2xl mb-1"></i> Izquierda
+                </button>
+                <button onclick="addCommand('RIGHT')" class="command-btn bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-xl font-bold flex flex-col items-center shadow-lg shadow-blue-900/50">
+                    <i class="fa-solid fa-arrow-right text-2xl mb-1"></i> Derecha
+                </button>
+            </div>
+        </div>
+
+        <!-- Cola de Comandos -->
+        <div class="flex-1 p-6 flex flex-col bg-gray-900/50 overflow-hidden">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Tu Programa</h3>
+                <button onclick="clearCommands()" class="text-xs text-red-400 hover:text-red-300"><i class="fa-solid fa-trash mr-1"></i>Limpiar todo</button>
+            </div>
+            
+            <div id="command-queue" class="flex-1 bg-gray-800 rounded-xl p-3 border border-gray-700 flex flex-wrap content-start gap-2 overflow-y-auto">
+                <!-- Comandos seleccionados aparecerán aquí -->
+            </div>
+        </div>
+
+        <!-- Acciones Principales -->
+        <div class="p-6 bg-gray-800 border-t border-gray-700">
+            <button id="run-btn" onclick="runProgram()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white text-xl font-black py-4 rounded-xl shadow-lg shadow-green-900/50 transform transition hover:scale-105 active:scale-95 flex justify-center items-center">
+                <i class="fa-solid fa-play mr-2"></i> ¡EJECUTAR CÓDIGO!
+            </button>
+        </div>
+    </div>
+
+    <!-- Librerías JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+        // --- DEFINICIÓN DE NIVELES ---
+        // S = Inicio, . = Camino, W = Muro, G = Engranaje, E = Meta
+        const levels = [
+            {
+                title: "Nivel 1: Línea Recta",
+                requiredGears: 1,
+                grid: [
+                    ['W','W','W','W','W','W'],
+                    ['W','W','W','W','W','W'],
+                    ['W','S','.','G','E','W'],
+                    ['W','W','W','W','W','W'],
+                    ['W','W','W','W','W','W'],
+                    ['W','W','W','W','W','W']
+                ]
+            },
+            {
+                title: "Nivel 2: La Esquina",
+                requiredGears: 1,
+                grid: [
+                    ['W','W','W','W','W','W'],
+                    ['W','S','.','W','W','W'],
+                    ['W','W','.','W','W','W'],
+                    ['W','W','G','E','W','W'],
+                    ['W','W','W','W','W','W'],
+                    ['W','W','W','W','W','W']
+                ]
+            },
+            {
+                title: "Nivel 3: El Zig-Zag",
+                requiredGears: 2,
+                grid: [
+                    ['W','W','W','W','W','W'],
+                    ['W','S','.','W','W','W'],
+                    ['W','W','G','W','W','W'],
+                    ['W','W','.','G','E','W'],
+                    ['W','W','W','W','W','W'],
+                    ['W','W','W','W','W','W']
+                ]
+            },
+            {
+                title: "Nivel 4: Esquivando Muros",
+                requiredGears: 1,
+                grid: [
+                    ['W','W','W','W','W','W'],
+                    ['W','S','.','.','W','W'],
+                    ['W','W','W','.','W','W'],
+                    ['W','W','G','.','W','W'],
+                    ['W','E','.','W','W','W'],
+                    ['W','W','W','W','W','W']
+                ]
+            },
+            {
+                title: "Nivel 5: Recolección Múltiple",
+                requiredGears: 3,
+                grid: [
+                    ['S','.','.','W','W','W'],
+                    ['W','W','G','W','W','W'],
+                    ['W','.','.','.','G','E'],
+                    ['W','.','W','W','W','W'],
+                    ['W','G','.','.','.','W'],
+                    ['W','W','W','W','W','W']
+                ]
+            },
+            {
+                title: "Nivel 6: El Laberinto Final",
+                requiredGears: 2,
+                grid: [
+                    ['S','.','W','G','.','E'],
+                    ['W','.','W','.','W','W'],
+                    ['W','.','W','.','W','W'],
+                    ['W','G','.','.','W','W'],
+                    ['W','W','W','W','W','W'],
+                    ['W','W','W','W','W','W']
+                ]
+            }
+        ];
+
+        // --- ESTADO DEL JUEGO ---
+        let currentLevelIndex = 0;
+        let commandQueue = [];
+        let robotState = { x: 0, y: 0, rotation: 90 }; // Rotation en grados
+        let startPos = { x: 0, y: 0 };
+        let collectedGears = 0;
+        let isRunning = false;
+        let mapData = []; // Copia mutable del grid actual
+
+        // --- INICIALIZACIÓN ---
+        function initLevel() {
+            const level = levels[currentLevelIndex];
+            mapData = JSON.parse(JSON.stringify(level.grid)); // Copia profunda
+            collectedGears = 0;
+            commandQueue = [];
+            isRunning = false;
+
+            document.getElementById('level-title').innerText = level.title;
+            updateGearCounter();
+            renderQueue();
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const board = document.getElementById('game-board');
+            // Limpiar celdas previas (mantener el robot)
+            Array.from(board.children).forEach(child => {
+                if(child.id !== 'robot') board.removeChild(child);
+            });
+
+            for (let y = 0; y < 6; y++) {
+                for (let x = 0; x < 6; x++) {
+                    const cellType = mapData[y][x];
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = 'cell';
+
+                    if (cellType === 'W') {
+                        cellDiv.classList.add('cell-wall');
+                    } else {
+                        cellDiv.classList.add('cell-path');
+                        if (cellType === 'S') {
+                            startPos = { x, y };
+                            robotState.x = x;
+                            robotState.y = y;
+                            robotState.rotation = 90; // Mira a la derecha por defecto
+                        } else if (cellType === 'G') {
+                            cellDiv.innerHTML = `<i id="gear-${x}-${y}" class="fa-solid fa-gear fa-spin gear"></i>`;
+                        } else if (cellType === 'E') {
+                            cellDiv.innerHTML = `<i class="fa-solid fa-satellite-dish goal"></i>`;
+                        }
+                    }
+                    board.appendChild(cellDiv);
+                }
+            }
+            positionRobotVisual(true);
+        }
+
+        function positionRobotVisual(instant = false) {
+            const robotEl = document.getElementById('robot');
+            // Calculamos la posición en % basada en grid 6x6
+            const leftPct = (robotState.x * 100) / 6;
+            const topPct = (robotState.y * 100) / 6;
+
+            if (instant) {
+                robotEl.style.left = `${leftPct}%`;
+                robotEl.style.top = `${topPct}%`;
+                // Ajustar icono interno
+                const icon = robotEl.querySelector('i');
+                icon.style.transform = `rotate(${robotState.rotation}deg)`;
+            }
+        }
+
+        // --- SISTEMA DE COMANDOS ---
+        const commandIcons = {
+            'UP': 'fa-arrow-up',
+            'DOWN': 'fa-arrow-down',
+            'LEFT': 'fa-arrow-left',
+            'RIGHT': 'fa-arrow-right'
+        };
+
+        function addCommand(cmd) {
+            if (isRunning || commandQueue.length >= 25) return; // Límite de 25 comandos
+            commandQueue.push(cmd);
+            renderQueue();
+        }
+
+        function removeCommand(index) {
+            if (isRunning) return;
+            commandQueue.splice(index, 1);
+            renderQueue();
+        }
+
+        function clearCommands() {
+            if (isRunning) return;
+            commandQueue = [];
+            renderQueue();
+        }
+
+        function renderQueue() {
+            const queueContainer = document.getElementById('command-queue');
+            queueContainer.innerHTML = '';
+            
+            commandQueue.forEach((cmd, index) => {
+                const cmdDiv = document.createElement('div');
+                cmdDiv.className = 'queue-item bg-blue-500 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-2';
+                cmdDiv.innerHTML = `<i class="fa-solid ${commandIcons[cmd]}"></i>`;
+                cmdDiv.title = "Clic para eliminar";
+                cmdDiv.onclick = () => removeCommand(index);
+                queueContainer.appendChild(cmdDiv);
+            });
+        }
+
+        function updateGearCounter() {
+            const required = levels[currentLevelIndex].requiredGears;
+            document.getElementById('gear-counter').innerText = `${collectedGears} / ${required}`;
+        }
+
+        // --- MOTOR DE EJECUCIÓN ---
+        async function runProgram() {
+            if (isRunning || commandQueue.length === 0) return;
+            isRunning = true;
+            document.getElementById('run-btn').classList.add('opacity-50', 'cursor-not-allowed');
+
+            let crashed = false;
+
+            for (let i = 0; i < commandQueue.length; i++) {
+                const cmd = commandQueue[i];
+                let newX = robotState.x;
+                let newY = robotState.y;
+                let newRotation = robotState.rotation;
+
+                // Resaltar comando actual en la UI
+                const queueItems = document.querySelectorAll('.queue-item');
+                queueItems.forEach(el => el.classList.remove('ring-4', 'ring-yellow-400'));
+                if(queueItems[i]) queueItems[i].classList.add('ring-4', 'ring-yellow-400');
+
+                // Calcular nueva posición y rotación
+                switch (cmd) {
+                    case 'UP': newY--; newRotation = 0; break;
+                    case 'DOWN': newY++; newRotation = 180; break;
+                    case 'LEFT': newX--; newRotation = -90; break;
+                    case 'RIGHT': newX++; newRotation = 90; break;
+                }
+
+                // Normalizar rotación para la animación visual (evita giros raros de 360)
+                let currentRot = robotState.rotation % 360;
+                if(currentRot < 0) currentRot += 360;
+                let targetRot = newRotation % 360;
+                if(targetRot < 0) targetRot += 360;
+                
+                let diff = targetRot - currentRot;
+                if(diff > 180) diff -= 360;
+                else if (diff < -180) diff += 360;
+                
+                robotState.rotation = robotState.rotation + diff;
+
+                // Comprobar colisiones
+                if (newX < 0 || newX >= 6 || newY < 0 || newY >= 6 || mapData[newY][newX] === 'W') {
+                    // Animación de choque
+                    await animateRobot(robotState.x, robotState.y, robotState.rotation, true);
+                    crashed = true;
+                    break;
+                }
+
+                // Mover robot (Actualizar estado lógico)
+                robotState.x = newX;
+                robotState.y = newY;
+
+                // Animar movimiento
+                await animateRobot(robotState.x, robotState.y, robotState.rotation);
+
+                // Lógica de celdas
+                const cell = mapData[robotState.y][robotState.x];
+                if (cell === 'G') {
+                    // Recolectar engranaje
+                    collectedGears++;
+                    mapData[robotState.y][robotState.x] = '.'; // Marcar como camino vacío
+                    updateGearCounter();
+                    
+                    // Animar desaparición del engranaje
+                    const gearEl = document.getElementById(`gear-${robotState.x}-${robotState.y}`);
+                    if(gearEl) {
+                        anime({
+                            targets: gearEl,
+                            scale: 0,
+                            opacity: 0,
+                            duration: 300,
+                            easing: 'easeInBack'
+                        });
+                    }
+                }
+            }
+
+            // Quitar resaltado
+            document.querySelectorAll('.queue-item').forEach(el => el.classList.remove('ring-4', 'ring-yellow-400'));
+
+            // Evaluar resultado final
+            evaluateResult(crashed);
+        }
+
+        function animateRobot(x, y, rotation, isCrash = false) {
+            return new Promise(resolve => {
+                const leftPct = (x * 100) / 6;
+                const topPct = (y * 100) / 6;
+                const robotEl = document.getElementById('robot');
+                const icon = robotEl.querySelector('i');
+
+                // Animar rotación del icono
+                anime({
+                    targets: icon,
+                    rotate: `${rotation}deg`,
+                    duration: 200,
+                    easing: 'easeOutSine'
+                });
+
+                if (isCrash) {
+                    // Vibración de error
+                    anime({
+                        targets: robotEl,
+                        translateX: [
+                            { value: -10, duration: 50 },
+                            { value: 10, duration: 50 },
+                            { value: -10, duration: 50 },
+                            { value: 10, duration: 50 },
+                            { value: 0, duration: 50 }
+                        ],
+                        easing: 'linear',
+                        complete: resolve
+                    });
+                } else {
+                    // Movimiento normal
+                    anime({
+                        targets: robotEl,
+                        left: `${leftPct}%`,
+                        top: `${topPct}%`,
+                        duration: 400,
+                        easing: 'easeInOutQuad',
+                        complete: resolve
+                    });
+                }
+            });
+        }
+
+        function evaluateResult(crashed) {
+            const level = levels[currentLevelIndex];
+            const isOnGoal = mapData[robotState.y][robotState.x] === 'E';
+            const hasAllGears = collectedGears === level.requiredGears;
+
+            if (crashed) {
+                Swal.fire({
+                    title: '¡Oh no! 💥',
+                    text: 'Robo se chocó con un muro. Revisa tus comandos y vuelve a intentarlo.',
+                    icon: 'error',
+                    confirmButtonText: 'Reintentar',
+                    confirmButtonColor: '#3b82f6',
+                    customClass: { popup: 'custom-swal-popup' }
+                }).then(() => resetRobot());
+            } 
+            else if (isOnGoal && hasAllGears) {
+                Swal.fire({
+                    title: '¡Excelente! 🎉',
+                    text: '¡Has programado el camino perfecto!',
+                    icon: 'success',
+                    confirmButtonText: (currentLevelIndex < levels.length - 1) ? 'Siguiente Nivel' : '¡Volver a jugar!',
+                    confirmButtonColor: '#10b981',
+                    customClass: { popup: 'custom-swal-popup' }
+                }).then(() => {
+                    if (currentLevelIndex < levels.length - 1) {
+                        currentLevelIndex++;
+                        initLevel();
+                    } else {
+                        currentLevelIndex = 0;
+                        initLevel();
+                    }
+                });
+            } 
+            else if (isOnGoal && !hasAllGears) {
+                Swal.fire({
+                    title: '¡Casi! ⚙️',
+                    text: 'Llegaste a la base, pero olvidaste recolectar algunos engranajes.',
+                    icon: 'warning',
+                    confirmButtonText: 'Intentar de nuevo',
+                    confirmButtonColor: '#f59e0b',
+                    customClass: { popup: 'custom-swal-popup' }
+                }).then(() => resetRobot());
+            } 
+            else {
+                Swal.fire({
+                    title: 'Secuencia Incompleta 🤔',
+                    text: 'El código terminó, pero no llegaste a la base. ¡Añade más comandos!',
+                    icon: 'question',
+                    confirmButtonText: 'Reintentar',
+                    confirmButtonColor: '#6366f1',
+                    customClass: { popup: 'custom-swal-popup' }
+                }).then(() => resetRobot());
+            }
+        }
+
+        function resetRobot() {
+            // Reestablecer mapa visual (engranajes recogidos vuelven a aparecer)
+            renderGrid();
+            
+            // Volver variables a cero
+            robotState.x = startPos.x;
+            robotState.y = startPos.y;
+            robotState.rotation = 90;
+            collectedGears = 0;
+            mapData = JSON.parse(JSON.stringify(levels[currentLevelIndex].grid));
+            updateGearCounter();
+            
+            // Reposicionar visualmente sin animación
+            positionRobotVisual(true);
+            
+            isRunning = false;
+            document.getElementById('run-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        // Iniciar el juego
+        window.onload = initLevel;
+
+    </script>
+</body>
+</html>
