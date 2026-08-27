@@ -46,7 +46,17 @@
 
         .cell-path { background-color: #334155; }
         .cell-wall { background-color: #0f172a; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .cell-lava { 
+            background-color: #dc2626; 
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            animation: pulseLava 2s infinite alternate;
+        }
         
+        @keyframes pulseLava {
+            0% { background-color: #dc2626; }
+            100% { background-color: #f97316; }
+        }
+
         .gear {
             color: #fbbf24;
             filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5));
@@ -187,7 +197,7 @@
 
     <script>
         // --- DEFINICIÓN DE NIVELES ---
-        // S = Inicio, . = Camino, W = Muro, G = Engranaje, E = Meta
+        // S = Inicio, . = Camino, W = Muro, G = Engranaje, E = Meta, L = Lava (Obstáculo mortal)
         const levels = [
             {
                 title: "Nivel 1: Línea Recta",
@@ -226,12 +236,12 @@
                 ]
             },
             {
-                title: "Nivel 4: Esquivando Muros",
+                title: "Nivel 4: Cuidado con la Lava",
                 requiredGears: 1,
                 grid: [
                     ['W','W','W','W','W','W'],
-                    ['W','S','.','.','W','W'],
-                    ['W','W','W','.','W','W'],
+                    ['W','S','.','L','W','W'],
+                    ['W','W','.','L','W','W'],
                     ['W','W','G','.','W','W'],
                     ['W','E','.','W','W','W'],
                     ['W','W','W','W','W','W']
@@ -244,21 +254,45 @@
                     ['S','.','.','W','W','W'],
                     ['W','W','G','W','W','W'],
                     ['W','.','.','.','G','E'],
-                    ['W','.','W','W','W','W'],
+                    ['W','.','L','W','W','W'],
                     ['W','G','.','.','.','W'],
                     ['W','W','W','W','W','W']
                 ]
             },
             {
-                title: "Nivel 6: El Laberinto Final",
+                title: "Nivel 6: Pasillo Caliente",
                 requiredGears: 2,
                 grid: [
-                    ['S','.','W','G','.','E'],
-                    ['W','.','W','.','W','W'],
-                    ['W','.','W','.','W','W'],
-                    ['W','G','.','.','W','W'],
+                    ['S','.','G','L','.','E'],
+                    ['W','W','W','L','.','W'],
+                    ['W','W','W','.','.','W'],
+                    ['W','W','W','G','W','W'],
                     ['W','W','W','W','W','W'],
                     ['W','W','W','W','W','W']
+                ]
+            },
+            {
+                title: "Nivel 7: Salto de Isla",
+                requiredGears: 2,
+                grid: [
+                    ['S','.','L','L','E','W'],
+                    ['W','.','G','L','.','W'],
+                    ['W','L','L','L','.','W'],
+                    ['W','.','G','.','.','W'],
+                    ['W','.','L','L','L','W'],
+                    ['W','.','.','.','.','W']
+                ]
+            },
+            {
+                title: "Nivel 8: El Laberinto Final",
+                requiredGears: 3,
+                grid: [
+                    ['S','L','W','G','L','E'],
+                    ['.','L','W','.','L','.'],
+                    ['.','L','W','.','L','.'],
+                    ['.','G','.','.','L','G'],
+                    ['.','L','L','L','L','.'],
+                    ['.','.','.','.','.','.']
                 ]
             }
         ];
@@ -301,6 +335,9 @@
 
                     if (cellType === 'W') {
                         cellDiv.classList.add('cell-wall');
+                    } else if (cellType === 'L') {
+                        cellDiv.classList.add('cell-lava');
+                        cellDiv.innerHTML = `<i class="fa-solid fa-fire text-yellow-300 opacity-70"></i>`;
                     } else {
                         cellDiv.classList.add('cell-path');
                         if (cellType === 'S') {
@@ -387,6 +424,7 @@
             document.getElementById('run-btn').classList.add('opacity-50', 'cursor-not-allowed');
 
             let crashed = false;
+            let burned = false; // Nueva variable para rastrear si cayó en lava
 
             for (let i = 0; i < commandQueue.length; i++) {
                 const cmd = commandQueue[i];
@@ -419,10 +457,10 @@
                 
                 robotState.rotation = robotState.rotation + diff;
 
-                // Comprobar colisiones
+                // Comprobar colisiones con muros
                 if (newX < 0 || newX >= 6 || newY < 0 || newY >= 6 || mapData[newY][newX] === 'W') {
                     // Animación de choque
-                    await animateRobot(robotState.x, robotState.y, robotState.rotation, true);
+                    await animateRobot(robotState.x, robotState.y, robotState.rotation, 'crash');
                     crashed = true;
                     break;
                 }
@@ -434,7 +472,14 @@
                 // Animar movimiento
                 await animateRobot(robotState.x, robotState.y, robotState.rotation);
 
-                // Lógica de celdas
+                // Comprobar si cayó en lava
+                if (mapData[robotState.y][robotState.x] === 'L') {
+                    await animateRobot(robotState.x, robotState.y, robotState.rotation, 'burn');
+                    burned = true;
+                    break;
+                }
+
+                // Lógica de celdas (Engranajes)
                 const cell = mapData[robotState.y][robotState.x];
                 if (cell === 'G') {
                     // Recolectar engranaje
@@ -460,10 +505,10 @@
             document.querySelectorAll('.queue-item').forEach(el => el.classList.remove('ring-4', 'ring-yellow-400'));
 
             // Evaluar resultado final
-            evaluateResult(crashed);
+            evaluateResult(crashed, burned);
         }
 
-        function animateRobot(x, y, rotation, isCrash = false) {
+        function animateRobot(x, y, rotation, animationType = 'normal') {
             return new Promise(resolve => {
                 const leftPct = (x * 100) / 6;
                 const topPct = (y * 100) / 6;
@@ -478,7 +523,7 @@
                     easing: 'easeOutSine'
                 });
 
-                if (isCrash) {
+                if (animationType === 'crash') {
                     // Vibración de error
                     anime({
                         targets: robotEl,
@@ -491,6 +536,25 @@
                         ],
                         easing: 'linear',
                         complete: resolve
+                    });
+                } else if (animationType === 'burn') {
+                     // Efecto de quemarse en lava (caída y cambio de color)
+                     anime({
+                        targets: robotEl,
+                        scale: 0.5,
+                        opacity: 0,
+                        duration: 500,
+                        easing: 'easeInQuad',
+                        complete: () => {
+                            robotEl.style.opacity = 1;
+                            robotEl.style.transform = 'scale(1)';
+                            resolve();
+                        }
+                    });
+                    anime({
+                        targets: icon,
+                        color: '#dc2626', // Se vuelve rojo
+                        duration: 300
                     });
                 } else {
                     // Movimiento normal
@@ -506,7 +570,7 @@
             });
         }
 
-        function evaluateResult(crashed) {
+        function evaluateResult(crashed, burned) {
             const level = levels[currentLevelIndex];
             const isOnGoal = mapData[robotState.y][robotState.x] === 'E';
             const hasAllGears = collectedGears === level.requiredGears;
@@ -521,6 +585,16 @@
                     customClass: { popup: 'custom-swal-popup' }
                 }).then(() => resetRobot());
             } 
+            else if (burned) {
+                Swal.fire({
+                    title: '¡Cuidado con la lava! 🔥',
+                    text: 'Robo cayó en una trampa de lava. ¡Debes encontrar otro camino!',
+                    icon: 'error',
+                    confirmButtonText: 'Reintentar',
+                    confirmButtonColor: '#dc2626',
+                    customClass: { popup: 'custom-swal-popup' }
+                }).then(() => resetRobot());
+            }
             else if (isOnGoal && hasAllGears) {
                 Swal.fire({
                     title: '¡Excelente! 🎉',
@@ -573,8 +647,11 @@
             mapData = JSON.parse(JSON.stringify(levels[currentLevelIndex].grid));
             updateGearCounter();
             
-            // Reposicionar visualmente sin animación
+            // Reposicionar visualmente sin animación y restaurar color
             positionRobotVisual(true);
+            const robotIcon = document.getElementById('robot').querySelector('i');
+            anime.set(robotIcon, { color: '#38bdf8' }); // Volver a azul
+            anime.set(document.getElementById('robot'), { opacity: 1, scale: 1 });
             
             isRunning = false;
             document.getElementById('run-btn').classList.remove('opacity-50', 'cursor-not-allowed');
