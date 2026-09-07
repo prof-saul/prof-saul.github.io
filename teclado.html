@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MecaMaster - Test de Escritura por Niveles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@300;400;600;800&family=Cinzel:wght@600;700;900&family=Alex+Brush&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Fira Code', 'monospace'],
+            serif: ['Cinzel', 'serif'],
+            script: ['Alex Brush', 'cursive']
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom caret animation */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .caret-blink {
+      animation: blink 1s infinite;
+    }
+    
+    /* Scrollbar customization */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    .key-active {
+      transform: translateY(2px);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6) !important;
+      background-color: #38bdf8 !important;
+      color: #0f172a !important;
+    }
+
+    .key-next {
+      border-color: #38bdf8 !important;
+      animation: pulse-key 1.5s infinite;
+    }
+
+    @keyframes pulse-key {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(56, 189, 248, 0); }
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <div id="app" class="flex-1 flex flex-col justify-between max-w-7xl w-full mx-auto p-4 sm:p-6 md:p-8">
+    
+    <!-- Top Header -->
+    <header class="flex flex-wrap justify-between items-center gap-4 pb-6 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="p-3 bg-brand-500/10 border border-brand-500/30 rounded-xl text-brand-400">
+          <i class="fa-solid font-mono text-2xl fa-keyboard"></i>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+            MecaMaster
+          </h1>
+          <p class="text-xs text-slate-400">Test de Escritura Profesional de 10 Niveles</p>
+        </div>
+      </div>
+
+      <!-- Quick Global Stats -->
+      <div class="flex items-center gap-4 sm:gap-6 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-xl text-xs sm:text-sm">
+        <div class="text-center">
+          <span class="block text-slate-500 text-[10px] uppercase font-bold tracking-wider">Nivel Global</span>
+          <span id="header-level" class="font-bold text-brand-400">1 / 10</span>
+        </div>
+        <div class="w-px h-6 bg-slate-800"></div>
+        <div class="text-center">
+          <span class="block text-slate-500 text-[10px] uppercase font-bold tracking-wider">Precisión Acum.</span>
+          <span id="header-acc" class="font-bold text-emerald-400">100%</span>
+        </div>
+        <div class="w-px h-6 bg-slate-800"></div>
+        <button id="reset-btn" title="Reiniciar Progreso" class="text-slate-400 hover:text-rose-400 transition-colors p-1">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+      </div>
+    </header>
+
+    <nav class="my-6">
+      <div class="flex items-center justify-between gap-1 sm:gap-2 overflow-x-auto pb-2 scrollbar-none" id="level-stepper">
+        <!-- Javascript dynamically renders 10 level dots here -->
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col justify-center my-4 relative">
+      
+      <!-- LEVEL INFO HEADER -->
+      <div class="mb-4 flex flex-wrap justify-between items-end gap-2">
+        <div>
+          <span id="level-badge" class="px-2.5 py-1 text-xs font-semibold rounded-md bg-brand-500/20 text-brand-400 border border-brand-500/30">
+            Nivel 1
+          </span>
+          <h2 id="level-title" class="text-lg sm:text-2xl font-bold text-slate-100 mt-1">Fila Guía Básica</h2>
+          <p id="level-desc" class="text-xs sm:text-sm text-slate-400">Domina las teclas centrales: A S D F J K L Ñ</p>
+        </div>
+        
+        <!-- Live Typing Performance Dashboard -->
+        <div class="flex items-center gap-3 sm:gap-4 bg-slate-900 border border-slate-800 px-4 py-2.5 rounded-2xl">
+          <div class="text-center min-w-[50px]">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">PPM</span>
+            <span id="stat-wpm" class="text-lg sm:text-xl font-bold text-slate-100 font-mono">0</span>
+          </div>
+          <div class="w-px h-8 bg-slate-800"></div>
+          <div class="text-center min-w-[50px]">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Precisión</span>
+            <span id="stat-accuracy" class="text-lg sm:text-xl font-bold text-emerald-400 font-mono">100%</span>
+          </div>
+          <div class="w-px h-8 bg-slate-800"></div>
+          <div class="text-center min-w-[50px]">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Aciertos</span>
+            <span id="stat-hits" class="text-lg sm:text-xl font-bold text-emerald-400 font-mono">0</span>
+          </div>
+          <div class="w-px h-8 bg-slate-800"></div>
+          <div class="text-center min-w-[50px]">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Errores</span>
+            <span id="stat-errors" class="text-lg sm:text-xl font-bold text-rose-400 font-mono">0</span>
+          </div>
+          <div class="w-px h-8 bg-slate-800"></div>
+          <div class="text-center min-w-[50px]">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Tiempo</span>
+            <span id="stat-timer" class="text-lg sm:text-xl font-bold text-amber-400 font-mono">0s</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="typing-card" class="relative bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl backdrop-blur-sm cursor-text transition-all duration-300 focus-within:border-brand-500/50">
+        
+        <!-- Focus Overlay (Click to focus) -->
+        <div id="focus-overlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center gap-3 z-20 cursor-pointer transition-opacity duration-200">
+          <div class="p-4 bg-brand-500/20 text-brand-400 rounded-full animate-bounce">
+            <i class="fa-solid fa-arrow-pointer text-2xl"></i>
+          </div>
+          <p class="text-slate-200 font-medium text-center px-4">Haz clic aquí o presiona cualquier tecla para comenzar a escribir</p>
+          <span class="text-xs text-slate-500">Supera el 80% de precisión para avanzar de nivel</span>
+        </div>
+
+        <!-- Hidden input for mobile/desktop typing trigger -->
+        <input type="text" id="hidden-input" class="absolute opacity-0 pointer-events-none -z-10" autocomplete="off" autocapitalize="off" spellcheck="false">
+
+        <!-- Display Area for Text -->
+        <div id="text-display" class="font-mono text-lg sm:text-2xl md:text-3xl leading-relaxed tracking-wide select-none break-words min-h-[120px] max-h-[220px] overflow-y-auto pr-2">
+          <!-- Text spans injected here via JS -->
+        </div>
+
+        <!-- Progress Indicator inside card -->
+        <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-circle-info text-brand-400"></i>
+            <span>Meta de aprobación: <strong class="text-slate-300">80% Precisión</strong></span>
+          </div>
+          <div id="char-counter" class="font-mono text-slate-400">0 / 0 Caracteres</div>
+        </div>
+      </div>
+
+      <div class="mt-6 bg-slate-900/60 border border-slate-800/60 rounded-2xl p-4 hidden md:block">
+        <div class="max-w-3xl mx-auto flex flex-col gap-1.5 font-mono text-xs select-none" id="virtual-keyboard">
+          <!-- Row 1 -->
+          <div class="flex gap-1 justify-center">
+            <div data-key="|" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">|</div>
+            <div data-key="1" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">1</div>
+            <div data-key="2" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">2</div>
+            <div data-key="3" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">3</div>
+            <div data-key="4" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">4</div>
+            <div data-key="5" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">5</div>
+            <div data-key="6" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">6</div>
+            <div data-key="7" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">7</div>
+            <div data-key="8" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">8</div>
+            <div data-key="9" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">9</div>
+            <div data-key="0" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">0</div>
+            <div data-key="Backspace" class="key border border-slate-700/60 bg-slate-800/60 rounded px-3 py-2 text-slate-400 grow text-right">←</div>
+          </div>
+          <!-- Row 2 -->
+          <div class="flex gap-1 justify-center">
+            <div data-key="Tab" class="key border border-slate-700/60 bg-slate-800/60 rounded px-3 py-2 text-slate-400 w-12 text-left">Tab</div>
+            <div data-key="q" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">Q</div>
+            <div data-key="w" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">W</div>
+            <div data-key="e" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">E</div>
+            <div data-key="r" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">R</div>
+            <div data-key="t" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">T</div>
+            <div data-key="y" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">Y</div>
+            <div data-key="u" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">U</div>
+            <div data-key="i" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">I</div>
+            <div data-key="o" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">O</div>
+            <div data-key="p" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">P</div>
+          </div>
+          <!-- Row 3 -->
+          <div class="flex gap-1 justify-center">
+            <div data-key="a" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">A</div>
+            <div data-key="s" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">S</div>
+            <div data-key="d" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">D</div>
+            <div data-key="f" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">F</div>
+            <div data-key="g" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">G</div>
+            <div data-key="h" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">H</div>
+            <div data-key="j" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">J</div>
+            <div data-key="k" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">K</div>
+            <div data-key="l" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">L</div>
+            <div data-key="ñ" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">Ñ</div>
+          </div>
+          <!-- Row 4 -->
+          <div class="flex gap-1 justify-center">
+            <div data-key="z" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">Z</div>
+            <div data-key="x" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">X</div>
+            <div data-key="c" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">C</div>
+            <div data-key="v" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">V</div>
+            <div data-key="b" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">B</div>
+            <div data-key="n" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">N</div>
+            <div data-key="m" class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-300 font-bold">M</div>
+            <div data-key="," class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">,</div>
+            <div data-key="." class="key border border-slate-700/60 bg-slate-800/60 rounded px-2.5 py-2 min-w-[34px] text-center text-slate-400">.</div>
+          </div>
+          <!-- Space Bar Row -->
+          <div class="flex gap-1 justify-center mt-0.5">
+            <div data-key=" " class="key border border-slate-700/60 bg-slate-800/60 rounded py-2 w-64 text-center text-slate-400 text-xs">Espacio</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="pt-4 border-t border-slate-800/80 text-center text-xs text-slate-500">
+      <p>Test de Escritura por Niveles &bull; Completa los 10 niveles con &ge;80% de precisión para certificar tu velocidad.</p>
+    </footer>
+  </div>
+
+  <div id="modal-result" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center transform transition-all">
+      <div id="modal-icon" class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4">
+        <!-- Dynamic icon -->
+      </div>
+      <h3 id="modal-title" class="text-2xl font-bold text-slate-100">¡Nivel Completado!</h3>
+      <p id="modal-subtitle" class="text-sm text-slate-400 mt-1">Aquí están los resultados de este nivel:</p>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 gap-3 my-6 text-left">
+        <div class="bg-slate-800/50 border border-slate-700/50 p-3 rounded-xl">
+          <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Precisión</span>
+          <div id="modal-stat-acc" class="text-xl font-bold font-mono mt-0.5">0%</div>
+        </div>
+        <div class="bg-slate-800/50 border border-slate-700/50 p-3 rounded-xl">
+          <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Velocidad</span>
+          <div id="modal-stat-wpm" class="text-xl font-bold font-mono text-slate-100 mt-0.5">0 PPM</div>
+        </div>
+        <div class="bg-slate-800/50 border border-slate-700/50 p-3 rounded-xl">
+          <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Aciertos</span>
+          <div id="modal-stat-hits" class="text-xl font-bold font-mono text-emerald-400 mt-0.5">0</div>
+        </div>
+        <div class="bg-slate-800/50 border border-slate-700/50 p-3 rounded-xl">
+          <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Errores</span>
+          <div id="modal-stat-errors" class="text-xl font-bold font-mono text-rose-400 mt-0.5">0</div>
+        </div>
+      </div>
+
+      <div id="modal-feedback" class="p-3 rounded-xl text-xs font-medium mb-6">
+        <!-- Dynamic feedback message -->
+      </div>
+
+      <div class="flex gap-3">
+        <button id="modal-btn-retry" class="flex-1 py-3 px-4 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition-colors flex items-center justify-center gap-2">
+          <i class="fa-solid fa-rotate-right"></i> Reintentar
+        </button>
+        <button id="modal-btn-next" class="flex-1 py-3 px-4 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold text-sm transition-colors flex items-center justify-center gap-2">
+          Siguiente <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-certificate" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4 z-50 hidden overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-4xl w-full my-8 shadow-2xl">
+      <div class="text-center max-w-xl mx-auto mb-6">
+        <div class="inline-flex p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-400 mb-3">
+          <i class="fa-solid fa-trophy text-3xl"></i>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-100">¡Felicidades, Maestro Mecanógrafo!</h2>
+        <p class="text-sm text-slate-400 mt-2">Has completado con éxito los 10 niveles del test de escritura superando el estándar exigido del 80% de precisión.</p>
+      </div>
+
+      <!-- User Name Input Box -->
+      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 mb-6 max-w-md mx-auto">
+        <label for="cert-user-name" class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider text-center">Escribe tu nombre para el certificado:</label>
+        <div class="relative">
+          <input type="text" id="cert-user-name" placeholder="Ej. Ana María García" value="Mecanógrafo Profesional" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-center font-bold text-slate-100 focus:outline-none focus:border-brand-500 transition-colors">
+        </div>
+      </div>
+
+      <!-- Preview Canvas Container -->
+      <div class="overflow-x-auto pb-4 flex justify-center">
+        <div class="border-4 border-slate-800 rounded-xl overflow-hidden shadow-2xl bg-white">
+          <canvas id="cert-canvas" width="1000" height="700" class="max-w-full h-auto block"></canvas>
+        </div>
+      </div>
+
+      <!-- Final Actions -->
+      <div class="flex flex-wrap justify-center gap-4 mt-6">
+        <button id="download-cert-btn" class="py-3 px-6 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+          <i class="fa-solid fa-download"></i> Descargar Certificado (PNG)
+        </button>
+        <button id="restart-all-btn" class="py-3 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition-colors flex items-center gap-2">
+          <i class="fa-solid fa-rotate-right"></i> Volver a Empezar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 10 Progressive Difficulty Levels in Spanish
+    const LEVELS = [
+      {
+        level: 1,
+        title: "Fila Guía Básica",
+        desc: "Domina la posición base de las manos en el teclado (ASDF - JKLÑ).",
+        text: "asdf jklñ fjas dklñ asdf jklñ fda kslñ asdf jklñ fjas dklñ"
+      },
+      {
+        level: 2,
+        title: "Fila Superior",
+        desc: "Extiende tus dedos hacia la fila superior (QWERTYUIOP).",
+        text: "que te todo pero pero equipo puerto tierra toque tripa querrequete"
+      },
+      {
+        level: 3,
+        title: "Fila Inferior",
+        desc: "Practica los movimientos descendentes (ZXCVBNM).",
+        text: "manzana cabeza cambio banco buena como centro barco voz zinc"
+      },
+      {
+        level: 4,
+        title: "Combinación de Letras",
+        desc: "Escribe palabras cortas usando todas las filas de letras.",
+        text: "las flores del jardin tienen un aroma suave fresco y dulce en primavera"
+      },
+      {
+        level: 5,
+        title: "Fluidez y Palabras Comunes",
+        desc: "Construye velocidad con frases en español sin acentos.",
+        text: "escribir rapido y con precision es una habilidad que se desarrolla con la practica constante todos los dias"
+      },
+      {
+        level: 6,
+        title: "Mayúsculas y Puntuación",
+        desc: "Añade uso de teclas Shift para mayúsculas y signos básicos.",
+        text: "La paciencia y el enfoque constante son las claves del exito en cualquier disciplina digital."
+      },
+      {
+        level: 7,
+        title: "Números y Símbolos Básicos",
+        desc: "Combina texto con la fila numérica superior del teclado.",
+        text: "En el año 2026 completaremos 100 proyectos con un rendimiento del 98% superior."
+      },
+      {
+        level: 8,
+        title: "Complejidad y Acentos",
+        desc: "Maneja acentos, signos de interrogación y comillas.",
+        text: "¿Sabías que la agilidad mental mejora considerablemente cuando escribes de forma fluida y sin mirar las teclas?"
+      },
+      {
+        level: 9,
+        title: "Desafío de Velocidad",
+        desc: "Párrafo extenso diseñado para poner a prueba tu resistencia.",
+        text: "El éxito no es la clave de la felicidad; la felicidad es la clave del éxito. Si amas lo que estás haciendo, tendrás un éxito garantizado en cada meta que te propongas alcanzar."
+      },
+      {
+        level: 10,
+        title: "Prueba de Maestría Final",
+        desc: "El examen final. Demuestra tu absoluto control técnico del teclado.",
+        text: "Has alcanzado la cima del dominio mecanográfico. La precisión técnica, la agilidad digital y el enfoque inquebrantable definen a los verdaderos expertos de la escritura profesional."
+      }
+    ];
+
+    let currentLevelIndex = 0;
+    let unlockedLevel = 0; // Highest unlocked level index (0-9)
+    let charSpans = [];
+    let currentIndex = 0;
+    let hits = 0;
+    let errors = 0;
+    let isTyping = false;
+    let startTime = null;
+    let timerInterval = null;
+    let elapsedTime = 0; // in seconds
+
+    // Stores performance history per level: { wpm, accuracy, hits, errors }
+    const levelStats = Array(LEVELS.length).fill(null);
+
+    // DOM Elements
+    const levelStepper = document.getElementById('level-stepper');
+    const levelBadge = document.getElementById('level-badge');
+    const levelTitle = document.getElementById('level-title');
+    const levelDesc = document.getElementById('level-desc');
+    const textDisplay = document.getElementById('text-display');
+    const hiddenInput = document.getElementById('hidden-input');
+    const focusOverlay = document.getElementById('focus-overlay');
+    const typingCard = document.getElementById('typing-card');
+    const charCounter = document.getElementById('char-counter');
+
+    // Live Stats DOM
+    const statWpm = document.getElementById('stat-wpm');
+    const statAccuracy = document.getElementById('stat-accuracy');
+    const statHits = document.getElementById('stat-hits');
+    const statErrors = document.getElementById('stat-errors');
+    const statTimer = document.getElementById('stat-timer');
+    const headerLevel = document.getElementById('header-level');
+    const headerAcc = document.getElementById('header-acc');
+
+    // Modal DOM
+    const modalResult = document.getElementById('modal-result');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalTitle = document.getElementById('modal-title');
+    const modalStatAcc = document.getElementById('modal-stat-acc');
+    const modalStatWpm = document.getElementById('modal-stat-wpm');
+    const modalStatHits = document.getElementById('modal-stat-hits');
+    const modalStatErrors = document.getElementById('modal-stat-errors');
+    const modalFeedback = document.getElementById('modal-feedback');
+    const modalBtnRetry = document.getElementById('modal-btn-retry');
+    const modalBtnNext = document.getElementById('modal-btn-next');
+
+    // Certificate DOM
+    const modalCertificate = document.getElementById('modal-certificate');
+    const certCanvas = document.getElementById('cert-canvas');
+    const certUserName = document.getElementById('cert-user-name');
+    const downloadCertBtn = document.getElementById('download-cert-btn');
+    const restartAllBtn = document.getElementById('restart-all-btn');
+    const resetBtn = document.getElementById('reset-btn');
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderStepper();
+      loadLevel(0);
+
+      // Event Listeners for focus
+      typingCard.addEventListener('click', focusTyping);
+      focusOverlay.addEventListener('click', focusTyping);
+
+      // Input listener
+      hiddenInput.addEventListener('input', handleInput);
+      document.addEventListener('keydown', handleGlobalKeydown);
+
+      // Modal listeners
+      modalBtnRetry.addEventListener('click', () => {
+        hideModal();
+        loadLevel(currentLevelIndex);
+      });
+
+      modalBtnNext.addEventListener('click', () => {
+        hideModal();
+        if (currentLevelIndex < LEVELS.length - 1) {
+          loadLevel(currentLevelIndex + 1);
+        }
+      });
+
+      // Certificate Name Dynamic Input
+      certUserName.addEventListener('input', () => {
+        drawCertificate();
+      });
+
+      downloadCertBtn.addEventListener('click', downloadCertificate);
+      restartAllBtn.addEventListener('click', resetAllProgress);
+      resetBtn.addEventListener('click', resetAllProgress);
+    });
+
+    function renderStepper() {
+      levelStepper.innerHTML = '';
+      LEVELS.forEach((lvl, index) => {
+        const isUnlocked = index <= unlockedLevel;
+        const isCurrent = index === currentLevelIndex;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.disabled = !isUnlocked;
+        btn.className = `flex-1 min-w-[70px] sm:min-w-[90px] py-2 px-1 text-center rounded-xl border transition-all flex flex-col items-center justify-center ${
+          isCurrent
+            ? 'border-brand-500 bg-brand-500/20 text-brand-400 font-bold shadow-lg shadow-brand-500/10'
+            : isUnlocked
+            ? 'border-slate-800 bg-slate-900/80 hover:bg-slate-800 text-slate-300'
+            : 'border-slate-900 bg-slate-950/40 text-slate-600 cursor-not-allowed'
+        }`;
+
+        btn.onclick = () => {
+          if (isUnlocked) {
+            loadLevel(index);
+          }
+        };
+
+        btn.innerHTML = `
+          <span class="text-[10px] uppercase tracking-wider opacity-70">Nivel</span>
+          <span class="text-sm font-bold font-mono">${index + 1}</span>
+        `;
+        levelStepper.appendChild(btn);
+      });
+    }
+
+    function loadLevel(index) {
+      currentLevelIndex = index;
+      const levelData = LEVELS[currentLevelIndex];
+
+      // Reset state
+      currentIndex = 0;
+      hits = 0;
+      errors = 0;
+      isTyping = false;
+      elapsedTime = 0;
+      clearInterval(timerInterval);
+
+      // Update Header & Badge
+      levelBadge.textContent = `Nivel ${levelData.level} de 10`;
+      levelTitle.textContent = levelData.title;
+      levelDesc.textContent = levelData.desc;
+      headerLevel.textContent = `${currentLevelIndex + 1} / 10`;
+
+      // Update Live Display
+      statWpm.textContent = '0';
+      statAccuracy.textContent = '100%';
+      statHits.textContent = '0';
+      statErrors.textContent = '0';
+      statTimer.textContent = '0s';
+
+      // Build Text Spans
+      textDisplay.innerHTML = '';
+      charSpans = [];
+      const text = levelData.text;
+
+      for (let i = 0; i < text.length; i++) {
+        const span = document.createElement('span');
+        span.textContent = text[i];
+        span.className = 'transition-colors duration-100 rounded-sm';
+        if (i === 0) {
+          span.classList.add('bg-brand-500/30', 'text-brand-300', 'underline', 'caret-blink');
+        } else {
+          span.classList.add('text-slate-400');
+        }
+        textDisplay.appendChild(span);
+        charSpans.push(span);
+      }
+
+      charCounter.textContent = `0 / ${text.length} Caracteres`;
+      focusOverlay.classList.remove('opacity-0', 'pointer-events-none');
+      renderStepper();
+      highlightVirtualKey(text[0]);
+    }
+
+    function focusTyping() {
+      hiddenInput.focus();
+      focusOverlay.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function handleGlobalKeydown(e) {
+      if (modalResult.classList.contains('hidden') === false || modalCertificate.classList.contains('hidden') === false) {
+        return;
+      }
+
+      // Automatically focus hidden input on valid keydown
+      if (document.activeElement !== hiddenInput && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        focusTyping();
+      }
+
+      // Animate active key on virtual keyboard
+      const keyChar = e.key.toLowerCase();
+      const keyEl = document.querySelector(`.key[data-key="${keyChar}"]`) || document.querySelector(`.key[data-key="${e.key}"]`);
+      if (keyEl) {
+        keyEl.classList.add('key-active');
+        setTimeout(() => keyEl.classList.remove('key-active'), 150);
+      }
+    }
+
+    function handleInput(e) {
+      const targetText = LEVELS[currentLevelIndex].text;
+      
+      if (!isTyping && hiddenInput.value.length > 0) {
+        startTimer();
+      }
+
+      const typedVal = hiddenInput.value;
+      const typedChar = typedVal.slice(-1);
+
+      if (currentIndex >= targetText.length) return;
+
+      const expectedChar = targetText[currentIndex];
+
+      // Handle typing logic
+      if (typedChar === expectedChar) {
+        // Correct hit
+        hits++;
+        charSpans[currentIndex].className = 'text-emerald-400 font-bold bg-emerald-500/10';
+        currentIndex++;
+      } else {
+        // Error hit
+        errors++;
+        charSpans[currentIndex].className = 'text-rose-400 font-bold bg-rose-500/20 animate-pulse';
+        currentIndex++;
+      }
+
+      // Reset hidden input so user can keep typing standard chars
+      hiddenInput.value = '';
+
+      // Update Cursor highlight on next char
+      if (currentIndex < targetText.length) {
+        charSpans[currentIndex].className = 'bg-brand-500/30 text-brand-300 underline caret-blink font-bold';
+        highlightVirtualKey(targetText[currentIndex]);
+      } else {
+        highlightVirtualKey(null);
+        finishLevel();
+      }
+
+      // Update live metrics
+      updateMetrics();
+    }
+
+    function startTimer() {
+      isTyping = true;
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        statTimer.textContent = `${elapsedTime}s`;
+        updateMetrics();
+      }, 500);
+    }
+
+    function updateMetrics() {
+      const totalTyped = hits + errors;
+      const accuracy = totalTyped > 0 ? Math.round((hits / totalTyped) * 100) : 100;
+      
+      // Calculate WPM (Words Per Minute) = (hits / 5) / minutes
+      const minutes = elapsedTime > 0 ? elapsedTime / 60 : 1 / 60;
+      const wpm = Math.round((hits / 5) / minutes);
+
+      statHits.textContent = hits;
+      statErrors.textContent = errors;
+      statAccuracy.textContent = `${accuracy}%`;
+      statWpm.textContent = isNaN(wpm) ? 0 : wpm;
+      charCounter.textContent = `${currentIndex} / ${LEVELS[currentLevelIndex].text.length} Caracteres`;
+
+      // Update overall accumulated accuracy header
+      calculateGlobalAccuracy();
+    }
+
+    function calculateGlobalAccuracy() {
+      let totalHits = hits;
+      let totalErrors = errors;
+
+      levelStats.forEach(stat => {
+        if (stat) {
+          totalHits += stat.hits;
+          totalErrors += stat.errors;
+        }
+      });
+
+      const grandTotal = totalHits + totalErrors;
+      const overallAcc = grandTotal > 0 ? Math.round((totalHits / grandTotal) * 100) : 100;
+      headerAcc.textContent = `${overallAcc}%`;
+      return overallAcc;
+    }
+
+    function highlightVirtualKey(char) {
+      document.querySelectorAll('.key').forEach(k => k.classList.remove('key-next'));
+      if (!char) return;
+
+      const searchKey = char === ' ' ? ' ' : char.toLowerCase();
+      const keyEl = document.querySelector(`.key[data-key="${searchKey}"]`);
+      if (keyEl) {
+        keyEl.classList.add('key-next');
+      }
+    }
+
+    function finishLevel() {
+      clearInterval(timerInterval);
+      isTyping = false;
+
+      const totalTyped = hits + errors;
+      const accuracy = totalTyped > 0 ? Math.round((hits / totalTyped) * 100) : 100;
+      const minutes = elapsedTime > 0 ? elapsedTime / 60 : 1 / 60;
+      const wpm = Math.round((hits / 5) / minutes);
+
+      // Save stats
+      levelStats[currentLevelIndex] = {
+        wpm,
+        accuracy,
+        hits,
+        errors,
+        time: elapsedTime
+      };
+
+      const passed = accuracy >= 80;
+
+      // Show Result Modal
+      modalStatAcc.textContent = `${accuracy}%`;
+      modalStatAcc.className = `text-xl font-bold font-mono mt-0.5 ${passed ? 'text-emerald-400' : 'text-rose-400'}`;
+      modalStatWpm.textContent = `${wpm} PPM`;
+      modalStatHits.textContent = hits;
+      modalStatErrors.textContent = errors;
+
+      if (passed) {
+        modalIcon.className = 'w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        modalIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+        modalTitle.textContent = '¡Nivel Aprobado!';
+        modalFeedback.className = 'p-3 rounded-xl text-xs font-medium mb-6 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20';
+        modalFeedback.textContent = `¡Excelente precisión (${accuracy}%)! Has superado la meta del 80%.`;
+        
+        // Unlock next level if applicable
+        if (currentLevelIndex < LEVELS.length - 1) {
+          unlockedLevel = Math.max(unlockedLevel, currentLevelIndex + 1);
+          modalBtnNext.classList.remove('hidden');
+        } else {
+          // Completed Level 10!
+          modalBtnNext.textContent = 'Obtener Certificado 🏆';
+          modalBtnNext.onclick = () => {
+            hideModal();
+            showCertificateModal();
+          };
+        }
+      } else {
+        modalIcon.className = 'w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4 bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        modalIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        modalTitle.textContent = 'Nivel No Superado';
+        modalFeedback.className = 'p-3 rounded-xl text-xs font-medium mb-6 bg-rose-500/10 text-rose-300 border border-rose-500/20';
+        modalFeedback.textContent = `Obtuviste ${accuracy}% de precisión. Necesitas al menos 80% para desbloquear el siguiente nivel.`;
+        modalBtnNext.classList.add('hidden');
+      }
+
+      renderStepper();
+      modalResult.classList.remove('hidden');
+    }
+
+    function hideModal() {
+      modalResult.classList.add('hidden');
+    }
+
+    function showCertificateModal() {
+      modalCertificate.classList.remove('hidden');
+      drawCertificate();
+    }
+
+    function drawCertificate() {
+      const ctx = certCanvas.getContext('2d');
+      const width = certCanvas.width;
+      const height = certCanvas.height;
+
+      // Calculate aggregated metrics
+      let totalHits = 0;
+      let totalErrors = 0;
+      let totalWpm = 0;
+      let validLevelsCount = 0;
+
+      levelStats.forEach(stat => {
+        if (stat) {
+          totalHits += stat.hits;
+          totalErrors += stat.errors;
+          totalWpm += stat.wpm;
+          validLevelsCount++;
+        }
+      });
+
+      const avgWpm = validLevelsCount > 0 ? Math.round(totalWpm / validLevelsCount) : 0;
+      const grandTotal = totalHits + totalErrors;
+      const avgAccuracy = grandTotal > 0 ? Math.round((totalHits / grandTotal) * 100) : 100;
+      const userName = certUserName.value.trim() || "Mecanógrafo Profesional";
+
+      // 1. Background Gradient (Luxury Ivory / Light Gold)
+      const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+      bgGrad.addColorStop(0, '#fdfbf7');
+      bgGrad.addColorStop(1, '#f4efe6');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      // 2. Outer & Inner Ornamental Borders
+      ctx.strokeStyle = '#b45309'; // Gold / Amber
+      ctx.lineWidth = 12;
+      ctx.strokeRect(20, 20, width - 40, height - 40);
+
+      ctx.strokeStyle = '#1e293b'; // Slate dark accent
+      ctx.lineWidth = 2;
+      ctx.strokeRect(34, 34, width - 68, height - 68);
+
+      // Corner flourishes
+      ctx.fillStyle = '#b45309';
+      const cornerSize = 16;
+      ctx.fillRect(34, 34, cornerSize, cornerSize);
+      ctx.fillRect(width - 34 - cornerSize, 34, cornerSize, cornerSize);
+      ctx.fillRect(34, height - 34 - cornerSize, cornerSize, cornerSize);
+      ctx.fillRect(width - 34 - cornerSize, height - 34 - cornerSize, cornerSize, cornerSize);
+
+      // 3. Header Ribbon / Badge Icon
+      ctx.textAlign = 'center';
+      
+      ctx.font = '700 16px Inter, sans-serif';
+      ctx.fillStyle = '#b45309';
+      ctx.letterSpacing = '4px';
+      ctx.fillText('MECAMASTER INSTITUTION OF TYPING EXCELLENCE', width / 2, 90);
+
+      // Certificate Title
+      ctx.font = '900 38px Cinzel, serif';
+      ctx.fillStyle = '#0f172a';
+      ctx.fillText('CERTIFICADO DE EXCELENCIA', width / 2, 145);
+
+      ctx.font = '400 18px Inter, sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.fillText('Este certificado oficial se otorga con distinción a:', width / 2, 190);
+
+      // User Name (Script / Serif Accent)
+      ctx.font = '700 46px "Alex Brush", cursive, serif';
+      ctx.fillStyle = '#0284c7'; // Brand Cyan/Blue
+      ctx.fillText(userName, width / 2, 260);
+
+      // Underline for name
+      ctx.beginPath();
+      ctx.moveTo(width / 2 - 200, 280);
+      ctx.lineTo(width / 2 + 200, 280);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Body Text
+      ctx.font = '400 16px Inter, sans-serif';
+      ctx.fillStyle = '#334155';
+      ctx.fillText('Por haber completado con maestría los 10 niveles progresivos de velocidad y precisión,', width / 2, 325);
+      ctx.fillText('demostrando un dominio profesional del teclado y superando los estándares requeridos.', width / 2, 350);
+
+      // Metrics Cards on Certificate
+      const cardY = 400;
+      
+      // Card 1: Precision
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.05)';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.roundRect(width / 2 - 210, cardY, 190, 90, 12);
+      ctx.fill();
+
+      ctx.font = '600 12px Inter, sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.fillText('PRECISIÓN GLOBAL', width / 2 - 115, cardY + 30);
+      ctx.font = '800 28px "Fira Code", monospace';
+      ctx.fillStyle = '#059669'; // Emerald
+      ctx.fillText(`${avgAccuracy}%`, width / 2 - 115, cardY + 68);
+
+      // Card 2: Speed WPM
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(width / 2 + 20, cardY, 190, 90, 12);
+      ctx.fill();
+
+      ctx.font = '600 12px Inter, sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.fillText('VELOCIDAD MEDIA', width / 2 + 115, cardY + 30);
+      ctx.font = '800 28px "Fira Code", monospace';
+      ctx.fillStyle = '#0284c7';
+      ctx.fillText(`${avgWpm} PPM`, width / 2 + 115, cardY + 68);
+
+      // Clear shadow
+      ctx.shadowColor = 'transparent';
+
+      // Golden Stamp / Seal (Lower Center Left)
+      const sealX = width / 2;
+      const sealY = 560;
+
+      ctx.beginPath();
+      ctx.arc(sealX, sealY, 42, 0, Math.PI * 2);
+      ctx.fillStyle = '#f59e0b';
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#b45309';
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(sealX, sealY, 35, 0, Math.PI * 2);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.font = '800 12px Inter, sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('OFICIAL', sealX, sealY - 4);
+      ctx.font = '600 9px Inter, sans-serif';
+      ctx.fillText('NIVEL 10', sealX, sealY + 10);
+
+      // Date and Signature Lines
+      const today = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      // Left: Date
+      ctx.font = '400 14px Inter, sans-serif';
+      ctx.fillStyle = '#475569';
+      ctx.fillText(today, 180, 610);
+      ctx.beginPath();
+      ctx.moveTo(100, 590);
+      ctx.lineTo(260, 590);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.font = '600 11px Inter, sans-serif';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('FECHA DE EMISIÓN', 180, 630);
+
+      // Right: Signature
+      ctx.font = '700 22px "Alex Brush", cursive';
+      ctx.fillStyle = '#0f172a';
+      ctx.fillText('MecaMaster Certified', width - 180, 580);
+      ctx.beginPath();
+      ctx.moveTo(width - 260, 590);
+      ctx.lineTo(width - 100, 590);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.font = '600 11px Inter, sans-serif';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('FIRMA AUTORIZADA', width - 180, 630);
+    }
+
+    function downloadCertificate() {
+      const link = document.createElement('a');
+      const nameClean = (certUserName.value.trim() || "Mecanografo").replace(/\s+/g, '_');
+      link.download = `Certificado_Mecanografia_${nameClean}.png`;
+      link.href = certCanvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function resetAllProgress() {
+      unlockedLevel = 0;
+      levelStats.fill(null);
+      modalCertificate.classList.add('hidden');
+      hideModal();
+      loadLevel(0);
+    }
+  </script>
+</body>
+</html>
