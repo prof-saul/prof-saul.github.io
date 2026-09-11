@@ -570,7 +570,10 @@
             treeData = [];
           }
         } else {
-          treeData = JSON.parse(JSON.stringify(TEMPLATES[2].data));
+          const defaultTemplate = TEMPLATES?.[2]?.data;
+          treeData = defaultTemplate
+            ? JSON.parse(JSON.stringify(defaultTemplate))
+            : [];
         }
       }
 
