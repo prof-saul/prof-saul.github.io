@@ -1,0 +1,1235 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      @elprofesaul - Creador de Estructura de Carpetas y Organigrama
+    </title>
+    <!-- Tailwind CSS CDN para estilos responsivos y modernos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- html2canvas para exportar el lienzo como imagen -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                500: "#0284c7",
+                600: "#0369a1",
+                700: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1f2937;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #4b5563;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #6b7280;
+      }
+
+      /* --- VISTA ÁRBOL (Lista Indentada) --- */
+      .tree-branch {
+        position: relative;
+      }
+
+      .tree-children {
+        position: relative;
+        margin-left: 1.5rem;
+        padding-left: 1rem;
+        border-left: 2px dashed #4b5563;
+      }
+
+      .node-card {
+        transition: all 0.2s ease-in-out;
+      }
+
+      /* --- VISTA ORGANIGRAMA (Jerarquía Limpia y Alineada) --- */
+      .org-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: max-content;
+        margin: 0 auto;
+      }
+
+      .org-node {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+
+      /* Línea vertical descendente desde la carpeta padre */
+      .org-line-down {
+        width: 2px;
+        height: 1.25rem;
+        background-color: #64748b;
+        flex-shrink: 0;
+      }
+
+      /* Fila contenedora de los hijos */
+      .org-children-row {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        position: relative;
+      }
+
+      /* Cada columna/nodo hijo */
+      .org-child-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        padding: 0 0.75rem;
+      }
+
+      /* Línea vertical ascendente que entra a la tarjeta del hijo */
+      .org-line-up {
+        width: 2px;
+        height: 1.25rem;
+        background-color: #64748b;
+        flex-shrink: 0;
+      }
+
+      /* Riel horizontal conector entre hermanos */
+      .org-child-item::before,
+      .org-child-item::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        height: 2px;
+        background-color: #64748b;
+      }
+
+      .org-child-item::before {
+        left: 0;
+        width: 50%;
+      }
+
+      .org-child-item::after {
+        right: 0;
+        width: 50%;
+      }
+
+      /* Ocultar tramos sobrantes en los extremos */
+      .org-child-item:first-child::before {
+        display: none;
+      }
+
+      .org-child-item:last-child::after {
+        display: none;
+      }
+
+      .org-child-item:only-child::before,
+      .org-child-item:only-child::after {
+        display: none;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-sky-500 selection:text-white"
+  >
+    <!-- Header / Navbar -->
+    <header
+      class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-40 px-4 py-3"
+    >
+      <div
+        class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4"
+      >
+        <div class="flex items-center space-x-3">
+          <div
+            class="bg-gradient-to-tr from-sky-500 to-indigo-500 p-2.5 rounded-xl shadow-lg shadow-sky-500/20"
+          >
+            <i class="fa-solid fa-folder-tree text-white text-xl"></i>
+          </div>
+          <div>
+            <h1
+              class="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent"
+            >
+              Estructura de carpetas
+            </h1>
+            <p class="text-xs text-slate-400">
+              Diseña estructuras de directorios y expórtalas en alta resolución
+            </p>
+          </div>
+        </div>
+
+        <!-- Barra de Herramientas Superior -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="btn-add-root"
+            class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 shadow-sm"
+          >
+            <i class="fa-solid fa-folder-plus"></i> Nueva Carpeta Raíz
+          </button>
+
+          <button
+            id="btn-load-template"
+            class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2"
+          >
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+            Plantillas
+          </button>
+
+          <button
+            id="btn-clear"
+            class="bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2"
+          >
+            <i class="fa-solid fa-trash-can"></i> Limpiar
+          </button>
+
+          <div class="h-6 w-px bg-slate-700 mx-1 hidden sm:block"></div>
+
+          <button
+            id="btn-export-img"
+            class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-emerald-600/20"
+          >
+            <i class="fa-solid fa-download"></i> Descargar Imagen
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main
+      class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6"
+    >
+      <!-- Panel de Opciones de Visualización -->
+      <div
+        class="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4"
+      >
+        <!-- Selector de Tipo de Vista -->
+        <div class="flex items-center gap-3">
+          <span
+            class="text-xs font-semibold text-slate-400 uppercase tracking-wider"
+            >Modo de Vista:</span
+          >
+          <div
+            class="bg-slate-900/80 p-1 rounded-xl border border-slate-700 flex items-center gap-1"
+          >
+            <button
+              id="view-mode-tree"
+              class="view-btn px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-2 bg-sky-600 text-white shadow-sm"
+            >
+              <i class="fa-solid fa-list-tree"></i> Árbol
+            </button>
+            <button
+              id="view-mode-org"
+              class="view-btn px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-2 text-slate-400 hover:text-slate-200"
+            >
+              <i class="fa-solid fa-sitemap"></i> Organigrama
+            </button>
+          </div>
+        </div>
+
+        <!-- Opciones de Fondo -->
+        <div class="flex items-center gap-4">
+          <span
+            class="text-xs font-semibold text-slate-400 uppercase tracking-wider"
+            >Fondo:</span
+          >
+          <div class="flex items-center gap-2">
+            <button
+              data-bg="dark"
+              class="bg-option-btn w-7 h-7 rounded-full bg-slate-900 border-2 border-sky-500 ring-2 ring-sky-500/30 transition"
+              title="Fondo Oscuro"
+            ></button>
+            <button
+              data-bg="gradient"
+              class="bg-option-btn w-7 h-7 rounded-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border-2 border-transparent transition"
+              title="Gradiente Elegante"
+            ></button>
+            <button
+              data-bg="light"
+              class="bg-option-btn w-7 h-7 rounded-full bg-slate-100 border-2 border-transparent transition"
+              title="Fondo Claro"
+            ></button>
+            <button
+              data-bg="transparent"
+              class="bg-option-btn w-7 h-7 rounded-full bg-slate-800/30 border-2 border-dashed border-slate-500 transition"
+              title="Transparente"
+            ></button>
+          </div>
+        </div>
+
+        <!-- Título personalizado e indicador -->
+        <div class="flex items-center gap-3 text-sm text-slate-400">
+          <input
+            type="text"
+            id="project-title-input"
+            value="Estructura del Proyecto"
+            class="bg-slate-900/80 border border-slate-700 text-xs text-slate-200 px-3 py-1 rounded-lg focus:outline-none focus:border-sky-500 w-44"
+            title="Título para la imagen exportada"
+            placeholder="Título del diagrama"
+          />
+          <span
+            id="node-count"
+            class="bg-slate-700 px-2.5 py-1 rounded-full text-xs font-semibold text-slate-200"
+            >0 Carpetas</span
+          >
+          <button
+            id="btn-toggle-all"
+            class="hover:text-slate-200 transition text-xs underline"
+          >
+            Contraer Todo
+          </button>
+        </div>
+      </div>
+
+      <!-- Contenedor del Árbol / Organigrama (Área Capturable) -->
+      <div
+        class="flex-1 bg-slate-950/60 border border-slate-800 rounded-2xl p-4 md:p-8 min-h-[550px] flex flex-col justify-start items-center overflow-auto relative shadow-inner"
+        id="canvas-container"
+      >
+        <!-- Fondo dinámico para la captura -->
+        <div
+          id="tree-canvas"
+          class="p-8 rounded-2xl min-w-max transition-all bg-slate-900 border border-slate-800 flex flex-col items-center"
+        >
+          <!-- Header opcional dentro de la imagen exportada -->
+          <div id="export-header" class="mb-8 hidden text-center">
+            <h2
+              id="export-title-display"
+              class="text-2xl font-bold text-slate-100 mb-1"
+            >
+              Estructura del Proyecto
+            </h2>
+            <p id="export-subtitle-display" class="text-xs text-slate-400">
+              Recurso compartido por @elprofesaul
+            </p>
+          </div>
+
+          <!-- Árbol / Organigrama principal -->
+          <div id="folder-tree-root" class="w-full flex justify-center">
+            <!-- Se inyecta por JS -->
+          </div>
+
+          <!-- Estado vacío -->
+          <div
+            id="empty-state"
+            class="flex flex-col items-center justify-center py-20 text-center"
+          >
+            <div
+              class="w-16 h-16 bg-slate-800/80 text-slate-500 rounded-2xl flex items-center justify-center text-3xl mb-4 border border-slate-700"
+            >
+              <i class="fa-regular fa-folder-open"></i>
+            </div>
+            <h3 class="text-lg font-medium text-slate-300">
+              Aún no hay carpetas creadas
+            </h3>
+            <p class="text-sm text-slate-500 max-w-sm mt-1 mb-6">
+              Comienza agregando una carpeta raíz o cargando una plantilla
+              prediseñada.
+            </p>
+            <button
+              id="btn-empty-add"
+              class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-lg shadow-sky-600/20"
+            >
+              <i class="fa-solid fa-plus mr-1"></i> Crear Carpeta Raíz
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal para Editar / Crear Carpeta -->
+    <div
+      id="folder-modal"
+      class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"
+    >
+      <div
+        class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl relative animate-fade-in"
+      >
+        <h3
+          id="modal-title"
+          class="text-lg font-bold text-slate-100 mb-4 flex items-center gap-2"
+        >
+          <i class="fa-solid fa-folder text-sky-400"></i> Nueva Carpeta
+        </h3>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1"
+              >Nombre de la carpeta</label
+            >
+            <input
+              type="text"
+              id="modal-folder-name"
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-100 focus:outline-none focus:border-sky-500 text-sm"
+              placeholder="Ej. src, componentes, docs..."
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-2"
+              >Color del icono</label
+            >
+            <!-- Paleta de colores rápidos -->
+            <div class="grid grid-cols-7 gap-2 mb-3" id="color-palette">
+              <!-- Inyectado por JS -->
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400">Personalizado:</span>
+              <input
+                type="color"
+                id="modal-folder-color"
+                class="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 mt-6">
+          <button
+            id="modal-cancel"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-700 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            id="modal-save"
+            class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-md shadow-sky-600/20"
+          >
+            Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Seleccionar Plantillas -->
+    <div
+      id="template-modal"
+      class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"
+    >
+      <div
+        class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl"
+      >
+        <h3
+          class="text-lg font-bold text-slate-100 mb-2 flex items-center gap-2"
+        >
+          <i class="fa-solid fa-layer-group text-amber-400"></i> Cargar
+          Plantilla
+        </h3>
+        <p class="text-xs text-slate-400 mb-4">
+          Seleccionar una plantilla reemplazará la estructura actual.
+        </p>
+
+        <div class="space-y-2 max-h-60 overflow-y-auto pr-1" id="template-list">
+          <!-- Opciones de plantilla -->
+        </div>
+
+        <div class="flex items-center justify-end gap-3 mt-6">
+          <button
+            id="template-cancel"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-700 transition"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer
+      class="border-t border-slate-800 py-4 text-center text-xs text-slate-500"
+    >
+      @elprofesaul &copy; 2026 - Generador visual de directorios
+    </footer>
+
+    <!-- Lógica JavaScript de la Aplicación -->
+    <script>
+      // Paleta de colores predefinidos
+      const COLOR_PALETTE = [
+        "#3b82f6", // Azul
+        "#06b6d4", // Cian
+        "#10b981", // Esmeralda
+        "#eab308", // Amarillo
+        "#f97316", // Naranja
+        "#ef4444", // Rojo
+        "#a855f7", // Purpura
+        "#ec4899", // Rosa
+        "#64748b", // Gris Slate
+        "#0284c7", // Azul Marca
+        "#84cc16", // Lima
+        "#d97706", // Ámbar
+        "#8b5cf6", // Violeta
+        "#14b8a6", // Teal
+      ];
+
+      // Plantillas de ejemplo
+      const TEMPLATES = [
+        {
+          id: "documents",
+          name: "Organización de Documentos",
+          desc: "Carpetas personales o empresariales.",
+          data: [
+            {
+              id: "1",
+              name: "Mis Documentos",
+              color: "#3b82f6",
+              expanded: true,
+              children: [
+                {
+                  id: "2",
+                  name: "Finanzas",
+                  color: "#10b981",
+                  expanded: true,
+                  children: [
+                    {
+                      id: "3",
+                      name: "Facturas 2026",
+                      color: "#06b6d4",
+                      children: [],
+                    },
+                    {
+                      id: "4",
+                      name: "Impuestos",
+                      color: "#ef4444",
+                      children: [],
+                    },
+                  ],
+                },
+                { id: "5", name: "Proyectos", color: "#a855f7", children: [] },
+                { id: "6", name: "Fotos", color: "#f97316", children: [] },
+              ],
+            },
+          ],
+        },
+      ];
+
+      // Estado global de la aplicación
+      let treeData = [];
+      let currentViewMode = "tree"; // 'tree' | 'org'
+      let activeModalAction = null; // { type: 'add-root' | 'add-child' | 'add-sibling' | 'edit', targetId: string }
+      let selectedColor = COLOR_PALETTE[0];
+      let exportBg = "dark";
+
+      // Referencias DOM
+      const treeRootEl = document.getElementById("folder-tree-root");
+      const emptyStateEl = document.getElementById("empty-state");
+      const nodeCountEl = document.getElementById("node-count");
+      const modalEl = document.getElementById("folder-modal");
+      const modalNameInput = document.getElementById("modal-folder-name");
+      const modalColorInput = document.getElementById("modal-folder-color");
+      const modalTitleEl = document.getElementById("modal-title");
+      const colorPaletteEl = document.getElementById("color-palette");
+      const templateModalEl = document.getElementById("template-modal");
+      const templateListEl = document.getElementById("template-list");
+      const treeCanvasEl = document.getElementById("tree-canvas");
+      const viewTreeBtn = document.getElementById("view-mode-tree");
+      const viewOrgBtn = document.getElementById("view-mode-org");
+      const projectTitleInput = document.getElementById("project-title-input");
+
+      // Inicialización
+      window.addEventListener("DOMContentLoaded", () => {
+        initColorPalette();
+        initTemplatesUI();
+        loadFromStorage();
+        renderTree();
+        setupEventListeners();
+      });
+
+      // Guardado local
+      function saveToStorage() {
+        localStorage.setItem("foldertree_data", JSON.stringify(treeData));
+      }
+
+      function loadFromStorage() {
+        const saved = localStorage.getItem("foldertree_data");
+        if (saved) {
+          try {
+            treeData = JSON.parse(saved);
+          } catch (e) {
+            treeData = [];
+          }
+        } else {
+          treeData = JSON.parse(JSON.stringify(TEMPLATES[2].data));
+        }
+      }
+
+      // Generar la paleta de colores en el modal
+      function initColorPalette() {
+        colorPaletteEl.innerHTML = "";
+        COLOR_PALETTE.forEach((color) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className =
+            "w-7 h-7 rounded-lg transition hover:scale-110 flex items-center justify-center border border-white/20";
+          btn.style.backgroundColor = color;
+          btn.dataset.color = color;
+          btn.addEventListener("click", () => selectColor(color));
+          colorPaletteEl.appendChild(btn);
+        });
+      }
+
+      function selectColor(color) {
+        selectedColor = color;
+        modalColorInput.value = color;
+        Array.from(colorPaletteEl.children).forEach((btn) => {
+          if (btn.dataset.color === color) {
+            btn.classList.add("ring-2", "ring-white", "scale-110");
+          } else {
+            btn.classList.remove("ring-2", "ring-white", "scale-110");
+          }
+        });
+      }
+
+      // Inicializar lista de plantillas
+      function initTemplatesUI() {
+        templateListEl.innerHTML = "";
+        TEMPLATES.forEach((tpl) => {
+          const item = document.createElement("div");
+          item.className =
+            "p-3 bg-slate-900 hover:bg-slate-700/60 border border-slate-700/60 rounded-xl cursor-pointer transition flex items-start justify-between gap-3";
+          item.innerHTML = `
+          <div>
+            <h4 class="text-sm font-semibold text-slate-200">${tpl.name}</h4>
+            <p class="text-xs text-slate-400 mt-0.5">${tpl.desc}</p>
+          </div>
+          <span class="text-sky-400 text-xs font-semibold px-2 py-1 bg-sky-950/60 rounded-md border border-sky-800/40">Cargar</span>
+        `;
+          item.addEventListener("click", () => {
+            treeData = JSON.parse(JSON.stringify(tpl.data));
+            saveToStorage();
+            renderTree();
+            closeModal(templateModalEl);
+          });
+          templateListEl.appendChild(item);
+        });
+      }
+
+      // Renderizado según modo de vista activo
+      function renderTree() {
+        treeRootEl.innerHTML = "";
+        const totalNodes = countNodes(treeData);
+        nodeCountEl.textContent = `${totalNodes} ${totalNodes === 1 ? "Carpeta" : "Carpetas"}`;
+
+        if (treeData.length === 0) {
+          emptyStateEl.classList.remove("hidden");
+          return;
+        } else {
+          emptyStateEl.classList.add("hidden");
+        }
+
+        if (currentViewMode === "tree") {
+          renderTreeView();
+        } else {
+          renderOrgView();
+        }
+      }
+
+      // Render Vista en Árbol
+      function renderTreeView() {
+        const container = document.createElement("div");
+        container.className = "space-y-3 w-full";
+
+        treeData.forEach((node) => {
+          container.appendChild(createTreeNodeHTMLElement(node));
+        });
+
+        treeRootEl.appendChild(container);
+      }
+
+      // Render Vista en Organigrama
+      function renderOrgView() {
+        const orgContainer = document.createElement("div");
+        orgContainer.className = "org-container space-y-8";
+
+        treeData.forEach((rootNode) => {
+          const rootWrapper = createOrgNodeHTMLElement(rootNode);
+          orgContainer.appendChild(rootWrapper);
+        });
+
+        treeRootEl.appendChild(orgContainer);
+      }
+
+      // Auxiliar: Contar carpetas totales
+      function countNodes(nodes) {
+        let count = 0;
+        nodes.forEach((n) => {
+          count += 1;
+          if (n.children && n.children.length > 0) {
+            count += countNodes(n.children);
+          }
+        });
+        return count;
+      }
+
+      // Crear HTML Nodo vista Árbol
+      function createTreeNodeHTMLElement(node) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "tree-branch text-sm select-none";
+
+        const hasChildren = node.children && node.children.length > 0;
+        const isExpanded = node.expanded !== false;
+
+        const card = document.createElement("div");
+        card.className =
+          "node-card inline-flex items-center gap-2.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 px-3.5 py-2.5 rounded-xl shadow-md group relative min-h-[44px]";
+
+        const toggleBtn = document.createElement("button");
+        toggleBtn.className = `w-5 h-5 flex items-center justify-center text-xs text-slate-400 hover:text-slate-200 transition ${!hasChildren ? "invisible" : ""}`;
+        toggleBtn.innerHTML = isExpanded
+          ? '<i class="fa-solid fa-chevron-down"></i>'
+          : '<i class="fa-solid fa-chevron-right"></i>';
+        toggleBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          node.expanded = !isExpanded;
+          saveToStorage();
+          renderTree();
+        });
+
+        const icon = document.createElement("i");
+        icon.className = `fa-solid ${hasChildren ? (isExpanded ? "fa-folder-open" : "fa-folder") : "fa-folder"} text-lg flex-shrink-0`;
+        icon.style.color = node.color || "#3b82f6";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className =
+          "font-medium text-slate-200 tracking-wide pr-2 leading-snug break-words max-w-xs";
+        nameSpan.textContent = node.name;
+
+        const actions = createActionButtons(node);
+
+        card.appendChild(toggleBtn);
+        card.appendChild(icon);
+        card.appendChild(nameSpan);
+        card.appendChild(actions);
+
+        wrapper.appendChild(card);
+
+        if (hasChildren && isExpanded) {
+          const childrenContainer = document.createElement("div");
+          childrenContainer.className = "tree-children mt-2 space-y-2.5";
+          node.children.forEach((child) => {
+            childrenContainer.appendChild(createTreeNodeHTMLElement(child));
+          });
+          wrapper.appendChild(childrenContainer);
+        }
+
+        return wrapper;
+      }
+
+      // Crear HTML Nodo vista Organigrama
+      function createOrgNodeHTMLElement(node) {
+        const nodeEl = document.createElement("div");
+        nodeEl.className = "org-node";
+
+        const hasChildren = node.children && node.children.length > 0;
+        const isExpanded = node.expanded !== false;
+
+        // Tarjeta
+        const card = document.createElement("div");
+        card.className =
+          "org-node-card node-card inline-flex flex-col items-center justify-center bg-slate-800 border border-slate-700/90 px-4 py-3 rounded-2xl shadow-xl group relative min-w-[140px] max-w-[170px] text-center min-h-[85px] z-10";
+
+        const icon = document.createElement("i");
+        icon.className = `fa-solid ${hasChildren ? (isExpanded ? "fa-folder-open" : "fa-folder") : "fa-folder"} text-3xl mb-1.5 flex-shrink-0`;
+        icon.style.color = node.color || "#3b82f6";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className =
+          "font-semibold text-xs text-slate-100 tracking-wide break-words max-w-[140px] leading-snug py-0.5";
+        nameSpan.textContent = node.name;
+
+        card.appendChild(icon);
+        card.appendChild(nameSpan);
+
+        // Botón de Contraer/Expandir
+        if (hasChildren) {
+          const toggleBtn = document.createElement("button");
+          toggleBtn.className =
+            "mt-2 text-[10px] bg-slate-900 border border-slate-700 text-slate-400 hover:text-white px-2 py-0.5 rounded-full transition flex items-center gap-1 shadow-inner";
+          toggleBtn.innerHTML = isExpanded
+            ? '<i class="fa-solid fa-chevron-up"></i> Ocultar'
+            : `<i class="fa-solid fa-chevron-down"></i> ${node.children.length}`;
+          toggleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            node.expanded = !isExpanded;
+            saveToStorage();
+            renderTree();
+          });
+          card.appendChild(toggleBtn);
+        }
+
+        // Acciones rápidas flotantes
+        const actions = createActionButtons(node, true);
+        card.appendChild(actions);
+
+        nodeEl.appendChild(card);
+
+        // Si tiene hijos y está expandido, renderizar líneas y subcarpetas
+        if (hasChildren && isExpanded) {
+          const childrenContainer = document.createElement("div");
+          childrenContainer.className = "flex flex-col items-center w-full";
+
+          // Línea vertical descendente desde el padre
+          const lineDown = document.createElement("div");
+          lineDown.className = "org-line-down";
+          childrenContainer.appendChild(lineDown);
+
+          // Fila de carpetas hijas
+          const childrenRow = document.createElement("div");
+          childrenRow.className = "org-children-row";
+
+          node.children.forEach((child) => {
+            const childItem = document.createElement("div");
+            childItem.className = "org-child-item";
+
+            // Línea vertical ascendente que llega a la tarjeta del hijo
+            const lineUp = document.createElement("div");
+            lineUp.className = "org-line-up";
+            childItem.appendChild(lineUp);
+
+            // Elemento del hijo recursivo
+            childItem.appendChild(createOrgNodeHTMLElement(child));
+
+            childrenRow.appendChild(childItem);
+          });
+
+          childrenContainer.appendChild(childrenRow);
+          nodeEl.appendChild(childrenContainer);
+        }
+
+        return nodeEl;
+      }
+
+      // Auxiliar para botones de acción de una carpeta
+      function createActionButtons(node, isOrgMode = false) {
+        const actions = document.createElement("div");
+
+        if (isOrgMode) {
+          actions.className =
+            "absolute -bottom-9 left-1/2 transform -translate-x-1/2 flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-xl p-1 opacity-0 group-hover:opacity-100 transition-opacity z-30 shadow-2xl";
+        } else {
+          actions.className =
+            "flex items-center gap-1 opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity ml-2 border-l border-slate-700 pl-2";
+        }
+
+        const addChildBtn = createActionButton(
+          "fa-plus",
+          "Añadir subcarpeta",
+          "hover:bg-sky-500/20 hover:text-sky-400",
+          (e) => {
+            e.stopPropagation();
+            openFolderModal("add-child", node.id);
+          },
+        );
+
+        const addSiblingBtn = createActionButton(
+          "fa-bars-staggered",
+          "Añadir al mismo nivel",
+          "hover:bg-indigo-500/20 hover:text-indigo-400",
+          (e) => {
+            e.stopPropagation();
+            openFolderModal("add-sibling", node.id);
+          },
+        );
+
+        const editBtn = createActionButton(
+          "fa-pen",
+          "Editar carpeta",
+          "hover:bg-amber-500/20 hover:text-amber-400",
+          (e) => {
+            e.stopPropagation();
+            openFolderModal("edit", node.id, node);
+          },
+        );
+
+        const deleteBtn = createActionButton(
+          "fa-trash",
+          "Eliminar carpeta",
+          "hover:bg-rose-500/20 hover:text-rose-400",
+          (e) => {
+            e.stopPropagation();
+            deleteNode(node.id);
+          },
+        );
+
+        actions.appendChild(addChildBtn);
+        actions.appendChild(addSiblingBtn);
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+
+        return actions;
+      }
+
+      function createActionButton(iconClass, tooltip, hoverStyle, onClick) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.title = tooltip;
+        btn.className = `w-6 h-6 rounded-md flex items-center justify-center text-slate-400 text-xs transition ${hoverStyle}`;
+        btn.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+        btn.addEventListener("click", onClick);
+        return btn;
+      }
+
+      // Modal de Edición / Creación
+      function openFolderModal(
+        actionType,
+        targetId = null,
+        existingNode = null,
+      ) {
+        activeModalAction = { type: actionType, targetId };
+
+        if (actionType === "edit" && existingNode) {
+          modalTitleEl.innerHTML = `<i class="fa-solid fa-pen text-amber-400"></i> Editar Carpeta`;
+          modalNameInput.value = existingNode.name;
+          selectColor(existingNode.color || COLOR_PALETTE[0]);
+        } else {
+          modalTitleEl.innerHTML = `<i class="fa-solid fa-folder-plus text-sky-400"></i> ${actionType === "add-child" ? "Nueva Subcarpeta" : "Nueva Carpeta"}`;
+          modalNameInput.value = "";
+          selectColor(
+            COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)],
+          );
+        }
+
+        modalEl.classList.remove("hidden");
+        setTimeout(() => modalNameInput.focus(), 50);
+      }
+
+      function closeModal(targetModal) {
+        targetModal.classList.add("hidden");
+      }
+
+      function handleModalSave() {
+        const name = modalNameInput.value.trim();
+        if (!name) {
+          modalNameInput.classList.add("border-rose-500");
+          return;
+        }
+        modalNameInput.classList.remove("border-rose-500");
+
+        const color = selectedColor;
+
+        if (activeModalAction.type === "add-root") {
+          treeData.push({
+            id: Date.now().toString(),
+            name,
+            color,
+            expanded: true,
+            children: [],
+          });
+        } else if (activeModalAction.type === "add-child") {
+          const targetNode = findNodeById(treeData, activeModalAction.targetId);
+          if (targetNode) {
+            if (!targetNode.children) targetNode.children = [];
+            targetNode.expanded = true;
+            targetNode.children.push({
+              id: Date.now().toString(),
+              name,
+              color,
+              expanded: true,
+              children: [],
+            });
+          }
+        } else if (activeModalAction.type === "add-sibling") {
+          insertSibling(treeData, activeModalAction.targetId, {
+            id: Date.now().toString(),
+            name,
+            color,
+            expanded: true,
+            children: [],
+          });
+        } else if (activeModalAction.type === "edit") {
+          const targetNode = findNodeById(treeData, activeModalAction.targetId);
+          if (targetNode) {
+            targetNode.name = name;
+            targetNode.color = color;
+          }
+        }
+
+        saveToStorage();
+        renderTree();
+        closeModal(modalEl);
+      }
+
+      function findNodeById(nodes, id) {
+        for (const node of nodes) {
+          if (node.id === id) return node;
+          if (node.children) {
+            const found = findNodeById(node.children, id);
+            if (found) return found;
+          }
+        }
+        return null;
+      }
+
+      function insertSibling(nodes, targetId, newNode) {
+        for (let i = 0; i < nodes.length; i++) {
+          if (nodes[i].id === targetId) {
+            nodes.splice(i + 1, 0, newNode);
+            return true;
+          }
+          if (
+            nodes[i].children &&
+            insertSibling(nodes[i].children, targetId, newNode)
+          ) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function deleteNode(id) {
+        function removeRecursive(nodes) {
+          return nodes.filter((node) => {
+            if (node.id === id) return false;
+            if (node.children) {
+              node.children = removeRecursive(node.children);
+            }
+            return true;
+          });
+        }
+
+        treeData = removeRecursive(treeData);
+        saveToStorage();
+        renderTree();
+      }
+
+      // Cambiar modo de vista
+      function setViewMode(mode) {
+        currentViewMode = mode;
+        if (mode === "tree") {
+          viewTreeBtn.className =
+            "view-btn px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-2 bg-sky-600 text-white shadow-sm";
+          viewOrgBtn.className =
+            "view-btn px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-2 text-slate-400 hover:text-slate-200";
+        } else {
+          viewOrgBtn.className =
+            "view-btn px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-2 bg-sky-600 text-white shadow-sm";
+          viewTreeBtn.className =
+            "view-btn px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-2 text-slate-400 hover:text-slate-200";
+        }
+        renderTree();
+      }
+
+      let allExpanded = true;
+      function toggleAll() {
+        allExpanded = !allExpanded;
+        function setExpandedRecursive(nodes, val) {
+          nodes.forEach((n) => {
+            n.expanded = val;
+            if (n.children) setExpandedRecursive(n.children, val);
+          });
+        }
+        setExpandedRecursive(treeData, allExpanded);
+        document.getElementById("btn-toggle-all").textContent = allExpanded
+          ? "Contraer Todo"
+          : "Expandir Todo";
+        saveToStorage();
+        renderTree();
+      }
+
+      // Configurar fondo de exportación con colores de texto de encabezado adaptables
+      function setExportBackground(bgType) {
+        exportBg = bgType;
+        treeCanvasEl.className =
+          "p-8 rounded-2xl min-w-max transition-all flex flex-col items-center ";
+
+        const titleDisplay = document.getElementById("export-title-display");
+        const subtitleDisplay = document.getElementById(
+          "export-subtitle-display",
+        );
+
+        switch (bgType) {
+          case "dark":
+            treeCanvasEl.classList.add(
+              "bg-slate-900",
+              "border",
+              "border-slate-800",
+            );
+            titleDisplay.className = "text-2xl font-bold text-slate-100 mb-1";
+            subtitleDisplay.className = "text-xs text-slate-400";
+            break;
+          case "gradient":
+            treeCanvasEl.classList.add(
+              "bg-gradient-to-br",
+              "from-slate-900",
+              "via-indigo-950",
+              "to-slate-900",
+              "border",
+              "border-indigo-900/50",
+            );
+            titleDisplay.className = "text-2xl font-bold text-white mb-1";
+            subtitleDisplay.className = "text-xs text-indigo-300";
+            break;
+          case "light":
+            treeCanvasEl.classList.add(
+              "bg-slate-100",
+              "border",
+              "border-slate-300",
+            );
+            titleDisplay.className = "text-2xl font-bold text-slate-800 mb-1";
+            subtitleDisplay.className = "text-xs text-slate-500";
+            break;
+          case "transparent":
+            treeCanvasEl.classList.add("bg-transparent");
+            titleDisplay.className = "text-2xl font-bold text-slate-100 mb-1";
+            subtitleDisplay.className = "text-xs text-slate-400";
+            break;
+        }
+
+        document.querySelectorAll(".bg-option-btn").forEach((btn) => {
+          if (btn.dataset.bg === bgType) {
+            btn.classList.add("border-sky-500", "ring-2", "ring-sky-500/30");
+          } else {
+            btn.classList.remove("border-sky-500", "ring-2", "ring-sky-500/30");
+          }
+        });
+      }
+
+      // Exportación optimizada HD
+      function exportToImage() {
+        if (treeData.length === 0) {
+          alert("Crea al menos una carpeta antes de exportar.");
+          return;
+        }
+
+        const exportHeader = document.getElementById("export-header");
+        const titleDisplay = document.getElementById("export-title-display");
+        const titleInputValue =
+          projectTitleInput.value.trim() || "Estructura del Proyecto";
+
+        titleDisplay.textContent = titleInputValue;
+        exportHeader.classList.remove("hidden");
+
+        // Ocultar temporalmente los botones flotantes e interactivos
+        const actionButtons = document.querySelectorAll(
+          ".node-card button, .node-card .opacity-0, .node-card .group-hover\\:opacity-100",
+        );
+        actionButtons.forEach((btn) => (btn.style.visibility = "hidden"));
+
+        const btnExport = document.getElementById("btn-export-img");
+        const originalText = btnExport.innerHTML;
+        btnExport.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generando...`;
+        btnExport.disabled = true;
+
+        setTimeout(() => {
+          html2canvas(treeCanvasEl, {
+            backgroundColor:
+              exportBg === "transparent"
+                ? null
+                : exportBg === "light"
+                  ? "#f1f5f9"
+                  : "#0f172a",
+            scale: 2.5, // Mayor nitidez HD
+            logging: false,
+            useCORS: true,
+          })
+            .then((canvas) => {
+              actionButtons.forEach(
+                (btn) => (btn.style.visibility = "visible"),
+              );
+              exportHeader.classList.add("hidden");
+              btnExport.innerHTML = originalText;
+              btnExport.disabled = false;
+
+              const link = document.createElement("a");
+              const cleanName = titleInputValue
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, "-");
+              link.download = `${cleanName}-${Date.now()}.png`;
+              link.href = canvas.toDataURL("image/png");
+              link.click();
+            })
+            .catch((err) => {
+              console.error("Error al exportar imagen:", err);
+              actionButtons.forEach(
+                (btn) => (btn.style.visibility = "visible"),
+              );
+              exportHeader.classList.add("hidden");
+              btnExport.innerHTML = originalText;
+              btnExport.disabled = false;
+              alert("Ocurrió un error al generar la imagen.");
+            });
+        }, 200);
+      }
+
+      function setupEventListeners() {
+        document
+          .getElementById("btn-add-root")
+          .addEventListener("click", () => openFolderModal("add-root"));
+        document
+          .getElementById("btn-empty-add")
+          .addEventListener("click", () => openFolderModal("add-root"));
+        document
+          .getElementById("btn-load-template")
+          .addEventListener("click", () =>
+            templateModalEl.classList.remove("hidden"),
+          );
+        document.getElementById("btn-clear").addEventListener("click", () => {
+          if (
+            confirm("¿Estás seguro de que deseas eliminar toda la estructura?")
+          ) {
+            treeData = [];
+            saveToStorage();
+            renderTree();
+          }
+        });
+        document
+          .getElementById("btn-toggle-all")
+          .addEventListener("click", toggleAll);
+        document
+          .getElementById("btn-export-img")
+          .addEventListener("click", exportToImage);
+
+        // Cambiar entre Árbol y Organigrama
+        viewTreeBtn.addEventListener("click", () => setViewMode("tree"));
+        viewOrgBtn.addEventListener("click", () => setViewMode("org"));
+
+        document.querySelectorAll(".bg-option-btn").forEach((btn) => {
+          btn.addEventListener("click", () =>
+            setExportBackground(btn.dataset.bg),
+          );
+        });
+
+        document
+          .getElementById("modal-cancel")
+          .addEventListener("click", () => closeModal(modalEl));
+        document
+          .getElementById("modal-save")
+          .addEventListener("click", handleModalSave);
+        modalNameInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") handleModalSave();
+        });
+
+        document
+          .getElementById("template-cancel")
+          .addEventListener("click", () => closeModal(templateModalEl));
+
+        [modalEl, templateModalEl].forEach((m) => {
+          m.addEventListener("click", (e) => {
+            if (e.target === m) closeModal(m);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
