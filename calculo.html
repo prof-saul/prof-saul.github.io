@@ -264,7 +264,7 @@
                 <p class="text-center mb-6">La intersección de una Columna y una Fila forma una <strong>Celda</strong>. Su nombre se compone de su letra y su número. (Ej: <strong>B2</strong>)</p>
                 
                 <!-- Mini Grid Interactiva -->
-                <div class="spreadsheet-grid max-w-sm mx-auto" id="demo-grid">
+                <div class="spreadsheet-grid max-w-sm mx-auto" id="demo-grid" style="grid-template-columns: 40px repeat(3, 1fr);">
                     <div class="header-cell"></div>
                     <div class="header-cell">A</div>
                     <div class="header-cell">B</div>
@@ -463,28 +463,28 @@
                 <div class="cell">Pizzas</div>
                 <div class="cell text-right">15</div>
                 <div class="cell text-right">5</div>
-                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-50 text-right px-2" id="chal-d3" placeholder="=" onblur="evalChallenge('d3', '15*5', 75)"></div>
+                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-50 text-right px-2" id="chal-d3" placeholder="=" onblur="evalChallenge('d3', '15*5', 75)" onkeypress="if(event.key === 'Enter') this.blur();"></div>
 
                 <div class="row-header">4</div>
                 <div class="cell">Refrescos</div>
                 <div class="cell text-right">3</div>
                 <div class="cell text-right">10</div>
-                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-50 text-right px-2" id="chal-d4" placeholder="=" onblur="evalChallenge('d4', '3*10', 30)"></div>
+                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-50 text-right px-2" id="chal-d4" placeholder="=" onblur="evalChallenge('d4', '3*10', 30)" onkeypress="if(event.key === 'Enter') this.blur();"></div>
 
                 <div class="row-header">5</div>
                 <div class="cell">Pastel</div>
                 <div class="cell text-right">45</div>
                 <div class="cell text-right">1</div>
-                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-50 text-right px-2" id="chal-d5" placeholder="=" onblur="evalChallenge('d5', '45*1', 45)"></div>
+                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-50 text-right px-2" id="chal-d5" placeholder="=" onblur="evalChallenge('d5', '45*1', 45)" onkeypress="if(event.key === 'Enter') this.blur();"></div>
 
                 <!-- Totales -->
                 <div class="row-header">6</div>
                 <div class="cell col-span-3 text-right font-bold" style="grid-column: 2 / span 3;">Gasto Total (Suma de Costos):</div>
-                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-100 text-right px-2 font-bold" id="chal-d6" placeholder="=SUMA(...)" onblur="evalChallengeTotal()"></div>
+                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-100 text-right px-2 font-bold" id="chal-d6" placeholder="=SUMA(...)" onblur="evalChallengeTotal()" onkeypress="if(event.key === 'Enter') this.blur();"></div>
 
                 <div class="row-header">7</div>
                 <div class="cell col-span-3 text-right font-bold" style="grid-column: 2 / span 3;">Dinero Sobrante (Presupuesto - Gasto Total):</div>
-                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-200 text-right px-2 font-bold text-blue-700" id="chal-d7" placeholder="=" onblur="evalFinalResult()"></div>
+                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-200 text-right px-2 font-bold text-blue-700" id="chal-d7" placeholder="=" onblur="evalFinalResult()" onkeypress="if(event.key === 'Enter') this.blur();"></div>
             </div>
             
             <div id="challenge-feedback" class="mt-4 p-4 rounded text-center text-lg hidden"></div>
