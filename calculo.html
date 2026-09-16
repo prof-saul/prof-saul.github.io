@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventura en Hojas de Cálculo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        googleGreen: '#0f9d58',
+                        officeGreen: '#107c41',
+                        excelLight: '#e1dfdd',
+                        excelBorder: '#d2d0ce'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f2f1;
+            color: #323130;
+        }
+
+        .spreadsheet-grid {
+            display: grid;
+            grid-template-columns: 40px repeat(4, 1fr);
+            gap: 1px;
+            background-color: #d2d0ce;
+            border: 1px solid #a19f9d;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 1rem;
+        }
+
+        .cell {
+            background-color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .cell:hover:not(.header-cell) {
+            border-color: #107c41;
+        }
+
+        .header-cell {
+            background-color: #f3f2f1;
+            text-align: center;
+            font-weight: 600;
+            color: #605e5c;
+            user-select: none;
+        }
+
+        .row-header {
+            background-color: #f3f2f1;
+            text-align: center;
+            font-weight: 600;
+            color: #605e5c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .active-cell {
+            border: 2px solid #107c41 !important;
+            box-shadow: inset 0 0 0 1px #107c41;
+            outline: none;
+        }
+
+        .input-cell {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            background: transparent;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132), 0 0.3px 0.9px 0 rgba(0,0,0,0.108);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .section-card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-primary {
+            background-color: #107c41;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5a2f;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e1dfdd;
+            border-radius: 9999px;
+            height: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #107c41;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .gamification-badge {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #323130;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Estilos para las celdas de práctica */
+        .practice-cell {
+            cursor: pointer;
+        }
+        
+        .correct-answer {
+            background-color: #dff6dd !important;
+            border-color: #107c41 !important;
+        }
+        
+        .wrong-answer {
+            background-color: #fde7e9 !important;
+            border-color: #a4262c !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-officeGreen text-white p-4 shadow-md flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-file-excel text-2xl"></i>
+            <h1 class="text-xl font-semibold">Maestría en Hojas de Cálculo</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="player-score" class="gamification-badge hidden">
+                <i class="fa-solid fa-star"></i> Nivel: Novato
+            </span>
+            <span id="user-display" class="font-medium hidden">¡Hola, Jugador!</span>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+        
+        <div id="progress-container" class="hidden">
+            <div class="flex justify-between text-sm text-gray-500 mb-1">
+                <span>Progreso</span>
+                <span id="progress-text">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div id="main-progress-bar" class="progress-bar"></div>
+            </div>
+        </div>
+
+        <section id="section-welcome" class="section-card active text-center">
+            <i class="fa-solid fa-table-cells text-6xl text-officeGreen mb-6"></i>
+            <h2 class="text-3xl font-bold mb-4">Bienvenido a tu Aventura de Datos</h2>
+            <p class="text-gray-600 mb-8 text-lg">
+                Las hojas de cálculo (como Google Sheets o Excel) son herramientas poderosas que transforman datos en información útil. 
+                Estás a punto de descubrir cómo organizar, calcular y visualizar información como un profesional.
+            </p>
+            
+            <div class="max-w-md mx-auto bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <label for="user-name" class="block text-left text-sm font-medium text-gray-700 mb-2">Para comenzar tu entrenamiento, ¿cómo te llamas?</label>
+                <input type="text" id="user-name" class="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-officeGreen focus:border-officeGreen outline-none mb-4" placeholder="Ingresa tu nombre...">
+                <button onclick="startGame()" class="btn-primary w-full text-lg">Comenzar Aventura <i class="fa-solid fa-arrow-right ml-2"></i></button>
+            </div>
+        </section>
+
+        <section id="section-know" class="section-card">
+            <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                <div class="bg-blue-100 p-3 rounded-full text-blue-600">
+                    <i class="fa-solid fa-book-open text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold">Fase 1: Conocer la Estructura</h2>
+            </div>
+            
+            <p class="mb-6 text-lg">
+                ¡Hola, <strong class="user-name-placeholder text-officeGreen"></strong>! Imagina una hoja de cálculo como una gran cuadrícula gigante donde cada cajita puede guardar un pedacito de información.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h3 class="font-semibold text-lg mb-3"><i class="fa-solid fa-arrows-left-right text-gray-400 mr-2"></i>Filas (Números)</h3>
+                    <p class="text-gray-600">Van de izquierda a derecha y se identifican con <strong>números</strong> (1, 2, 3...).</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-lg mb-3"><i class="fa-solid fa-arrows-up-down text-gray-400 mr-2"></i>Columnas (Letras)</h3>
+                    <p class="text-gray-600">Van de arriba hacia abajo y se identifican con <strong>letras</strong> (A, B, C...).</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+                <h3 class="font-bold text-lg mb-4 text-center">La Celda: Tu unidad básica</h3>
+                <p class="text-center mb-6">La intersección de una Columna y una Fila forma una <strong>Celda</strong>. Su nombre se compone de su letra y su número. (Ej: <strong>B2</strong>)</p>
+                
+                <!-- Mini Grid Interactiva -->
+                <div class="spreadsheet-grid max-w-sm mx-auto" id="demo-grid">
+                    <div class="header-cell"></div>
+                    <div class="header-cell">A</div>
+                    <div class="header-cell">B</div>
+                    <div class="header-cell">C</div>
+                    
+                    <div class="row-header">1</div>
+                    <div class="cell cursor-pointer" onclick="highlightCell(this, 'A1')"></div>
+                    <div class="cell cursor-pointer" onclick="highlightCell(this, 'B1')"></div>
+                    <div class="cell cursor-pointer" onclick="highlightCell(this, 'C1')"></div>
+                    
+                    <div class="row-header">2</div>
+                    <div class="cell cursor-pointer" onclick="highlightCell(this, 'A2')"></div>
+                    <div class="cell cursor-pointer" onclick="highlightCell(this, 'B2')"></div>
+                    <div class="cell cursor-pointer" onclick="highlightCell(this, 'C2')"></div>
+                </div>
+                <p id="demo-cell-name" class="text-center mt-4 text-lg font-mono text-officeGreen h-6">Haz clic en una celda arriba</p>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="nextSection('know', 'learn')" class="btn-primary" id="btn-next-learn" disabled>
+                    Siguiente Fase <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+            <p id="hint-know" class="text-sm text-red-500 text-right mt-2">Haz clic en al menos una celda para continuar.</p>
+        </section>
+
+        <section id="section-learn" class="section-card">
+            <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                <div class="bg-purple-100 p-3 rounded-full text-purple-600">
+                    <i class="fa-solid fa-lightbulb text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold">Fase 2: El Poder de las Fórmulas</h2>
+            </div>
+
+            <p class="mb-6 text-lg">
+                Muy bien, <strong class="user-name-placeholder text-officeGreen"></strong>. Guardar datos es útil, pero la verdadera magia ocurre cuando las hojas de cálculo <strong>trabajan por ti</strong> mediante fórmulas.
+            </p>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <p class="font-semibold"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Regla de Oro:</p>
+                <p>Toda fórmula o cálculo <strong>SIEMPRE</strong> debe empezar con el signo igual ( <code>=</code> ).</p>
+            </div>
+
+            <div class="space-y-6 mb-8">
+                <div class="bg-white border p-4 rounded-lg shadow-sm">
+                    <h3 class="font-bold text-officeGreen mb-2">Operaciones Básicas</h3>
+                    <p class="mb-2">Puedes usarlas como una calculadora gigante.</p>
+                    <ul class="list-disc list-inside text-gray-600 ml-4 space-y-1">
+                        <li>Suma: <code>=A1+B1</code></li>
+                        <li>Resta: <code>=A1-B1</code></li>
+                        <li>Multiplicación: <code>=A1*B1</code> (Se usa el asterisco)</li>
+                        <li>División: <code>=A1/B1</code> (Se usa la barra)</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white border p-4 rounded-lg shadow-sm">
+                    <h3 class="font-bold text-officeGreen mb-2">Funciones Integradas</h3>
+                    <p class="mb-2">Las hojas de cálculo de Google tienen palabras mágicas (funciones) que hacen cálculos complejos al instante.</p>
+                    <div class="spreadsheet-grid" style="grid-template-columns: 40px repeat(3, 1fr);">
+                        <div class="header-cell"></div>
+                        <div class="header-cell">A (Gastos)</div>
+                        <div class="header-cell">B (Monto)</div>
+                        <div class="header-cell">C (Fórmula)</div>
+                        
+                        <div class="row-header">1</div>
+                        <div class="cell">Comida</div>
+                        <div class="cell text-right">$50</div>
+                        <div class="cell bg-gray-50 text-gray-400"></div>
+
+                        <div class="row-header">2</div>
+                        <div class="cell">Transporte</div>
+                        <div class="cell text-right">$20</div>
+                        <div class="cell bg-gray-50 text-gray-400"></div>
+
+                        <div class="row-header">3</div>
+                        <div class="cell font-bold">Total</div>
+                        <div class="cell text-right font-bold bg-green-50">$70</div>
+                        <div class="cell font-mono text-sm text-blue-600 tooltip">
+                            =SUMA(B1:B2)
+                            <span class="tooltiptext">Suma todos los valores desde la celda B1 hasta la B2.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <button onclick="prevSection('learn', 'know')" class="text-gray-500 hover:text-gray-800">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Atrás
+                </button>
+                <button onclick="nextSection('learn', 'practice')" class="btn-primary">
+                    ¡A Practicar! <i class="fa-solid fa-dumbbell ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <section id="section-practice" class="section-card">
+            <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                <div class="bg-orange-100 p-3 rounded-full text-orange-600">
+                    <i class="fa-solid fa-keyboard text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold">Fase 3: Zona de Práctica</h2>
+            </div>
+
+            <p class="mb-6">
+                Es tu turno, <strong class="user-name-placeholder text-officeGreen"></strong>. Vamos a simular un pequeño inventario de tienda. Escribe la fórmula correcta en las celdas amarillas y presiona <strong>Enter</strong>.
+            </p>
+
+            <div class="spreadsheet-grid" id="practice-grid">
+                <!-- Cabeceras -->
+                <div class="header-cell"></div>
+                <div class="header-cell">A (Producto)</div>
+                <div class="header-cell">B (Precio Unit.)</div>
+                <div class="header-cell">C (Cantidad)</div>
+                <div class="header-cell">D (Total)</div>
+                
+                <!-- Fila 1 -->
+                <div class="row-header">1</div>
+                <div class="cell">Cuadernos</div>
+                <div class="cell text-right" id="val-b1">5</div>
+                <div class="cell text-right" id="val-c1">10</div>
+                <div class="cell p-0">
+                    <input type="text" class="input-cell bg-yellow-100 px-3 text-right" id="input-d1" placeholder="Fórmula aquí..." onkeypress="checkPractice1(event)">
+                </div>
+
+                <!-- Fila 2 -->
+                <div class="row-header">2</div>
+                <div class="cell">Lápices</div>
+                <div class="cell text-right" id="val-b2">2</div>
+                <div class="cell text-right" id="val-c2">25</div>
+                <div class="cell p-0">
+                    <input type="text" class="input-cell bg-yellow-100 px-3 text-right" id="input-d2" placeholder="Fórmula aquí..." disabled>
+                </div>
+                
+                <!-- Fila 3 -->
+                <div class="row-header">3</div>
+                <div class="cell font-bold text-right col-span-3" style="grid-column: 2 / span 3;">Inventario Total:</div>
+                <div class="cell p-0">
+                    <input type="text" class="input-cell bg-yellow-100 px-3 text-right font-bold" id="input-d3" placeholder="Suma total..." disabled>
+                </div>
+            </div>
+
+            <div id="practice-feedback" class="mt-4 p-3 rounded hidden"></div>
+
+            <div class="flex justify-between items-center mt-8">
+                <button onclick="prevSection('practice', 'learn')" class="text-gray-500 hover:text-gray-800">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Atrás
+                </button>
+                <button onclick="nextSection('practice', 'challenge')" class="btn-primary" id="btn-next-challenge" disabled>
+                    Ir al Desafío Final <i class="fa-solid fa-trophy ml-2"></i>
+                </button>
+            </div>
+            <p id="hint-practice" class="text-sm text-red-500 text-right mt-2">Completa el ejercicio (dando Enter) para avanzar.</p>
+        </section>
+
+        <section id="section-challenge" class="section-card">
+            <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                <div class="bg-red-100 p-3 rounded-full text-red-600">
+                    <i class="fa-solid fa-flag-checkered text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold">Desafío Final: Analista de Datos</h2>
+            </div>
+
+            <p class="mb-4">
+                ¡Has llegado al final, <strong class="user-name-placeholder text-officeGreen"></strong>! 
+                Estás ayudando a organizar una fiesta. Tienes un presupuesto y una lista de compras.
+            </p>
+            
+            <div class="bg-blue-50 p-4 rounded mb-6 border border-blue-200">
+                <strong>Misión:</strong> Calcula el <em>Costo Total</em> de cada ítem, luego calcula el <em>Gasto Total</em> de la fiesta y finalmente, descubre si te sobra dinero del <em>Presupuesto</em>.
+            </div>
+
+            <div class="spreadsheet-grid" style="grid-template-columns: 40px repeat(4, 1fr);">
+                <!-- Headers -->
+                <div class="header-cell"></div>
+                <div class="header-cell">A</div>
+                <div class="header-cell">B</div>
+                <div class="header-cell">C</div>
+                <div class="header-cell">D</div>
+
+                <!-- Presupuesto -->
+                <div class="row-header">1</div>
+                <div class="cell bg-gray-50 font-bold">Presupuesto</div>
+                <div class="cell text-right font-bold text-green-700 bg-green-50" id="budget-val">200</div>
+                <div class="cell bg-gray-50"></div>
+                <div class="cell bg-gray-50"></div>
+
+                <!-- Spacer -->
+                <div class="row-header">2</div>
+                <div class="cell bg-gray-100">Ítem</div>
+                <div class="cell bg-gray-100">Precio</div>
+                <div class="cell bg-gray-100">Cantidad</div>
+                <div class="cell bg-gray-100">Costo Total</div>
+
+                <!-- Items -->
+                <div class="row-header">3</div>
+                <div class="cell">Pizzas</div>
+                <div class="cell text-right">15</div>
+                <div class="cell text-right">5</div>
+                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-50 text-right px-2" id="chal-d3" placeholder="=" onblur="evalChallenge('d3', '15*5', 75)"></div>
+
+                <div class="row-header">4</div>
+                <div class="cell">Refrescos</div>
+                <div class="cell text-right">3</div>
+                <div class="cell text-right">10</div>
+                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-50 text-right px-2" id="chal-d4" placeholder="=" onblur="evalChallenge('d4', '3*10', 30)"></div>
+
+                <div class="row-header">5</div>
+                <div class="cell">Pastel</div>
+                <div class="cell text-right">45</div>
+                <div class="cell text-right">1</div>
+                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-50 text-right px-2" id="chal-d5" placeholder="=" onblur="evalChallenge('d5', '45*1', 45)"></div>
+
+                <!-- Totales -->
+                <div class="row-header">6</div>
+                <div class="cell col-span-3 text-right font-bold" style="grid-column: 2 / span 3;">Gasto Total (Suma de Costos):</div>
+                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-100 text-right px-2 font-bold" id="chal-d6" placeholder="=SUMA(...)" onblur="evalChallengeTotal()"></div>
+
+                <div class="row-header">7</div>
+                <div class="cell col-span-3 text-right font-bold" style="grid-column: 2 / span 3;">Dinero Sobrante (Presupuesto - Gasto Total):</div>
+                <div class="cell p-0"><input type="text" class="input-cell bg-yellow-200 text-right px-2 font-bold text-blue-700" id="chal-d7" placeholder="=" onblur="evalFinalResult()"></div>
+            </div>
+            
+            <div id="challenge-feedback" class="mt-4 p-4 rounded text-center text-lg hidden"></div>
+
+        </section>
+
+    </main>
+
+    <footer class="text-center text-gray-500 text-sm py-4 mt-auto">
+        Simulador interactivo de Hojas de Cálculo. Creado para el aprendizaje conceptual.
+    </footer>
+
+    <script>
+        // Estado del usuario y progreso
+        let userName = "";
+        let currentLevel = 0; // 0: inicio, 1: know, 2: learn, 3: practice, 4: challenge
+        let hasInteractedWithGrid = false;
+        
+        // Variables para la práctica
+        let practiceStep = 1;
+
+        // Actualiza el nombre en todos los placeholders
+        function updateNamePlaceholders() {
+            const placeholders = document.querySelectorAll('.user-name-placeholder');
+            placeholders.forEach(el => {
+                el.textContent = userName;
+            });
+            
+            const userDisplay = document.getElementById('user-display');
+            userDisplay.textContent = `¡Hola, ${userName}!`;
+            userDisplay.classList.remove('hidden');
+        }
+
+        // Actualiza la barra de progreso
+        function updateProgress(percentage, levelName) {
+            const progressBar = document.getElementById('main-progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const badge = document.getElementById('player-score');
+            
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${percentage}%`;
+            
+            badge.classList.remove('hidden');
+            badge.innerHTML = `<i class="fa-solid fa-star"></i> Rango: ${levelName}`;
+        }
+
+        // Iniciar el juego
+        function startGame() {
+            const nameInput = document.getElementById('user-name').value.trim();
+            if (nameInput === "") {
+                alert("Por favor, ingresa tu nombre para comenzar.");
+                return;
+            }
+            
+            userName = nameInput;
+            updateNamePlaceholders();
+            
+            document.getElementById('section-welcome').classList.remove('active');
+            document.getElementById('section-know').classList.add('active');
+            document.getElementById('progress-container').classList.remove('hidden');
+            
+            updateProgress(25, "Explorador");
+        }
+
+        // Navegación entre secciones
+        function nextSection(currentId, nextId) {
+            document.getElementById(`section-${currentId}`).classList.remove('active');
+            document.getElementById(`section-${nextId}`).classList.add('active');
+            window.scrollTo(0, 0);
+
+            if (nextId === 'learn') updateProgress(50, "Aprendiz");
+            if (nextId === 'practice') updateProgress(75, "Analista Junior");
+            if (nextId === 'challenge') updateProgress(90, "Analista Senior");
+        }
+
+        function prevSection(currentId, prevId) {
+            document.getElementById(`section-${currentId}`).classList.remove('active');
+            document.getElementById(`section-${prevId}`).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function highlightCell(element, cellName) {
+            // Remover activo de todas
+            const cells = document.querySelectorAll('#demo-grid .cell');
+            cells.forEach(c => c.classList.remove('active-cell'));
+            
+            // Activar la seleccionada
+            element.classList.add('active-cell');
+            
+            // Mostrar nombre
+            const nameDisplay = document.getElementById('demo-cell-name');
+            nameDisplay.innerHTML = `Has seleccionado la celda: <strong>${cellName}</strong>`;
+            nameDisplay.classList.remove('text-officeGreen');
+            nameDisplay.classList.add('text-blue-600', 'font-bold');
+
+            // Habilitar botón siguiente
+            if (!hasInteractedWithGrid) {
+                hasInteractedWithGrid = true;
+                const btnNext = document.getElementById('btn-next-learn');
+                btnNext.disabled = false;
+                document.getElementById('hint-know').classList.add('hidden');
+                // Efecto de pulso en el botón
+                btnNext.classList.add('animate-pulse');
+                setTimeout(() => btnNext.classList.remove('animate-pulse'), 2000);
+            }
+        }
+
+        function checkPractice1(e) {
+            if (e.key === 'Enter') {
+                const input = document.getElementById('input-d1');
+                const val = input.value.trim().toUpperCase().replace(/\s/g, '');
+                const feedback = document.getElementById('practice-feedback');
+                
+                // Respuestas válidas: =B1*C1, =C1*B1, =5*10, =10*5
+                if (val === '=B1*C1' || val === '=C1*B1' || val === '=5*10' || val === '=10*5') {
+                    input.classList.add('correct-answer');
+                    input.classList.remove('wrong-answer', 'bg-yellow-100');
+                    input.value = "50"; // Mostrar el resultado
+                    input.disabled = true;
+                    
+                    feedback.classList.remove('hidden', 'bg-red-100', 'text-red-700');
+                    feedback.classList.add('block', 'bg-green-100', 'text-green-800', 'border', 'border-green-300');
+                    feedback.innerHTML = '<i class="fa-solid fa-check-circle mr-2"></i>¡Excelente! Esa es la fórmula correcta. Ahora intenta con el siguiente.';
+                    
+                    // Habilitar siguiente input
+                    const nextInput = document.getElementById('input-d2');
+                    nextInput.disabled = false;
+                    nextInput.focus();
+                    nextInput.addEventListener('keypress', checkPractice2);
+                } else {
+                    input.classList.add('wrong-answer');
+                    feedback.classList.remove('hidden', 'bg-green-100', 'text-green-800');
+                    feedback.classList.add('block', 'bg-red-100', 'text-red-700', 'border', 'border-red-300');
+                    
+                    if (!val.startsWith('=')) {
+                        feedback.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2"></i>Recuerda que toda fórmula debe empezar con el signo <strong>=</strong>.';
+                    } else {
+                        feedback.innerHTML = '<i class="fa-solid fa-xmark mr-2"></i>La fórmula no es correcta. Recuerda que para multiplicar Precio por Cantidad debes usar el asterisco (*). Intenta =B1*C1';
+                    }
+                }
+            }
+        }
+
+        function checkPractice2(e) {
+             if (e.key === 'Enter') {
+                const input = document.getElementById('input-d2');
+                const val = input.value.trim().toUpperCase().replace(/\s/g, '');
+                const feedback = document.getElementById('practice-feedback');
+                
+                if (val === '=B2*C2' || val === '=C2*B2' || val === '=2*25' || val === '=25*2') {
+                    input.classList.add('correct-answer');
+                    input.classList.remove('wrong-answer', 'bg-yellow-100');
+                    input.value = "50"; 
+                    input.disabled = true;
+                    
+                    feedback.innerHTML = '<i class="fa-solid fa-check-circle mr-2"></i>¡Perfecto! Ahora sumemos todo el inventario.';
+                    
+                    const nextInput = document.getElementById('input-d3');
+                    nextInput.disabled = false;
+                    nextInput.focus();
+                    nextInput.addEventListener('keypress', checkPractice3);
+                } else {
+                    input.classList.add('wrong-answer');
+                    feedback.className = 'mt-4 p-3 rounded block bg-red-100 text-red-700 border border-red-300';
+                    feedback.innerHTML = '<i class="fa-solid fa-xmark mr-2"></i>Intenta multiplicar la celda B2 por C2. Ejemplo: =B2*C2';
+                }
+             }
+        }
+
+        function checkPractice3(e) {
+             if (e.key === 'Enter') {
+                const input = document.getElementById('input-d3');
+                const val = input.value.trim().toUpperCase().replace(/\s/g, '');
+                const feedback = document.getElementById('practice-feedback');
+                
+                // Aceptamos varias formas lógicas
+                if (val === '=D1+D2' || val === '=SUMA(D1:D2)' || val === '=50+50') {
+                    input.classList.add('correct-answer');
+                    input.classList.remove('wrong-answer', 'bg-yellow-100');
+                    input.value = "100"; 
+                    input.disabled = true;
+                    
+                    feedback.className = 'mt-4 p-3 rounded block bg-green-100 text-green-800 border border-green-700 font-bold';
+                    feedback.innerHTML = '<i class="fa-solid fa-trophy mr-2"></i>¡Práctica completada con éxito! Ya estás listo para el desafío final.';
+                    
+                    const btnNext = document.getElementById('btn-next-challenge');
+                    btnNext.disabled = false;
+                    document.getElementById('hint-practice').classList.add('hidden');
+                    btnNext.classList.add('animate-pulse');
+                } else {
+                    input.classList.add('wrong-answer');
+                    feedback.className = 'mt-4 p-3 rounded block bg-red-100 text-red-700 border border-red-300';
+                    feedback.innerHTML = '<i class="fa-solid fa-xmark mr-2"></i>Para sumar puedes usar =D1+D2 o la función =SUMA(D1:D2)';
+                }
+             }
+        }
+
+        let challengeScores = { d3: false, d4: false, d5: false, total: false, final: false };
+
+        function evalChallenge(id, expectedFormulaPart, expectedValue) {
+            const input = document.getElementById(`chal-${id}`);
+            let val = input.value.trim().toUpperCase().replace(/\s/g, '');
+            
+            // Solo evaluar si hay algo escrito
+            if(val === '') return;
+
+            // Lógica simple de validación (se asume que el usuario entendió usar = )
+            if (val.startsWith('=') && (val.includes(expectedFormulaPart) || val.includes(`B${id.charAt(1)}*C${id.charAt(1)}`) || val.includes(`C${id.charAt(1)}*B${id.charAt(1)}`))) {
+                input.value = expectedValue;
+                input.classList.add('correct-answer');
+                input.classList.remove('wrong-answer', 'bg-yellow-50');
+                challengeScores[id] = true;
+            } else {
+                input.classList.add('wrong-answer');
+                challengeScores[id] = false;
+            }
+            checkChallengeCompletion();
+        }
+
+        function evalChallengeTotal() {
+            const input = document.getElementById('chal-d6');
+            let val = input.value.trim().toUpperCase().replace(/\s/g, '');
+            if(val === '') return;
+
+            if (val === '=D3+D4+D5' || val === '=SUMA(D3:D5)' || val === '=75+30+45') {
+                input.value = "150";
+                input.classList.add('correct-answer');
+                input.classList.remove('wrong-answer', 'bg-yellow-100');
+                challengeScores.total = true;
+            } else {
+                input.classList.add('wrong-answer');
+                challengeScores.total = false;
+            }
+            checkChallengeCompletion();
+        }
+
+        function evalFinalResult() {
+            const input = document.getElementById('chal-d7');
+            let val = input.value.trim().toUpperCase().replace(/\s/g, '');
+            if(val === '') return;
+
+            // Presupuesto (B1) - Gasto Total (D6) -> 200 - 150 = 50
+            if (val === '=B1-D6' || val === '=200-150' || val === '=200-D6' || val === '=B1-150') {
+                input.value = "$50";
+                input.classList.add('correct-answer', 'text-green-700');
+                input.classList.remove('wrong-answer', 'bg-yellow-200', 'text-blue-700');
+                challengeScores.final = true;
+            } else {
+                input.classList.add('wrong-answer');
+                challengeScores.final = false;
+            }
+            checkChallengeCompletion();
+        }
+
+        function checkChallengeCompletion() {
+            const feedback = document.getElementById('challenge-feedback');
+            
+            if (challengeScores.d3 && challengeScores.d4 && challengeScores.d5 && challengeScores.total && challengeScores.final) {
+                updateProgress(100, "Maestro de Datos (Google Sheets Ready)");
+                feedback.classList.remove('hidden');
+                feedback.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-400', 'font-bold');
+                feedback.innerHTML = `
+                    <div class="text-4xl mb-2 text-yellow-500"><i class="fa-solid fa-crown"></i></div>
+                    ¡Felicidades, ${userName}!<br>
+                    Has completado el desafío con éxito y lograste que te sobraran $50.<br>
+                    <p class="text-sm font-normal mt-2 text-gray-700">Ahora entiendes que las hojas de cálculo te permiten estructurar información, automatizar cálculos con fórmulas e interrelacionar datos. ¡Estás listo para dominar Google Sheets o Excel!</p>
+                `;
+                
+                // Bloquear inputs
+                document.querySelectorAll('#section-challenge .input-cell').forEach(inp => inp.disabled = true);
+            }
+        }
+    </script>
+</body>
+</html>
