@@ -248,14 +248,14 @@
                 ]
             },
             {
-                title: "Nivel 5: Recolección Múltiple",
+                title: "Nivel 5: Zigzag Inverso",
                 requiredGears: 3,
                 grid: [
                     ['S','.','.','W','W','W'],
                     ['W','W','G','W','W','W'],
-                    ['W','.','.','.','G','E'],
-                    ['W','.','L','W','W','W'],
-                    ['W','G','.','.','.','W'],
+                    ['W','W','.','L','G','E'],
+                    ['W','G','.','L','.','W'],
+                    ['W','.','.','.','.','W'],
                     ['W','W','W','W','W','W']
                 ]
             },
@@ -263,36 +263,36 @@
                 title: "Nivel 6: Pasillo Caliente",
                 requiredGears: 2,
                 grid: [
-                    ['S','.','G','L','.','E'],
-                    ['W','W','W','L','.','W'],
-                    ['W','W','W','.','.','W'],
-                    ['W','W','W','G','W','W'],
+                    ['S','.','.','L','E','W'],
+                    ['W','W','.','L','.','W'],
+                    ['W','W','.','L','.','W'],
+                    ['W','G','.','.','G','W'],
                     ['W','W','W','W','W','W'],
                     ['W','W','W','W','W','W']
                 ]
             },
             {
-                title: "Nivel 7: Salto de Isla",
+                title: "Nivel 7: Zigzag de Lava",
                 requiredGears: 2,
                 grid: [
-                    ['S','.','L','L','E','W'],
-                    ['W','.','G','L','.','W'],
-                    ['W','L','L','L','.','W'],
-                    ['W','.','G','.','.','W'],
-                    ['W','.','L','L','L','W'],
-                    ['W','.','.','.','.','W']
+                    ['S','.','W','W','W','W'],
+                    ['W','.','L','G','.','E'],
+                    ['W','.','L','.','W','W'],
+                    ['W','.','.','.','W','W'],
+                    ['W','L','L','G','W','W'],
+                    ['W','W','W','W','W','W']
                 ]
             },
             {
                 title: "Nivel 8: El Laberinto Final",
                 requiredGears: 3,
                 grid: [
-                    ['S','L','W','G','L','E'],
-                    ['.','L','W','.','L','.'],
-                    ['.','L','W','.','L','.'],
-                    ['.','G','.','.','L','G'],
-                    ['.','L','L','L','L','.'],
-                    ['.','.','.','.','.','.']
+                    ['S','.','W','G','.','E'],
+                    ['W','.','W','.','W','.'],
+                    ['G','.','L','.','W','.'],
+                    ['W','.','L','.','W','.'],
+                    ['W','.','.','.','G','.'],
+                    ['W','W','W','W','W','W']
                 ]
             }
         ];
@@ -381,7 +381,7 @@
         };
 
         function addCommand(cmd) {
-            if (isRunning || commandQueue.length >= 25) return; // Límite de 25 comandos
+            if (isRunning || commandQueue.length >= 35) return; // Aumentado a 35 comandos para laberintos más largos
             commandQueue.push(cmd);
             renderQueue();
         }
