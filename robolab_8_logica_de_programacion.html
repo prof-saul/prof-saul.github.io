@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoboLab 8° — Lógica de programación y pensamiento computacional</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+:root{
+  --bark:#17110d;
+  --clay:#241a14;
+  --panel:#2c201a;
+  --line:#463328;
+  --terracotta:#c9643d;
+  --mustard:#d9a13b;
+  --olive:#8a9a5b;
+  --sand:#efe2cf;
+  --muted:#b49a80;
+  --rose:#c65a5a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #32241c 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, #2a201d 0%, transparent 55%),
+    var(--bark);
+  color:var(--sand);
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:700;margin:0;letter-spacing:-.01em}
+code,.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+a{color:var(--mustard)}
+
+/* ---------- layout ---------- */
+header{
+  position:sticky;top:0;z-index:40;
+  background:rgba(23,17,13,.92);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+.bar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:12px 0}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{
+  width:44px;height:44px;border-radius:14px;flex:none;
+  background:linear-gradient(150deg,var(--terracotta),#8d3f26);
+  display:grid;place-items:center;font-size:22px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+}
+.brand h1{font-size:20px;line-height:1.1}
+.brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+nav{display:flex;flex-wrap:wrap;gap:6px;background:#1f1712;padding:6px;border:1px solid var(--line);border-radius:14px}
+.tab{
+  border:0;cursor:pointer;font:inherit;font-size:13px;font-weight:500;
+  padding:8px 12px;border-radius:10px;background:transparent;color:var(--muted);
+  display:flex;align-items:center;gap:7px;transition:background .15s,color .15s;
+}
+.tab:hover{background:#2c211a;color:var(--sand)}
+.tab[aria-selected="true"]{background:var(--terracotta);color:#fff}
+.tab[aria-selected="true"].gold{background:var(--mustard);color:#2a1d0c}
+.meter{
+  display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;
+  background:#1f1712;border:1px solid var(--line);padding:8px 12px;border-radius:12px;color:var(--mustard);
+}
+.icon-btn{
+  border:1px solid var(--line);background:#1f1712;color:var(--mustard);
+  width:38px;height:38px;border-radius:12px;cursor:pointer;font-size:16px;
+}
+main{flex:1 0 auto;width:100%;max-width:1180px;margin:0 auto;padding:22px 18px 40px}
+.view[hidden]{display:none}
+.stack{display:flex;flex-direction:column;gap:20px}
+
+/* ---------- panels ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}
+.panel.warm{border-color:#5a3a26}
+.cols{display:grid;gap:20px}
+@media(min-width:960px){
+  .cols.g7-5{grid-template-columns:7fr 5fr;align-items:start}
+  .cols.g6-6{grid-template-columns:1fr 1fr;align-items:start}
+}
+.eyebrow{font-size:12px;color:var(--mustard);font-weight:700}
+.lede{color:var(--muted);font-size:14px;line-height:1.6;max-width:72ch;margin:8px 0 0}
+h2.mission{font-size:24px;margin-top:6px}
+h3.sub{font-size:16px;margin-bottom:4px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.6}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+  border-radius:999px;padding:5px 11px;border:1px solid var(--line);background:#1f1712;color:var(--muted);
+}
+.pill.ok{color:#cfe0a6;border-color:#4d5a33;background:#26301c}
+.pill.bad{color:#f0b6b6;border-color:#6a3636;background:#33201f}
+.pill.gold{color:var(--mustard);border-color:#5d4520;background:#2e2313}
+
+/* ---------- buttons ---------- */
+button{font:inherit}
+.btn{
+  cursor:pointer;border:1px solid transparent;border-radius:12px;
+  padding:10px 16px;font-weight:700;font-size:14px;transition:transform .08s,filter .15s;
+}
+.btn:active{transform:scale(.97)}
+.btn.run{background:var(--olive);color:#15190d}
+.btn.run:hover{filter:brightness(1.1)}
+.btn.primary{background:var(--terracotta);color:#fff}
+.btn.primary:hover{filter:brightness(1.1)}
+.btn.gold{background:var(--mustard);color:#2a1d0c}
+.btn.gold:hover{filter:brightness(1.08)}
+.btn.ghost{background:#1f1712;border-color:var(--line);color:var(--sand)}
+.btn.ghost:hover{background:#2c211a}
+.btn.sm{padding:7px 12px;font-size:12.5px;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row.center{justify-content:center}
+
+/* ---------- grid board ---------- */
+.board{
+  display:grid;gap:6px;background:#1c1410;padding:12px;border:1px solid var(--line);
+  border-radius:16px;width:100%;max-width:440px;aspect-ratio:1/1;margin:0 auto;
+}
+.cell{
+  border-radius:9px;background:#241b16;border:1px solid #33251d;
+  display:grid;place-items:center;font-size:clamp(14px,3.4vw,22px);position:relative;
+}
+.cell.wall{background:#3a2a20;border-color:#4d382b}
+.cell.oil{background:#1b2430;border-color:#2c3a4b}
+.cell.gem{background:#33280f;border-color:#5d4520}
+.cell.goal{background:#2b3320;border-color:#4d5a33}
+.cell.bot{background:#43261c;border-color:var(--terracotta);box-shadow:0 0 0 2px rgba(201,100,61,.25)}
+.cell.taken{opacity:.55}
+.cell.click{cursor:pointer}
+.bot-sprite{display:inline-block;transition:transform .25s ease}
+.board-head{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:10px}
+
+/* ---------- block editor ---------- */
+.palette{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.blk{
+  cursor:pointer;border-radius:11px;padding:11px 10px;font-size:13px;font-weight:700;
+  border:1px solid;text-align:center;transition:filter .15s;
+}
+.blk:hover{filter:brightness(1.15)}
+.blk.mv{background:#20313a;border-color:#2f4a57;color:#bfe0ee}
+.blk.tn{background:#2b2536;border-color:#42395a;color:#cfc4ea}
+.blk.lp{background:#33280f;border-color:#5d4520;color:#f0cd86;grid-column:span 2}
+.blk.close{background:#31211c;border-color:#5b382c;color:#eab6a3;grid-column:span 2}
+.prog{min-height:150px;max-height:270px;overflow:auto;padding:4px;display:flex;flex-direction:column;gap:6px}
+.pnode{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12.5px;font-weight:700;background:#241b16;
+}
+.pnode.loop{background:#2e2313;border-color:#5d4520;color:#f0cd86}
+.pnode.open{border-style:dashed;border-color:var(--mustard)}
+.pnode .x{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:13px}
+.pnode .x:hover{color:var(--rose)}
+.nest{margin-left:16px;border-left:2px dashed #5d4520;padding-left:10px;display:flex;flex-direction:column;gap:6px}
+.empty{color:#8d7560;font-size:12.5px;font-style:italic;text-align:center;padding:26px 6px}
+.feedback{margin-top:12px;border-radius:12px;padding:11px 13px;font-size:13px;font-weight:700;line-height:1.5}
+.feedback.ok{background:#26301c;color:#d5e5ac;border:1px solid #4d5a33}
+.feedback.bad{background:#33201f;color:#f0b6b6;border:1px solid #6a3636}
+.feedback.info{background:#2e2313;color:#f0cd86;border:1px solid #5d4520}
+
+/* ---------- forms ---------- */
+select,input[type=text],input[type=number]{
+  font:inherit;font-size:13px;background:#1e1611;color:var(--sand);
+  border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;
+}
+select:focus,input:focus{outline:2px solid var(--mustard);outline-offset:1px}
+label.field{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:5px}
+.codebox{
+  background:#1a1310;border:1px solid var(--line);border-radius:12px;padding:14px;
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.9;overflow-x:auto;
+}
+.kw{color:var(--mustard)}
+.var{color:#9fd0e0}
+.num{color:#d7a3f0}
+table.truth{width:100%;border-collapse:collapse;font-size:13px}
+table.truth th,table.truth td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+table.truth th{background:#1f1712;color:var(--muted);font-size:12px}
+.codeline{
+  display:flex;gap:10px;align-items:center;justify-content:space-between;
+  border:1px solid var(--line);border-radius:11px;padding:9px 12px;
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#1e1611;cursor:pointer;
+}
+.codeline:hover{border-color:var(--mustard)}
+.codeline .n{color:#7d6853;flex:none}
+.codeline.fixed{border-color:#4d5a33;background:#222a1a}
+.codeline .state{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--muted);flex:none}
+dialog{
+  border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--sand);
+  max-width:440px;width:92%;padding:20px;
+}
+dialog::backdrop{background:rgba(12,8,6,.7)}
+
+/* ---------- diploma ---------- */
+.cert-shell{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+#cert-canvas{width:100%;height:auto;display:block;border-radius:12px;border:1px solid var(--line);background:#fdf7ec}
+.cert-fields{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:720px){.cert-fields{grid-template-columns:1fr 1fr}}
+#print-area{display:none}
+
+@media print{
+  @page{size:A4 landscape;margin:6mm}
+  body{background:#fff}
+  body>*{display:none!important}
+  #print-area{display:block!important;position:static}
+  #print-area img{width:100%;height:auto}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand">
+      <div class="mark">🤖</div>
+      <div>
+        <h1>RoboLab 8°</h1>
+        <p>Lógica de programación y pensamiento computacional</p>
+      </div>
+    </div>
+
+    <nav role="tablist" aria-label="Misiones">
+      <button class="tab" role="tab" id="tab-bucles" aria-selected="true" onclick="switchTab('bucles')">🔁 Bucles anidados</button>
+      <button class="tab" role="tab" id="tab-condicionales" aria-selected="false" onclick="switchTab('condicionales')">🔀 Condicionales</button>
+      <button class="tab" role="tab" id="tab-debug" aria-selected="false" onclick="switchTab('debug')">🐞 Depuración</button>
+      <button class="tab" role="tab" id="tab-creador" aria-selected="false" onclick="switchTab('creador')">🛠️ Reto propio</button>
+      <button class="tab gold" role="tab" id="tab-diploma" aria-selected="false" onclick="switchTab('diploma')">🏅 Diploma</button>
+    </nav>
+
+    <div class="row">
+      <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="Activar o silenciar sonido" aria-label="Sonido">🔊</button>
+      <div class="meter"><span>⭐</span><span id="star-count">0</span><span>/</span><span id="star-total">9</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============================ MISIÓN 1 ============================ -->
+<section class="view stack" id="view-bucles" role="tabpanel" aria-labelledby="tab-bucles">
+  <div class="panel warm">
+    <p class="eyebrow">Misión 1 · Iteración, bucles anidados y eficiencia</p>
+    <h2 class="mission">Programa la ruta más corta</h2>
+    <p class="lede">
+      Robo-Bot choca si intenta atravesar un muro o salir del mapa: el programa falla completo, como en la vida real.
+      Cada nivel tiene un <strong>presupuesto de bloques</strong>; para ganar la estrella debes recoger todas las tuercas
+      sin chocar y usar menos bloques que ese límite. Un bucle puede contener otro bucle, y ahí está la clave para
+      bajar el conteo.
+    </p>
+    <div class="row" style="margin-top:14px">
+      <span class="note" style="font-weight:700">Nivel:</span>
+      <button class="btn ghost sm" id="lvl-1" onclick="loadLevel(1)">1 · Pasillo en L</button>
+      <button class="btn ghost sm" id="lvl-2" onclick="loadLevel(2)">2 · Escalera entre muros</button>
+      <button class="btn ghost sm" id="lvl-3" onclick="loadLevel(3)">3 · Patrullaje del perímetro</button>
+    </div>
+  </div>
+
+  <div class="cols g7-5">
+    <div class="panel">
+      <div class="board-head">
+        <span id="lvl-goal">Objetivo</span>
+        <span id="lvl-budget" class="pill gold">Presupuesto</span>
+      </div>
+      <div class="board" id="board-loop" style="grid-template-columns:repeat(6,1fr)"></div>
+      <div class="row center" style="margin-top:16px">
+        <button class="btn run" onclick="runLoop()">▶ Ejecutar programa</button>
+        <button class="btn ghost sm" onclick="resetLevel()">↺ Reiniciar robot</button>
+        <button class="btn ghost sm" onclick="clearProgram('loop')">🗑 Borrar programa</button>
+      </div>
+      <p class="note" style="margin-top:12px" id="lvl-hint"></p>
+    </div>
+
+    <div class="stack">
+      <div class="panel">
+        <h3 class="sub">Bloques disponibles</h3>
+        <p class="note" style="margin-bottom:12px">Los bloques que agregues mientras un bucle esté abierto entran dentro de ese bucle.</p>
+        <div class="palette">
+          <button class="blk mv" onclick="addCmd('loop','move')">↑ Avanzar</button>
+          <button class="blk tn" onclick="addCmd('loop','right')">↻ Girar derecha</button>
+          <button class="blk tn" onclick="addCmd('loop','left')">↺ Girar izquierda</button>
+          <button class="blk mv" onclick="addCmd('loop','wait')">⏸ Esperar</button>
+          <div class="blk lp" style="display:flex;gap:8px;align-items:center;justify-content:center">
+            <span>🔁 Repetir</span>
+            <select id="loop-count" style="width:72px;padding:5px 7px">
+              <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
+            </select>
+            <span>veces</span>
+            <button class="btn gold sm" onclick="openLoop('loop')">Abrir</button>
+          </div>
+          <button class="blk close" onclick="closeLoop('loop')">⤴ Cerrar bucle abierto</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px">
+          <h3 class="sub" style="margin:0">Tu programa</h3>
+          <span class="pill" id="loop-blocks">0 bloques</span>
+        </div>
+        <div class="prog" id="prog-loop"></div>
+        <div class="feedback info" id="fb-loop" hidden></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MISIÓN 2 ============================ -->
+<section class="view stack" id="view-condicionales" role="tabpanel" aria-labelledby="tab-condicionales" hidden>
+  <div class="panel warm">
+    <p class="eyebrow">Misión 2 · Condicionales compuestas y trazado de código</p>
+    <h2 class="mission">Decisiones con más de una variable</h2>
+    <p class="lede">
+      Un robot real no decide con una sola pregunta. Aquí trabajas con cadenas <span class="mono">si / si no si / si no</span>,
+      operadores lógicos <span class="mono">Y</span>, <span class="mono">O</span>, <span class="mono">NO</span>, y el trazado manual
+      de un algoritmo: seguir el código línea por línea hasta saber con qué valor termina cada variable.
+    </p>
+  </div>
+
+  <div class="cols g6-6">
+    <!-- Reto A -->
+    <div class="panel stack">
+      <div class="row" style="justify-content:space-between">
+        <h3 class="sub" style="margin:0">Reto A · Orden de las condiciones</h3>
+        <span class="pill" id="badge-a">Sin resolver</span>
+      </div>
+      <p class="note">
+        El sensor devuelve <span class="mono">distancia</span> en centímetros. Completa las tres ramas para que el robot
+        frene cerca, baje la velocidad a media distancia y avance libre cuando el camino esté despejado.
+      </p>
+      <div class="codebox">
+        <div><span class="kw">si</span> <span class="var">distancia</span> &lt; <span class="num">15</span> <span class="kw">entonces</span></div>
+        <div style="padding-left:22px" id="slotA1"></div>
+        <div><span class="kw">si no si</span> <span class="var">distancia</span> &lt; <span class="num">40</span> <span class="kw">entonces</span></div>
+        <div style="padding-left:22px" id="slotA2"></div>
+        <div><span class="kw">si no</span></div>
+        <div style="padding-left:22px" id="slotA3"></div>
+        <div><span class="kw">fin si</span></div>
+      </div>
+      <div>
+        <label class="field" for="a-why">¿Por qué la rama <span class="mono">&lt; 15</span> debe ir primero?</label>
+        <select id="a-why">
+          <option value="">Elige una explicación</option>
+          <option value="orden">Porque toda distancia menor que 15 también es menor que 40, y la primera condición verdadera es la que se ejecuta</option>
+          <option value="rapido">Porque las condiciones con números pequeños se evalúan más rápido</option>
+          <option value="azar">Porque el orden de las condiciones no cambia el resultado</option>
+        </select>
+      </div>
+      <button class="btn primary" onclick="checkA()">Comprobar reto A</button>
+      <div class="feedback info" id="fb-a" hidden></div>
+    </div>
+
+    <!-- Reto B -->
+    <div class="panel stack">
+      <div class="row" style="justify-content:space-between">
+        <h3 class="sub" style="margin:0">Reto B · Tabla de verdad</h3>
+        <span class="pill" id="badge-b">Sin resolver</span>
+      </div>
+      <p class="note">
+        Condición del robot seguidor de línea:
+        <span class="mono">si (sobre_la_línea) Y (batería &gt; 20) entonces avanzar, si no detenerse</span>.
+        Completa la salida para cada combinación posible.
+      </p>
+      <table class="truth">
+        <thead><tr><th>sobre_la_línea</th><th>batería &gt; 20</th><th>salida</th></tr></thead>
+        <tbody id="truth-body"></tbody>
+      </table>
+      <button class="btn primary" onclick="checkB()">Comprobar tabla</button>
+      <div class="feedback info" id="fb-b" hidden></div>
+    </div>
+  </div>
+
+  <!-- Reto C -->
+  <div class="panel stack">
+    <div class="row" style="justify-content:space-between">
+      <h3 class="sub" style="margin:0">Reto C · Traza el algoritmo</h3>
+      <span class="pill" id="badge-c">Sin resolver</span>
+    </div>
+    <p class="note">Sigue el código en tu cuaderno, paso por paso, y escribe los valores finales. Sin ejecutarlo en la computadora.</p>
+    <div class="cols g6-6">
+      <div class="codebox">
+        <div><span class="var">pasos</span> ← <span class="num">0</span></div>
+        <div><span class="var">tuercas</span> ← <span class="num">0</span></div>
+        <div><span class="kw">mientras</span> <span class="var">pasos</span> &lt; <span class="num">8</span> <span class="kw">hacer</span></div>
+        <div style="padding-left:22px"><span class="var">pasos</span> ← <span class="var">pasos</span> + <span class="num">1</span></div>
+        <div style="padding-left:22px"><span class="kw">si</span> <span class="var">pasos</span> <span class="kw">mod</span> <span class="num">2</span> = <span class="num">0</span> <span class="kw">entonces</span></div>
+        <div style="padding-left:44px"><span class="var">tuercas</span> ← <span class="var">tuercas</span> + <span class="num">3</span></div>
+        <div style="padding-left:22px"><span class="kw">si no</span></div>
+        <div style="padding-left:44px"><span class="var">tuercas</span> ← <span class="var">tuercas</span> + <span class="num">1</span></div>
+        <div style="padding-left:22px"><span class="kw">fin si</span></div>
+        <div><span class="kw">fin mientras</span></div>
+      </div>
+      <div class="stack">
+        <div>
+          <label class="field" for="c-tuercas">Valor final de <span class="mono">tuercas</span></label>
+          <input type="number" id="c-tuercas" placeholder="Escribe un número">
+        </div>
+        <div>
+          <label class="field" for="c-iter">¿Cuántas veces se repite el cuerpo del <span class="mono">mientras</span>?</label>
+          <input type="number" id="c-iter" placeholder="Escribe un número">
+        </div>
+        <div>
+          <label class="field" for="c-mod">¿Qué representa <span class="mono">pasos mod 2 = 0</span>?</label>
+          <select id="c-mod">
+            <option value="">Elige una opción</option>
+            <option value="par">Que pasos es un número par</option>
+            <option value="impar">Que pasos es un número impar</option>
+            <option value="div">Que pasos se divide entre 0</option>
+          </select>
+        </div>
+        <button class="btn primary" onclick="checkC()">Comprobar traza</button>
+        <div class="feedback info" id="fb-c" hidden></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MISIÓN 3 ============================ -->
+<section class="view stack" id="view-debug" role="tabpanel" aria-labelledby="tab-debug" hidden>
+  <div class="panel warm">
+    <p class="eyebrow">Misión 3 · Depuración sin pistas marcadas</p>
+    <h2 class="mission">Tres líneas de este programa están mal</h2>
+    <p class="lede">
+      Nada aparece resaltado en rojo: te toca leer el código y compararlo con el mapa. Haz clic en la línea que
+      sospeches y elige el valor correcto. Si cambias una línea que ya estaba bien, se cuenta como intento fallido
+      y el programa se rompe. La ruta correcta llega a la estrella sin pisar aceite 🛢 ni salir del mapa.
+    </p>
+  </div>
+
+  <div class="cols g6-6">
+    <div class="panel">
+      <div class="board-head">
+        <span>Mapa de prueba</span>
+        <span id="debug-status" class="pill">Sin ejecutar</span>
+      </div>
+      <div class="board" id="board-debug" style="grid-template-columns:repeat(6,1fr)"></div>
+      <div class="row center" style="margin-top:16px">
+        <button class="btn run" onclick="runDebug()">▶ Probar el código</button>
+        <button class="btn ghost sm" onclick="resetDebugBoard()">↺ Reiniciar robot</button>
+      </div>
+    </div>
+
+    <div class="panel stack">
+      <div class="row" style="justify-content:space-between">
+        <h3 class="sub" style="margin:0">Programa cargado en Robo-Bot</h3>
+        <span class="pill" id="debug-tries">Errores marcados: 0</span>
+      </div>
+      <div class="stack" id="debug-list" style="gap:8px"></div>
+      <div class="feedback info" id="fb-debug">
+        El robot arranca en la esquina inferior izquierda. La estrella está en la esquina superior derecha.
+        Recorre el mapa con el dedo siguiendo cada línea antes de tocar nada.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MISIÓN 4 ============================ -->
+<section class="view stack" id="view-creador" role="tabpanel" aria-labelledby="tab-creador" hidden>
+  <div class="panel warm">
+    <p class="eyebrow">Misión 4 · Diseña y resuelve</p>
+    <h2 class="mission">Construye un reto para otro equipo</h2>
+    <p class="lede">
+      Haz clic en las casillas para ciclar entre libre → muro 🧱 → aceite 🛢 → meta 🏆. Para ganar la estrella tu reto
+      debe tener al menos <strong>cuatro muros</strong> y una meta que no esté en la misma fila ni columna que el robot,
+      y tu solución debe usar al menos un bucle y llegar sin chocar.
+    </p>
+  </div>
+
+  <div class="cols g7-5">
+    <div class="panel">
+      <div class="board-head">
+        <span id="creator-summary">Muros: 0 · Aceite: 0 · Meta: sin colocar</span>
+        <span class="pill" id="creator-state">Reto incompleto</span>
+      </div>
+      <div class="board" id="board-creator" style="grid-template-columns:repeat(6,1fr)"></div>
+      <div class="row center" style="margin-top:16px">
+        <button class="btn run" onclick="runCreator()">▶ Probar mi solución</button>
+        <button class="btn ghost sm" onclick="resetCreatorBot()">↺ Reubicar robot</button>
+        <button class="btn ghost sm" onclick="clearCreatorMap()">🧹 Vaciar mapa</button>
+      </div>
+      <div class="feedback info" id="fb-creator" hidden></div>
+    </div>
+
+    <div class="stack">
+      <div class="panel">
+        <h3 class="sub">Bloques</h3>
+        <div class="palette" style="margin-top:12px">
+          <button class="blk mv" onclick="addCmd('creator','move')">↑ Avanzar</button>
+          <button class="blk tn" onclick="addCmd('creator','right')">↻ Girar derecha</button>
+          <button class="blk tn" onclick="addCmd('creator','left')">↺ Girar izquierda</button>
+          <button class="blk mv" onclick="addCmd('creator','wait')">⏸ Esperar</button>
+          <div class="blk lp" style="display:flex;gap:8px;align-items:center;justify-content:center">
+            <span>🔁 Repetir</span>
+            <select id="creator-count" style="width:72px;padding:5px 7px">
+              <option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option>
+            </select>
+            <span>veces</span>
+            <button class="btn gold sm" onclick="openLoop('creator')">Abrir</button>
+          </div>
+          <button class="blk close" onclick="closeLoop('creator')">⤴ Cerrar bucle abierto</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px">
+          <h3 class="sub" style="margin:0">Algoritmo</h3>
+          <div class="row">
+            <span class="pill" id="creator-blocks">0 bloques</span>
+            <button class="btn ghost sm" onclick="clearProgram('creator')">Vaciar</button>
+          </div>
+        </div>
+        <div class="prog" id="prog-creator"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ DIPLOMA ============================ -->
+<section class="view" id="view-diploma" role="tabpanel" aria-labelledby="tab-diploma" hidden>
+  <div class="cert-shell">
+    <div class="panel">
+      <p class="eyebrow">Reconocimiento</p>
+      <h2 class="mission">Diploma de pensamiento computacional</h2>
+      <p class="lede">
+        Completa los datos y el diploma se dibuja abajo en tamaño carta horizontal. Descárgalo como imagen PNG
+        o imprímelo: la impresión usa exactamente la misma imagen, así que lo que ves es lo que sale.
+      </p>
+      <div class="cert-fields" style="margin-top:16px">
+        <div>
+          <label class="field" for="c-name">Nombre del estudiante</label>
+          <input type="text" id="c-name" placeholder="Nombre y apellidos" value="">
+        </div>
+        <div>
+          <label class="field" for="c-section">Grado y sección</label>
+          <input type="text" id="c-section" value="Octavo grado, sección A">
+        </div>
+        <div>
+          <label class="field" for="c-school">Centro escolar</label>
+          <input type="text" id="c-school" placeholder="Nombre del centro escolar" value="">
+        </div>
+        <div>
+          <label class="field" for="c-teacher">Docente</label>
+          <input type="text" id="c-teacher" placeholder="Nombre del docente" value="">
+        </div>
+        <div>
+          <label class="field" for="c-place">Lugar</label>
+          <input type="text" id="c-place" value="Santa Tecla, La Libertad">
+        </div>
+        <div>
+          <label class="field" for="c-date">Fecha</label>
+          <input type="text" id="c-date" value="">
+        </div>
+      </div>
+      <div class="row" style="margin-top:18px">
+        <button class="btn gold" onclick="downloadCert()">⬇ Descargar imagen PNG</button>
+        <button class="btn primary" onclick="printCert()">🖨 Imprimir diploma</button>
+        <span class="pill gold" id="cert-level">Nivel: sin estrellas</span>
+      </div>
+    </div>
+
+    <div class="panel" style="padding:12px">
+      <canvas id="cert-canvas" width="2000" height="1414" role="img" aria-label="Vista previa del diploma"></canvas>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer style="border-top:1px solid var(--line);padding:16px 18px;text-align:center">
+  <p class="note" style="margin:0">RoboLab 8° · Recurso de aula para lógica de programación y pensamiento computacional</p>
+</footer>
+
+<div id="print-area"><img id="print-img" alt="Diploma"></div>
+
+<dialog id="fix-dialog">
+  <h3 class="sub" id="fix-title">Corregir línea</h3>
+  <p class="note" id="fix-desc" style="margin:6px 0 14px"></p>
+  <label class="field" for="fix-select">Valor correcto</label>
+  <select id="fix-select"></select>
+  <div class="row" style="margin-top:16px;justify-content:flex-end">
+    <button class="btn ghost sm" onclick="document.getElementById('fix-dialog').close()">Cancelar</button>
+    <button class="btn primary sm" onclick="applyFix()">Aplicar cambio</button>
+  </div>
+</dialog>
+
+<script>
+"use strict";
+
+/* ===================== estado general ===================== */
+const TOTAL_STARS = 9;
+let soundOn = true;
+const earned = new Set();
+
+document.getElementById('star-total').textContent = TOTAL_STARS;
+
+function toggleSound(){
+  soundOn = !soundOn;
+  document.getElementById('sound-btn').textContent = soundOn ? '🔊' : '🔇';
+}
+
+let actx = null;
+function beep(kind){
+  if(!soundOn) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.connect(g); g.connect(actx.destination);
+    const t = actx.currentTime;
+    if(kind === 'step'){
+      o.type='triangle'; o.frequency.setValueAtTime(320,t);
+      o.frequency.exponentialRampToValueAtTime(170,t+.09);
+      g.gain.setValueAtTime(.10,t); g.gain.linearRampToValueAtTime(0,t+.09);
+      o.start(t); o.stop(t+.1);
+    } else if(kind === 'ok'){
+      o.type='sine';
+      [523.25,659.25,783.99,1046.5].forEach((f,i)=>o.frequency.setValueAtTime(f,t+i*.1));
+      g.gain.setValueAtTime(.16,t); g.gain.linearRampToValueAtTime(0,t+.5);
+      o.start(t); o.stop(t+.5);
+    } else {
+      o.type='sawtooth'; o.frequency.setValueAtTime(190,t);
+      o.frequency.exponentialRampToValueAtTime(70,t+.28);
+      g.gain.setValueAtTime(.16,t); g.gain.linearRampToValueAtTime(0,t+.28);
+      o.start(t); o.stop(t+.3);
+    }
+  }catch(e){ /* sin audio disponible */ }
+}
+
+function award(id){
+  if(earned.has(id)) return;
+  earned.add(id);
+  document.getElementById('star-count').textContent = earned.size;
+  beep('ok');
+  if(window.confetti) confetti({particleCount:70,spread:70,origin:{y:.75},colors:['#d9a13b','#c9643d','#8a9a5b']});
+  drawCert();
+}
+
+function switchTab(id){
+  const map = {bucles:'bucles',condicionales:'condicionales',debug:'debug',creador:'creador',diploma:'diploma'};
+  Object.keys(map).forEach(k=>{
+    document.getElementById('view-'+k).hidden = (k !== id);
+    document.getElementById('tab-'+k).setAttribute('aria-selected', String(k === id));
+  });
+  if(id === 'diploma') drawCert();
+}
+
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const DIRS = [{x:0,y:-1},{x:1,y:0},{x:0,y:1},{x:-1,y:0}]; // 0 arriba, 1 derecha, 2 abajo, 3 izquierda
+const ANGLE = {0:-90,1:0,2:90,3:180};
+
+/* ===================== editor de bloques ===================== */
+const programs = {loop:[], creator:[]};
+const openPath = {loop:[], creator:[]};
+
+function container(mode){
+  let arr = programs[mode];
+  for(const i of openPath[mode]) arr = arr[i].body;
+  return arr;
+}
+function addCmd(mode, c){
+  beep('step');
+  container(mode).push({t:'cmd', c});
+  renderProgram(mode);
+}
+function openLoop(mode){
+  const sel = document.getElementById(mode === 'loop' ? 'loop-count' : 'creator-count');
+  const n = parseInt(sel.value,10) || 2;
+  if(openPath[mode].length >= 2){
+    flash(mode === 'loop' ? 'fb-loop' : 'fb-creator', 'Solo puedes anidar dos niveles de bucle. Cierra uno antes de abrir otro.', 'info');
+    return;
+  }
+  beep('step');
+  const arr = container(mode);
+  arr.push({t:'loop', n, body:[]});
+  openPath[mode].push(arr.length-1);
+  renderProgram(mode);
+}
+function closeLoop(mode){
+  if(openPath[mode].length === 0) return;
+  beep('step');
+  openPath[mode].pop();
+  renderProgram(mode);
+}
+function clearProgram(mode){
+  programs[mode] = [];
+  openPath[mode] = [];
+  renderProgram(mode);
+  if(mode === 'loop') hide('fb-loop');
+}
+function removeAt(mode, pathStr){
+  const path = pathStr.split('-').map(Number);
+  let arr = programs[mode];
+  for(let i=0;i<path.length-1;i++) arr = arr[path[i]].body;
+  arr.splice(path[path.length-1],1);
+  openPath[mode] = [];
+  beep('step');
+  renderProgram(mode);
+}
+function countBlocks(nodes){
+  return nodes.reduce((a,n)=> a + 1 + (n.t === 'loop' ? countBlocks(n.body) : 0), 0);
+}
+function usesLoop(nodes){
+  return nodes.some(n => n.t === 'loop' || (n.body && usesLoop(n.body)));
+}
+const CMD_LABEL = {move:'↑ Avanzar', right:'↻ Girar derecha', left:'↺ Girar izquierda', wait:'⏸ Esperar'};
+
+function renderNodes(mode, nodes, prefix){
+  return nodes.map((n, i) => {
+    const path = prefix ? prefix + '-' + i : String(i);
+    if(n.t === 'cmd'){
+      return `<div class="pnode"><span>${CMD_LABEL[n.c]}</span>
+        <button class="x" title="Quitar" onclick="removeAt('${mode}','${path}')">✕</button></div>`;
+    }
+    const opStr = openPath[mode].join('-');
+    const isOpen = opStr !== '' && (opStr === path || opStr.startsWith(path + '-'));
+    return `<div>
+      <div class="pnode loop ${isOpen ? 'open' : ''}">
+        <span>🔁 Repetir ${n.n} veces ${isOpen ? '· abierto' : ''}</span>
+        <button class="x" title="Quitar" onclick="removeAt('${mode}','${path}')">✕</button>
+      </div>
+      <div class="nest">${ n.body.length ? renderNodes(mode, n.body, path)
+        : '<div class="empty">Bucle vacío: agrega bloques mientras esté abierto.</div>' }</div>
+    </div>`;
+  }).join('');
+}
+function renderProgram(mode){
+  const box = document.getElementById(mode === 'loop' ? 'prog-loop' : 'prog-creator');
+  const counter = document.getElementById(mode === 'loop' ? 'loop-blocks' : 'creator-blocks');
+  const nodes = programs[mode];
+  counter.textContent = countBlocks(nodes) + ' bloques';
+  box.innerHTML = nodes.length
+    ? renderNodes(mode, nodes, '')
+    : '<div class="empty">Toca los bloques para armar el programa.</div>';
+}
+
+/* expande el programa a comandos simples */
+function flatten(nodes, out = [], depth = 0){
+  if(depth > 6) return out;
+  for(const n of nodes){
+    if(out.length > 400) return out;
+    if(n.t === 'cmd') out.push(n.c);
+    else for(let k=0;k<n.n;k++) flatten(n.body, out, depth+1);
+  }
+  return out;
+}
+
+function flash(id, msg, type){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.hidden = false;
+  el.className = 'feedback ' + type;
+  el.textContent = msg;
+}
+function hide(id){ const el = document.getElementById(id); if(el) el.hidden = true; }
+
+/* ===================== misión 1: niveles ===================== */
+const LEVELS = {
+  1:{
+    size:6, start:{x:0,y:5,dir:1},
+    walls:[[1,3],[2,1],[3,3],[4,2],[2,4],[3,1]],
+    gems:[[5,5],[5,0]],
+    budget:6,
+    goal:'Nivel 1: recoge las dos tuercas del pasillo en L',
+    hint:'Cinco pasos a la derecha y cinco hacia arriba. Un bucle con “avanzar” adentro reemplaza cinco bloques por dos.'
+  },
+  2:{
+    size:6, start:{x:0,y:5,dir:0},
+    walls:[[0,3],[2,4],[1,2],[3,3],[2,1],[4,4]],
+    gems:[[3,2]],
+    budget:6,
+    goal:'Nivel 2: sube la escalera sin chocar contra los muros',
+    hint:'El patrón avanzar · girar derecha · avanzar · girar izquierda se repite tres veces. Mete ese patrón completo dentro de un bucle.'
+  },
+  3:{
+    size:6, start:{x:0,y:0,dir:1},
+    walls:[[2,2],[3,2],[2,3],[3,3]],
+    gems:[[5,0],[5,5],[0,5]],
+    budget:5,
+    goal:'Nivel 3: patrulla el perímetro y recoge las tres tuercas',
+    hint:'Cada lado son cinco pasos y un giro, cuatro veces. Con 5 bloques solo cabe si pones un bucle dentro de otro.'
+  }
+};
+let level = 1, bot = {x:0,y:5,dir:1}, taken = new Set(), running = false;
+
+function loadLevel(n){
+  level = n; clearProgram('loop');
+  [1,2,3].forEach(i=>{
+    const b = document.getElementById('lvl-'+i);
+    b.className = 'btn sm ' + (i === n ? 'primary' : 'ghost');
+  });
+  const L = LEVELS[n];
+  document.getElementById('lvl-goal').textContent = L.goal;
+  document.getElementById('lvl-budget').textContent = 'Máximo ' + L.budget + ' bloques';
+  document.getElementById('lvl-hint').textContent = L.hint;
+  document.getElementById('board-loop').style.gridTemplateColumns = `repeat(${L.size},1fr)`;
+  resetLevel();
+}
+function resetLevel(){
+  const L = LEVELS[level];
+  bot = {...L.start};
+  taken = new Set();
+  renderBoard('board-loop', L.size, (x,y)=>{
+    if(L.walls.some(w=>w[0]===x&&w[1]===y)) return {cls:'wall', ico:'🧱'};
+    if(L.gems.some(g=>g[0]===x&&g[1]===y)) return {cls:'gem', ico: taken.has(x+','+y) ? '·' : '🔩', dim:taken.has(x+','+y)};
+    return null;
+  }, bot);
+  hide('fb-loop');
+}
+function renderBoard(id, size, cellFn, robot){
+  const box = document.getElementById(id);
+  box.innerHTML = '';
+  for(let y=0;y<size;y++){
+    for(let x=0;x<size;x++){
+      const d = document.createElement('div');
+      d.className = 'cell';
+      const info = cellFn(x,y);
+      if(info){
+        if(info.cls) d.classList.add(info.cls);
+        if(info.dim) d.classList.add('taken');
+        d.innerHTML = info.ico ? `<span>${info.ico}</span>` : '';
+        if(info.onClick){ d.classList.add('click'); d.onclick = info.onClick; }
+      }
+      if(robot && robot.x === x && robot.y === y){
+        d.classList.add('bot');
+        d.innerHTML = `<span class="bot-sprite" style="transform:rotate(${ANGLE[robot.dir]}deg)">🤖</span>`;
+      }
+      box.appendChild(d);
+    }
+  }
+}
+
+async function runLoop(){
+  if(running) return;
+  const cmds = flatten(programs['loop']);
+  if(cmds.length === 0){ flash('fb-loop','El programa está vacío. Agrega bloques y vuelve a ejecutar.','info'); return; }
+  if(openPath['loop'].length){ flash('fb-loop','Tienes un bucle abierto. Ciérralo antes de ejecutar.','info'); return; }
+
+  const L = LEVELS[level];
+  resetLevel();
+  running = true;
+  let crashed = false;
+
+  for(const c of cmds){
+    if(c === 'right') bot.dir = (bot.dir+1)%4;
+    else if(c === 'left') bot.dir = (bot.dir+3)%4;
+    else if(c === 'move'){
+      const nx = bot.x + DIRS[bot.dir].x, ny = bot.y + DIRS[bot.dir].y;
+      const out = nx<0||ny<0||nx>=L.size||ny>=L.size;
+      const wall = L.walls.some(w=>w[0]===nx&&w[1]===ny);
+      if(out || wall){ crashed = out ? 'borde' : 'muro'; break; }
+      bot.x = nx; bot.y = ny;
+      if(L.gems.some(g=>g[0]===bot.x&&g[1]===bot.y)) taken.add(bot.x+','+bot.y);
+    }
+    beep('step');
+    resetBoardView(L);
+    await sleep(260);
+  }
+  running = false;
+  resetBoardView(L);
+
+  const blocks = countBlocks(programs['loop']);
+  if(crashed){
+    beep('bad');
+    flash('fb-loop', crashed === 'muro'
+      ? 'Choque contra un muro 🧱. El programa se detiene ahí: cuenta los pasos antes de cada giro.'
+      : 'El robot intentó salir del mapa. Revisa cuántas veces se repite el bucle.', 'bad');
+    return;
+  }
+  if(taken.size < L.gems.length){
+    beep('bad');
+    flash('fb-loop', `Faltan tuercas: recogiste ${taken.size} de ${L.gems.length}. El robot terminó en (${bot.x}, ${bot.y}).`, 'bad');
+    return;
+  }
+  if(blocks > L.budget){
+    flash('fb-loop', `Ruta correcta, pero usaste ${blocks} bloques y el límite es ${L.budget}. Agrupa los pasos repetidos dentro de un bucle (o un bucle dentro de otro) y vuelve a intentarlo.`, 'info');
+    return;
+  }
+  if(!usesLoop(programs['loop'])){
+    flash('fb-loop', 'Llegaste, pero sin usar ningún bucle. La estrella se gana con iteración.', 'info');
+    return;
+  }
+  flash('fb-loop', `Resuelto con ${blocks} bloques de ${L.budget} permitidos. Ese es el trabajo de un programador: mismo resultado, menos código. ⭐`, 'ok');
+  award('loop-'+level);
+}
+function resetBoardView(L){
+  renderBoard('board-loop', L.size, (x,y)=>{
+    if(L.walls.some(w=>w[0]===x&&w[1]===y)) return {cls:'wall', ico:'🧱'};
+    if(L.gems.some(g=>g[0]===x&&g[1]===y)){
+      const t = taken.has(x+','+y);
+      return {cls:'gem', ico: t ? '✓' : '🔩', dim:t};
+    }
+    return null;
+  }, bot);
+}
+
+/* ===================== misión 2 ===================== */
+const A_OPTIONS = [
+  {v:'', t:'Elige la acción'},
+  {v:'frenar', t:'detener_motores()'},
+  {v:'media', t:'velocidad ← 40'},
+  {v:'max', t:'velocidad ← 100'},
+  {v:'girar', t:'girar(180)'}
+];
+function buildASlots(){
+  [1,2,3].forEach(i=>{
+    const sel = document.createElement('select');
+    sel.id = 'a-sel-'+i;
+    sel.innerHTML = A_OPTIONS.map(o=>`<option value="${o.v}">${o.t}</option>`).join('');
+    sel.style.maxWidth = '260px';
+    document.getElementById('slotA'+i).appendChild(sel);
+  });
+}
+function checkA(){
+  const v = i => document.getElementById('a-sel-'+i).value;
+  const why = document.getElementById('a-why').value;
+  const ok = v(1) === 'frenar' && v(2) === 'media' && v(3) === 'max' && why === 'orden';
+  const badge = document.getElementById('badge-a');
+  if(ok){
+    badge.className = 'pill ok'; badge.textContent = 'Resuelto';
+    flash('fb-a','Correcto: la cadena evalúa de arriba hacia abajo y se detiene en la primera condición verdadera. ⭐','ok');
+    award('cond-a');
+  }else{
+    beep('bad');
+    badge.className = 'pill bad'; badge.textContent = 'Revisa de nuevo';
+    const wrong = [];
+    if(v(1) !== 'frenar') wrong.push('la rama de menos de 15 cm');
+    if(v(2) !== 'media') wrong.push('la rama intermedia');
+    if(v(3) !== 'max') wrong.push('la rama “si no”');
+    if(why !== 'orden') wrong.push('la explicación del orden');
+    flash('fb-a','Falta ajustar: ' + wrong.join(', ') + '.','bad');
+  }
+}
+
+const TRUTH = [
+  {a:'verdadero', b:'verdadero', ok:'avanzar'},
+  {a:'verdadero', b:'falso',     ok:'detenerse'},
+  {a:'falso',     b:'verdadero', ok:'detenerse'},
+  {a:'falso',     b:'falso',     ok:'detenerse'}
+];
+function buildTruth(){
+  document.getElementById('truth-body').innerHTML = TRUTH.map((r,i)=>`
+    <tr>
+      <td class="mono">${r.a}</td>
+      <td class="mono">${r.b}</td>
+      <td><select id="t-${i}">
+        <option value="">Elige</option>
+        <option value="avanzar">avanzar()</option>
+        <option value="detenerse">detenerse()</option>
+      </select></td>
+    </tr>`).join('');
+}
+function checkB(){
+  const wrong = TRUTH.filter((r,i)=> document.getElementById('t-'+i).value !== r.ok).length;
+  const badge = document.getElementById('badge-b');
+  if(wrong === 0){
+    badge.className = 'pill ok'; badge.textContent = 'Resuelto';
+    flash('fb-b','Exacto: con el operador Y las dos condiciones deben ser verdaderas, así que solo la primera fila avanza. ⭐','ok');
+    award('cond-b');
+  }else{
+    beep('bad');
+    badge.className = 'pill bad'; badge.textContent = 'Revisa de nuevo';
+    flash('fb-b', `Hay ${wrong} fila(s) sin acertar. Pregúntate para cada fila: ¿son verdaderas las dos partes a la vez?`,'bad');
+  }
+}
+function checkC(){
+  const t = parseInt(document.getElementById('c-tuercas').value,10);
+  const it = parseInt(document.getElementById('c-iter').value,10);
+  const mod = document.getElementById('c-mod').value;
+  const badge = document.getElementById('badge-c');
+  if(t === 16 && it === 8 && mod === 'par'){
+    badge.className = 'pill ok'; badge.textContent = 'Resuelto';
+    flash('fb-c','Correcto: 8 repeticiones, 4 pares que suman 3 (12) y 4 impares que suman 1 (4). Total 16. ⭐','ok');
+    award('cond-c');
+  }else{
+    beep('bad');
+    badge.className = 'pill bad'; badge.textContent = 'Revisa de nuevo';
+    const tips = [];
+    if(it !== 8) tips.push('cuenta cuántas veces se cumple pasos < 8');
+    if(mod !== 'par') tips.push('revisa qué significa el residuo 0 al dividir entre 2');
+    if(t !== 16) tips.push('separa los pasos pares de los impares y suma por grupo');
+    flash('fb-c','Todavía no. ' + tips.join('; ') + '.','bad');
+  }
+}
+
+/* ===================== misión 3: depuración ===================== */
+/* mapa 6x6, robot en (0,5), estrella en (5,0), aceite en las trampas de cada bug */
+const DBG = {
+  size:6,
+  start:{x:0,y:5},
+  goal:{x:5,y:0},
+  oil:[[2,0],[3,0],[1,4],[3,5]],
+  lines:[
+    {label:'rumbo ← ', kind:'dir', value:'abajo', right:'arriba',
+     opts:[['arriba','arriba'],['abajo','abajo'],['derecha','derecha'],['izquierda','izquierda']],
+     desc:'Dirección inicial del robot antes de empezar a avanzar.'},
+    {label:'repetir 3 veces { avanzar }', kind:'fixed'},
+    {label:'girar derecha', kind:'turn', value:'derecha', right:'derecha',
+     opts:[['derecha','derecha'],['izquierda','izquierda']],
+     desc:'Giro después del primer tramo.'},
+    {label:'repetir N veces { avanzar }', kind:'rep', value:2, right:4,
+     opts:[[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5']],
+     desc:'Cantidad de pasos del tramo horizontal.'},
+    {label:'girar izquierda', kind:'turn', value:'izquierda', right:'izquierda',
+     opts:[['derecha','derecha'],['izquierda','izquierda']],
+     desc:'Giro antes de subir hacia la estrella.'},
+    {label:'repetir N veces { avanzar }', kind:'rep', value:2, right:2,
+     opts:[[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5']],
+     desc:'Pasos que faltan para llegar a la fila de la estrella.'},
+    {label:'girar ', kind:'turn', value:'izquierda', right:'derecha',
+     opts:[['derecha','derecha'],['izquierda','izquierda']],
+     desc:'Último giro, ya en la fila superior.'},
+    {label:'repetir 1 vez { avanzar }', kind:'fixed'}
+  ],
+  marks:0
+};
+let dbot = {x:0,y:5,dir:0};
+
+function lineText(l, i){
+  if(l.kind === 'fixed') return l.label;
+  if(l.kind === 'dir') return 'rumbo ← ' + l.value;
+  if(l.kind === 'turn') return 'girar ' + l.value;
+  return 'repetir ' + l.value + ' veces { avanzar }';
+}
+function renderDebugList(){
+  const box = document.getElementById('debug-list');
+  box.innerHTML = DBG.lines.map((l,i)=>`
+    <div class="codeline ${l.touched ? 'fixed' : ''}" ${l.kind==='fixed' ? '' : `onclick="openFix(${i})"`}>
+      <span><span class="n">${String(i+1).padStart(2,'0')}</span> ${lineText(l,i)}</span>
+      <span class="state">${l.kind === 'fixed' ? 'sin parámetros' : (l.touched ? 'modificada' : 'tocar para revisar')}</span>
+    </div>`).join('');
+  document.getElementById('debug-tries').textContent = 'Cambios en líneas correctas: ' + DBG.marks;
+}
+let fixIndex = null;
+function openFix(i){
+  fixIndex = i;
+  const l = DBG.lines[i];
+  document.getElementById('fix-title').textContent = 'Línea ' + (i+1);
+  document.getElementById('fix-desc').textContent = l.desc;
+  document.getElementById('fix-select').innerHTML =
+    l.opts.map(o=>`<option value="${o[0]}" ${String(o[0])===String(l.value)?'selected':''}>${o[1]}</option>`).join('');
+  document.getElementById('fix-dialog').showModal();
+}
+function applyFix(){
+  const l = DBG.lines[fixIndex];
+  const raw = document.getElementById('fix-select').value;
+  const val = l.kind === 'rep' ? parseInt(raw,10) : raw;
+  const wasRight = String(l.value) === String(l.right);
+  if(wasRight && String(val) !== String(l.right)){
+    DBG.marks++;
+    beep('bad');
+    flash('fb-debug','Esa línea ya estaba correcta y ahora el programa tiene un error más. Deshaz el cambio y compara la ruta con el mapa.','bad');
+  }
+  l.value = val;
+  l.touched = true;
+  document.getElementById('fix-dialog').close();
+  renderDebugList();
+  checkDebugFixed();
+}
+function allFixed(){
+  return DBG.lines.every(l => l.kind === 'fixed' || String(l.value) === String(l.right));
+}
+function checkDebugFixed(){
+  if(allFixed()){
+    flash('fb-debug','Las tres líneas con error están corregidas: rumbo inicial, cantidad de pasos del tramo horizontal y el último giro. Ahora ejecuta el programa. ⭐','ok');
+    award('debug-find');
+  }
+}
+function resetDebugBoard(){
+  dbot = {x:DBG.start.x, y:DBG.start.y, dir:0};
+  document.getElementById('debug-status').textContent = 'Sin ejecutar';
+  document.getElementById('debug-status').className = 'pill';
+  drawDebugBoard();
+}
+function drawDebugBoard(){
+  renderBoard('board-debug', DBG.size, (x,y)=>{
+    if(DBG.goal.x===x && DBG.goal.y===y) return {cls:'goal', ico:'⭐'};
+    if(DBG.oil.some(o=>o[0]===x&&o[1]===y)) return {cls:'oil', ico:'🛢'};
+    return null;
+  }, dbot);
+}
+function debugCommands(){
+  const dirNum = {arriba:0, derecha:1, abajo:2, izquierda:3};
+  const out = [];
+  DBG.lines.forEach((l,i)=>{
+    if(l.kind === 'dir') out.push({op:'dir', v:dirNum[l.value]});
+    else if(l.kind === 'turn') out.push({op:'turn', v:l.value});
+    else if(l.kind === 'rep') for(let k=0;k<l.value;k++) out.push({op:'move'});
+    else if(i === 1) for(let k=0;k<3;k++) out.push({op:'move'});
+    else out.push({op:'move'});
+  });
+  return out;
+}
+async function runDebug(){
+  resetDebugBoard();
+  const status = document.getElementById('debug-status');
+  status.textContent = 'Ejecutando…';
+  let fail = null;
+  for(const c of debugCommands()){
+    if(c.op === 'dir') dbot.dir = c.v;
+    else if(c.op === 'turn') dbot.dir = c.v === 'derecha' ? (dbot.dir+1)%4 : (dbot.dir+3)%4;
+    else{
+      const nx = dbot.x + DIRS[dbot.dir].x, ny = dbot.y + DIRS[dbot.dir].y;
+      if(nx<0||ny<0||nx>=DBG.size||ny>=DBG.size){ fail = 'Se salió del mapa'; break; }
+      dbot.x = nx; dbot.y = ny;
+      if(DBG.oil.some(o=>o[0]===nx&&o[1]===ny)){ fail = 'Resbaló en el aceite 🛢'; drawDebugBoard(); break; }
+    }
+    beep('step');
+    drawDebugBoard();
+    await sleep(240);
+  }
+  drawDebugBoard();
+  if(fail){
+    beep('bad');
+    status.textContent = fail; status.className = 'pill bad';
+    flash('fb-debug', fail + ' en (' + dbot.x + ', ' + dbot.y + '). Traza la ruta en papel desde la línea 1 y compara con el mapa.','bad');
+    return;
+  }
+  if(dbot.x === DBG.goal.x && dbot.y === DBG.goal.y){
+    status.textContent = 'Llegó a la estrella'; status.className = 'pill ok';
+    flash('fb-debug','Programa sin errores: la ruta llega a la estrella sin pisar aceite. ⭐','ok');
+    award('debug-run');
+  }else{
+    beep('bad');
+    status.textContent = 'Terminó fuera de la meta'; status.className = 'pill bad';
+    flash('fb-debug', `El robot terminó en (${dbot.x}, ${dbot.y}) y la estrella está en (${DBG.goal.x}, ${DBG.goal.y}). Todavía hay algún parámetro mal.`,'bad');
+  }
+}
+
+/* ===================== misión 4: creador ===================== */
+const CSIZE = 6;
+let cmap = Array(CSIZE*CSIZE).fill('free');
+let cbot = {x:0,y:0,dir:1};
+
+function clearCreatorMap(){
+  cmap = Array(CSIZE*CSIZE).fill('free');
+  resetCreatorBot();
+}
+function cycleCell(i){
+  if(i === 0) return;
+  const order = ['free','wall','oil','goal'];
+  const next = order[(order.indexOf(cmap[i])+1) % order.length];
+  if(next === 'goal') cmap = cmap.map(v => v === 'goal' ? 'free' : v);
+  cmap[i] = next;
+  beep('step');
+  drawCreator();
+}
+function creatorStats(){
+  const walls = cmap.filter(v=>v==='wall').length;
+  const oil = cmap.filter(v=>v==='oil').length;
+  const gi = cmap.indexOf('goal');
+  const goal = gi < 0 ? null : {x: gi % CSIZE, y: Math.floor(gi/CSIZE)};
+  return {walls, oil, goal};
+}
+function drawCreator(){
+  renderBoard('board-creator', CSIZE, (x,y)=>{
+    const i = y*CSIZE + x;
+    const ico = {wall:'🧱', oil:'🛢', goal:'🏆', free:''}[cmap[i]];
+    const cls = {wall:'wall', oil:'oil', goal:'goal', free:''}[cmap[i]];
+    return {cls, ico, onClick:()=>cycleCell(i)};
+  }, cbot);
+
+  const s = creatorStats();
+  document.getElementById('creator-summary').textContent =
+    `Muros: ${s.walls} · Aceite: ${s.oil} · Meta: ${s.goal ? '('+s.goal.x+', '+s.goal.y+')' : 'sin colocar'}`;
+  const state = document.getElementById('creator-state');
+  const valid = s.walls >= 4 && s.goal && s.goal.x !== 0 && s.goal.y !== 0;
+  state.textContent = valid ? 'Reto válido' : 'Reto incompleto';
+  state.className = 'pill ' + (valid ? 'ok' : '');
+}
+function resetCreatorBot(){
+  cbot = {x:0,y:0,dir:1};
+  drawCreator();
+}
+async function runCreator(){
+  const cmds = flatten(programs['creator']);
+  if(openPath['creator'].length){ flash('fb-creator','Cierra el bucle abierto antes de ejecutar.','info'); return; }
+  if(!cmds.length){ flash('fb-creator','Agrega bloques al algoritmo antes de probarlo.','info'); return; }
+  const s = creatorStats();
+  resetCreatorBot();
+  let fail = null;
+  for(const c of cmds){
+    if(c === 'right') cbot.dir = (cbot.dir+1)%4;
+    else if(c === 'left') cbot.dir = (cbot.dir+3)%4;
+    else if(c === 'move'){
+      const nx = cbot.x + DIRS[cbot.dir].x, ny = cbot.y + DIRS[cbot.dir].y;
+      const i = ny*CSIZE + nx;
+      if(nx<0||ny<0||nx>=CSIZE||ny>=CSIZE){ fail = 'salió del mapa'; break; }
+      if(cmap[i] === 'wall'){ fail = 'chocó con un muro 🧱'; break; }
+      cbot.x = nx; cbot.y = ny;
+      if(cmap[i] === 'oil'){ fail = 'resbaló en el aceite 🛢'; drawCreator(); break; }
+    }
+    beep('step');
+    drawCreator();
+    await sleep(240);
+  }
+  drawCreator();
+  if(fail){ beep('bad'); flash('fb-creator','El robot ' + fail + ' en (' + cbot.x + ', ' + cbot.y + ').','bad'); return; }
+  if(!s.goal || !(cbot.x === s.goal.x && cbot.y === s.goal.y)){
+    flash('fb-creator','El robot no terminó sobre la meta 🏆. Ajusta el algoritmo o coloca la meta antes de probar.','info');
+    return;
+  }
+  const valid = s.walls >= 4 && s.goal.x !== 0 && s.goal.y !== 0;
+  if(!valid){
+    flash('fb-creator','Solución correcta, pero el reto es muy fácil: coloca al menos cuatro muros y una meta que no esté en la fila ni la columna del robot.','info');
+    return;
+  }
+  if(!usesLoop(programs['creator'])){
+    flash('fb-creator','Llegaste a la meta sin bucles. Reescribe el algoritmo usando iteración para ganar la estrella.','info');
+    return;
+  }
+  flash('fb-creator','Reto propio diseñado y resuelto con bucles. Intercámbialo con otro equipo y compara soluciones. ⭐','ok');
+  award('creator');
+}
+
+/* ===================== diploma ===================== */
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function todayText(){
+  const d = new Date();
+  return `${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`;
+}
+function levelName(n){
+  if(n >= 9) return 'Experto';
+  if(n >= 7) return 'Avanzado';
+  if(n >= 4) return 'Aprendiz';
+  if(n >= 1) return 'Iniciación';
+  return 'sin estrellas';
+}
+function spaced(ctx, text, x, y, spacing, align){
+  const prev = ctx.textAlign;
+  ctx.textAlign = 'left';
+  const chars = [...text];
+  const total = chars.reduce((a,c)=>a + ctx.measureText(c).width + spacing, 0) - spacing;
+  let cx = align === 'center' ? x - total/2 : x;
+  for(const c of chars){
+    ctx.fillText(c, cx, y);
+    cx += ctx.measureText(c).width + spacing;
+  }
+  ctx.textAlign = prev;
+  return total;
+}
+function wrapCentered(ctx, text, cx, y, maxW, lh){
+  const words = text.split(' ');
+  let line = '', yy = y;
+  for(const w of words){
+    const test = line ? line + ' ' + w : w;
+    if(ctx.measureText(test).width > maxW && line){
+      ctx.fillText(line, cx, yy); yy += lh; line = w;
+    } else line = test;
+  }
+  if(line) ctx.fillText(line, cx, yy);
+  return yy;
+}
+function val(id, fallback){
+  const v = (document.getElementById(id).value || '').trim();
+  return v || fallback;
+}
+function drawCert(){
+  const cv = document.getElementById('cert-canvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, cx = W/2;
+  const CREAM = '#fdf7ec', INK = '#2c211a', CLAY = '#a94f2c', GOLD = '#b8842c', OLIVE = '#6f7d47', MUTED = '#7a6754';
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = CREAM; ctx.fillRect(0,0,W,H);
+
+  // textura suave de esquina
+  const g = ctx.createRadialGradient(W, 0, 40, W, 0, 900);
+  g.addColorStop(0,'rgba(184,132,44,.16)'); g.addColorStop(1,'rgba(184,132,44,0)');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+
+  // marcos
+  ctx.strokeStyle = CLAY; ctx.lineWidth = 12;
+  ctx.strokeRect(54,54,W-108,H-108);
+  ctx.strokeStyle = GOLD; ctx.lineWidth = 3;
+  ctx.strokeRect(84,84,W-168,H-168);
+
+  // rombos decorativos en las esquinas del marco interno
+  const diamond = (x,y,r,color)=>{
+    ctx.fillStyle = color; ctx.beginPath();
+    ctx.moveTo(x,y-r); ctx.lineTo(x+r,y); ctx.lineTo(x,y+r); ctx.lineTo(x-r,y);
+    ctx.closePath(); ctx.fill();
+  };
+  [[84,84],[W-84,84],[84,H-84],[W-84,H-84]].forEach(p=>diamond(p[0],p[1],17,CLAY));
+
+  ctx.textAlign = 'center';
+
+  // escuela
+  ctx.fillStyle = MUTED; ctx.font = '500 34px "Space Grotesk", sans-serif';
+  spaced(ctx, val('c-school','Centro escolar').toUpperCase(), cx, 190, 5, 'center');
+
+  // título
+  ctx.fillStyle = INK; ctx.font = '700 144px Fraunces, Georgia, serif';
+  spaced(ctx, 'DIPLOMA', cx, 330, 14, 'center');
+
+  ctx.fillStyle = CLAY; ctx.font = '500 44px Fraunces, Georgia, serif';
+  ctx.fillText('Pensamiento computacional y lógica de programación', cx, 400);
+
+  // línea divisoria con rombo
+  ctx.strokeStyle = GOLD; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx-380,440); ctx.lineTo(cx-30,440); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+30,440); ctx.lineTo(cx+380,440); ctx.stroke();
+  diamond(cx,440,13,GOLD);
+
+  // nombre
+  ctx.fillStyle = MUTED; ctx.font = '400 36px "Space Grotesk", sans-serif';
+  ctx.fillText('Se otorga el presente reconocimiento a', cx, 520);
+
+  ctx.fillStyle = INK; ctx.font = '700 104px Fraunces, Georgia, serif';
+  const name = val('c-name','Nombre del estudiante');
+  let nameSize = 104;
+  while(ctx.measureText(name).width > W-420 && nameSize > 52){
+    nameSize -= 4; ctx.font = `700 ${nameSize}px Fraunces, Georgia, serif`;
+  }
+  ctx.fillText(name, cx, 640);
+  ctx.strokeStyle = CLAY; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(cx-560,678); ctx.lineTo(cx+560,678); ctx.stroke();
+
+  ctx.fillStyle = OLIVE; ctx.font = '700 38px "Space Grotesk", sans-serif';
+  ctx.fillText(val('c-section','Octavo grado'), cx, 736);
+
+  // cuerpo
+  ctx.fillStyle = INK; ctx.font = '400 34px "Space Grotesk", sans-serif';
+  const bodyEnd = wrapCentered(ctx,
+    'Por resolver los desafíos de RoboLab 8°: algoritmos con bucles anidados, condicionales compuestas, ' +
+    'trazado de la ejecución y depuración de código con errores.',
+    cx, 806, W-440, 52);
+
+  // estrellas
+  const stars = earned.size;
+  const starsY = Math.max(1030, bodyEnd + 90);
+  ctx.font = '400 54px "Space Grotesk", sans-serif';
+  let row = '';
+  for(let i=0;i<TOTAL_STARS;i++) row += i < stars ? '★' : '☆';
+  ctx.fillStyle = GOLD;
+  spaced(ctx, row, cx, starsY, 12, 'center');
+  ctx.fillStyle = MUTED; ctx.font = '700 32px "Space Grotesk", sans-serif';
+  ctx.fillText(`${stars} de ${TOTAL_STARS} estrellas · nivel ${levelName(stars).toLowerCase()}`, cx, starsY + 56);
+
+  // firmas
+  const sigY = 1252;
+  const leftX = 470, rightX = W-470;
+  ctx.strokeStyle = MUTED; ctx.lineWidth = 2;
+  [leftX,rightX].forEach(x=>{
+    ctx.beginPath(); ctx.moveTo(x-300,sigY); ctx.lineTo(x+300,sigY); ctx.stroke();
+  });
+  ctx.fillStyle = INK; ctx.font = '700 34px "Space Grotesk", sans-serif';
+  ctx.fillText(val('c-teacher','Docente'), leftX, sigY-22);
+  ctx.fillText('RoboLab 8°', rightX, sigY-22);
+  ctx.fillStyle = MUTED; ctx.font = '400 28px "Space Grotesk", sans-serif';
+  ctx.fillText('Docente responsable', leftX, sigY+46);
+  ctx.fillText('Taller de lógica de programación', rightX, sigY+46);
+
+  // lugar y fecha
+  ctx.fillStyle = MUTED; ctx.font = '400 30px "Space Grotesk", sans-serif';
+  ctx.fillText(`${val('c-place','Lugar')}, ${val('c-date', todayText())}`, cx, 1148);
+
+  document.getElementById('cert-level').textContent = 'Nivel: ' + levelName(stars);
+}
+function certFileName(){
+  const n = val('c-name','estudiante').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  return `diploma-robolab-8-${n || 'estudiante'}.png`;
+}
+function downloadCert(){
+  drawCert();
+  const cv = document.getElementById('cert-canvas');
+  cv.toBlob(blob=>{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = certFileName();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  }, 'image/png');
+}
+function printCert(){
+  drawCert();
+  const data = document.getElementById('cert-canvas').toDataURL('image/png');
+  const img = document.getElementById('print-img');
+  img.onload = ()=>{ window.print(); };
+  img.src = data;
+}
+
+/* ===================== inicio ===================== */
+window.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('c-date').value = todayText();
+  loadLevel(1);
+  renderProgram('loop');
+  renderProgram('creator');
+  buildASlots();
+  buildTruth();
+  renderDebugList();
+  resetDebugBoard();
+  clearCreatorMap();
+  ['c-name','c-section','c-school','c-teacher','c-place','c-date'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', drawCert);
+  });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawCert);
+  drawCert();
+});
+</script>
+</body>
+</html>
