@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoboLab 4° - La Aventura de la Lógica de Programación</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts Inter & Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            purple: '#7c3aed',
+                            pink: '#ec4899',
+                            yellow: '#f59e0b',
+                            green: '#10b981',
+                            blue: '#3b82f6',
+                            dark: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+
+        /* Animated Grid Styling */
+        .grid-cell {
+            transition: all 0.2s ease-in-out;
+        }
+        .grid-cell:hover {
+            transform: scale(1.03);
+        }
+
+        /* Robot pulse animation */
+        @keyframes pulse-robot {
+            0%, 100% { transform: scale(1) rotate(var(--robot-angle, 0deg)); }
+            50% { transform: scale(1.08) rotate(var(--robot-angle, 0deg)); }
+        }
+        .robot-anim {
+            animation: pulse-robot 2s infinite;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4c1d95;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6d28d9;
+        }
+
+        /* Glassmorphism card effects */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Code block glow on execution */
+        .block-active {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+            transform: scale(1.04);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-100 selection:bg-purple-500 selection:text-white">
+
+    <!-- Header / Navigation Bar -->
+    <header class="glass-panel sticky top-0 z-50 px-4 py-3 border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 text-2xl">
+                    🤖
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold bg-gradient-to-r from-purple-300 via-pink-300 to-amber-200 bg-clip-text text-transparent">
+                        RoboLab 4°
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">Aventura de Lógica & Programación</p>
+                </div>
+            </div>
+
+            <!-- Level Selector Navigation -->
+            <nav class="flex items-center space-x-1 sm:space-x-2 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800">
+                <button onclick="switchTab('bucles')" id="tab-bucles" class="nav-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-purple-600 text-white shadow-md">
+                    <span>🔄</span> <span class="hidden md:inline">Misión 1:</span> Bucles
+                </button>
+                <button onclick="switchTab('condicionales')" id="tab-condicionales" class="nav-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 flex items-center gap-1.5">
+                    <span>🔀</span> <span class="hidden md:inline">Misión 2:</span> Condicionales
+                </button>
+                <button onclick="switchTab('debugging')" id="tab-debugging" class="nav-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 flex items-center gap-1.5">
+                    <span>🔍</span> <span class="hidden md:inline">Misión 3:</span> Caza BUGS
+                </button>
+                <button onclick="switchTab('sandbox')" id="tab-sandbox" class="nav-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-200 flex items-center gap-1.5">
+                    <span>🚀</span> <span class="hidden md:inline">Modo:</span> Creador
+                </button>
+                <button onclick="switchTab('certificado')" id="tab-certificado" class="nav-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold text-amber-400 hover:bg-amber-500/10 transition-all duration-200 flex items-center gap-1.5">
+                    <span>🏆</span> <span class="hidden sm:inline">Diploma</span>
+                </button>
+            </nav>
+
+            <!-- User Status & Sound -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleAudio()" id="sound-btn" title="Activar/Desactivar Sonido" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition">
+                    🔊
+                </button>
+                <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl text-amber-300 font-bold text-sm">
+                    <span>⭐</span> <span id="star-count">0</span> / 6 Estrellas
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 gap-6">
+
+        <!-- ========================================================================= -->
+        <!-- TAB 1: MISSION 1 - BUCLES / LOOPS -->
+        <!-- ========================================================================= -->
+        <section id="view-bucles" class="tab-view space-y-6">
+            <!-- Instruction Header -->
+            <div class="glass-panel p-5 rounded-3xl border border-purple-500/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <span class="text-xs font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-lg border border-purple-500/20">Concepto: Secuencia y Bucles (Repetición)</span>
+                    <h2 class="text-2xl font-black text-white">🔄 Misión 1: ¡Optimiza el Camino del Robot!</h2>
+                    <p class="text-slate-300 text-sm max-w-2xl">
+                        A los programadores no les gusta escribir la misma orden muchas veces. Usa el bloque de <strong class="text-amber-300">REPETIR 🔄</strong> para guiar a Robo-Bot hasta las tuercas doradas usando la menor cantidad de código.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-900/80 p-2 rounded-2xl border border-slate-700">
+                    <span class="text-xs text-slate-400 pl-2">Sub-Nivel:</span>
+                    <button onclick="loadLoopSublevel(1)" id="sub-loop-1" class="px-3 py-1 rounded-xl text-xs font-bold bg-purple-600 text-white">Nivel 1</button>
+                    <button onclick="loadLoopSublevel(2)" id="sub-loop-2" class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white">Nivel 2</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Left: Interactive Grid Game Map -->
+                <div class="lg:col-span-7 glass-panel p-5 rounded-3xl flex flex-col items-center justify-center space-y-4">
+                    <div class="w-full flex justify-between items-center text-sm font-semibold text-slate-400 px-2">
+                        <span>Mapa del Laboratorio</span>
+                        <span id="loop-goal-text" class="text-emerald-400">Objetivo: ¡Recoge la tuerca!</span>
+                    </div>
+
+                    <!-- Grid Board -->
+                    <div id="grid-loop" class="grid grid-cols-5 gap-2 bg-slate-900/90 p-4 rounded-2xl border-2 border-slate-700 shadow-inner max-w-md w-full aspect-square">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Controls bar -->
+                    <div class="flex flex-wrap items-center justify-center gap-3 w-full pt-2">
+                        <button onclick="runLoopProgram()" class="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-extrabold rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-95 transition flex items-center gap-2 text-base">
+                            ▶️ Ejecutar Código
+                        </button>
+                        <button onclick="resetLoopLevel()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-2xl border border-slate-600 active:scale-95 transition text-sm">
+                            🔄 Reiniciar Robot
+                        </button>
+                        <button onclick="clearProgram('loop')" class="px-4 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-2xl border border-rose-500/30 active:scale-95 transition text-sm">
+                            🗑️ Borrar Todo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right: Block Palette & Code Editor -->
+                <div class="lg:col-span-5 space-y-5">
+                    <!-- Palette -->
+                    <div class="glass-panel p-4 rounded-3xl border border-slate-700/60 space-y-3">
+                        <h3 class="text-sm font-extrabold text-slate-300 uppercase tracking-wide flex items-center gap-2">
+                            <span>🧱</span> Bloques de Comandos (Haz Clic para agregar)
+                        </h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="addBlock('loop', 'move')" class="p-3 bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/50 rounded-2xl font-bold text-blue-200 text-sm flex items-center justify-center gap-2 transition hover:scale-102">
+                                ⬆️ Avanzar
+                            </button>
+                            <button onclick="addBlock('loop', 'turn-right')" class="p-3 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/50 rounded-2xl font-bold text-indigo-200 text-sm flex items-center justify-center gap-2 transition hover:scale-102">
+                                ↪️ Girar Derecha
+                            </button>
+                            <button onclick="addBlock('loop', 'turn-left')" class="p-3 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/50 rounded-2xl font-bold text-indigo-200 text-sm flex items-center justify-center gap-2 transition hover:scale-102">
+                                ↩️ Girar Izq.
+                            </button>
+                            <button onclick="addBlock('loop', 'loop-3')" class="p-3 bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/50 rounded-2xl font-bold text-amber-200 text-sm flex items-center justify-center gap-2 transition hover:scale-102 col-span-2">
+                                🔄 Repetir 3 Veces (Avanzar)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Program Workspace -->
+                    <div class="glass-panel p-4 rounded-3xl border border-slate-700/60 min-h-[260px] flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-700/60 mb-3">
+                                <h3 class="text-sm font-extrabold text-slate-200 flex items-center gap-2">
+                                    <span>📜</span> Tu Programa (Secuencia):
+                                </h3>
+                                <span id="loop-block-counter" class="text-xs bg-slate-800 text-purple-300 font-bold px-2.5 py-1 rounded-full border border-slate-700">0 Bloques</span>
+                            </div>
+                            <div id="program-loop" class="space-y-2 min-h-[140px] max-h-[240px] overflow-y-auto p-1">
+                                <!-- Program blocks render here -->
+                                <div class="text-slate-500 text-xs italic text-center py-8">
+                                    Haz clic en los bloques de arriba para armar las instrucciones de Robo-Bot.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="loop-feedback" class="mt-3 p-3 rounded-2xl text-xs font-bold hidden text-center">
+                            <!-- Live feedback message -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 2: MISSION 2 - CONDICIONALES / IF-THEN -->
+        <!-- ========================================================================= -->
+        <section id="view-condicionales" class="tab-view space-y-6 hidden">
+            <div class="glass-panel p-5 rounded-3xl border border-blue-500/20 space-y-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-lg border border-blue-500/20">Concepto: Tomar Decisiones (Si... Entonces)</span>
+                <h2 class="text-2xl font-black text-white">🔀 Misión 2: Toma de Decisiones en la Pista</h2>
+                <p class="text-slate-300 text-sm max-w-3xl">
+                    Los robots necesitan reaccionar al entorno. Ayuda a Robo-Bot a decidir qué hacer según el color del sensor en el piso.
+                    <strong>Fórmula:</strong> <span class="text-amber-300">SI</span> ve color X ➔ <span class="text-emerald-300">ENTONCES</span> haz esta acción.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Conditionals Challenge Card 1 -->
+                <div class="glass-panel p-6 rounded-3xl border border-slate-700/60 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-lg">Reto A: Sensor de Tráfico</span>
+                        <span id="cond-badge-1" class="text-xs font-extrabold text-slate-500 bg-slate-800 px-2 py-1 rounded-md">Incompleto</span>
+                    </div>
+                    <div class="p-4 bg-slate-900/80 rounded-2xl flex items-center gap-4 border border-slate-800">
+                        <div id="sensor-color-box-1" class="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30 transition-all">
+                            🟢
+                        </div>
+                        <div class="text-sm space-y-1">
+                            <p class="font-bold text-slate-200">Estado del Sensor:</p>
+                            <p id="sensor-status-text-1" class="text-xs text-emerald-400 font-extrabold">Color Detectado: VERDE</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        <p class="text-xs font-bold text-slate-300 uppercase">Completa el código del robot:</p>
+
+                        <div class="p-3 bg-slate-900/90 rounded-2xl space-y-3 border border-slate-800 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="font-extrabold text-amber-400">SI</span>
+                                <span class="text-slate-300">el color es 🟢 VERDE</span>
+                            </div>
+                            <div class="flex items-center gap-2 pl-4">
+                                <span class="font-extrabold text-emerald-400">ENTONCES ➔</span>
+                                <select id="cond-select-1" class="bg-slate-800 text-white font-bold text-xs p-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-purple-500 outline-none w-full">
+                                    <option value="">-- Selecciona una acción --</option>
+                                    <option value="detener">🛑 Detenerse inmediatamente</option>
+                                    <option value="avanzar">⬆️ Avanzar a toda velocidad</option>
+                                    <option value="girar">↩️ Girar en U</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button onclick="checkConditional1()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-2xl shadow-md transition text-sm">
+                            Comprobar Regla
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Conditionals Challenge Card 2 -->
+                <div class="glass-panel p-6 rounded-3xl border border-slate-700/60 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-purple-400 bg-purple-400/10 px-2.5 py-1 rounded-lg">Reto B: Esquivar Obstáculos</span>
+                        <span id="cond-badge-2" class="text-xs font-extrabold text-slate-500 bg-slate-800 px-2 py-1 rounded-md">Incompleto</span>
+                    </div>
+
+                    <div class="p-4 bg-slate-900/80 rounded-2xl flex items-center gap-4 border border-slate-800">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-800 border-2 border-rose-500/60 flex items-center justify-center text-3xl shadow-lg">
+                            🧱
+                        </div>
+                        <div class="text-sm space-y-1">
+                            <p class="font-bold text-slate-200">Sensor de Ultrasonido:</p>
+                            <p class="text-xs text-rose-400 font-extrabold">¡Hay una Pared Enfrente!</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        <p class="text-xs font-bold text-slate-300 uppercase">Completa el código del robot:</p>
+
+                        <div class="p-3 bg-slate-900/90 rounded-2xl space-y-3 border border-slate-800 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="font-extrabold text-amber-400">SI</span>
+                                <span class="text-slate-300">encuentras una Pared 🧱</span>
+                            </div>
+                            <div class="flex items-center gap-2 pl-4">
+                                <span class="font-extrabold text-emerald-400">ENTONCES ➔</span>
+                                <select id="cond-select-2" class="bg-slate-800 text-white font-bold text-xs p-2 rounded-xl border border-slate-700 focus:ring-2 focus:ring-purple-500 outline-none w-full">
+                                    <option value="">-- Selecciona una acción --</option>
+                                    <option value="chocar">💥 Avanzar y chocar</option>
+                                    <option value="girar">↪️ Girar a la derecha</option>
+                                    <option value="dormir">😴 Apagar motores</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button onclick="checkConditional2()" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-extrabold rounded-2xl shadow-md transition text-sm">
+                            Comprobar Regla
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conditional Interactive Test Simulator -->
+            <div class="glass-panel p-6 rounded-3xl border border-slate-700/60 text-center space-y-4">
+                <h3 class="text-lg font-extrabold text-amber-300">🧪 Laboratorio de Pruebas Condicionales</h3>
+                <p class="text-xs text-slate-300 max-w-xl mx-auto">
+                    Presiona el botón para cambiar el color del piso aleatoriamente y mira cómo reacciona tu robot automáticamente usando el código de arriba.
+                </p>
+                <div class="flex justify-center items-center gap-6 py-2">
+                    <div id="sim-floor" class="w-20 h-20 rounded-3xl bg-emerald-500 flex items-center justify-center text-3xl shadow-xl transition-all duration-300">
+                        🟢
+                    </div>
+                    <div class="text-2xl font-bold text-slate-500">➔</div>
+                    <div id="sim-robot-response" class="w-20 h-20 rounded-3xl bg-slate-800 border-2 border-slate-700 flex flex-col items-center justify-center text-3xl shadow-xl transition-all">
+                        🤖
+                    </div>
+                </div>
+                <button onclick="testRandomConditional()" class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black rounded-2xl shadow-lg transition text-sm">
+                    🎲 Cambiar Sensor Aleatorio
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 3: MISSION 3 - DEBUGGING / CAZA DE BUGS -->
+        <!-- ========================================================================= -->
+        <section id="view-debugging" class="tab-view space-y-6 hidden">
+            <div class="glass-panel p-5 rounded-3xl border border-rose-500/20 space-y-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-lg border border-rose-500/20">Concepto: Depuración (Caza de Errores)</span>
+                <h2 class="text-2xl font-black text-white">🔍 Misión 3: Detective de "BUGs"</h2>
+                <p class="text-slate-300 text-sm max-w-3xl">
+                    Un <strong>BUG</strong> es un error en el código que hace que el programa falle o que el robot caiga en un charco de aceite 🌊.
+                    ¡Revisa las instrucciones preparadas, encuentra el bloque equivocado y corrígelo!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Debugging Grid Area -->
+                <div class="lg:col-span-6 glass-panel p-5 rounded-3xl flex flex-col items-center justify-center space-y-4">
+                    <div class="w-full flex justify-between items-center text-sm font-semibold text-slate-400 px-2">
+                        <span>Pista con Obstáculos y Aceite 🌊</span>
+                        <span id="bug-status-text" class="text-rose-400 font-bold">¡Código con Error!</span>
+                    </div>
+
+                    <!-- Debug Grid -->
+                    <div id="grid-bug" class="grid grid-cols-4 gap-2 bg-slate-900/90 p-4 rounded-2xl border-2 border-slate-700 shadow-inner max-w-sm w-full aspect-square">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="flex items-center gap-3 w-full justify-center pt-2">
+                        <button onclick="testDebugCode()" class="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-extrabold rounded-2xl shadow-lg transition text-sm flex items-center gap-2">
+                            ▶️ Probar Código Actual
+                        </button>
+                        <button onclick="resetDebugGrid()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-2xl border border-slate-700 text-sm transition">
+                            🔄 Reiniciar Posición
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Buggy Code Inspector -->
+                <div class="lg:col-span-6 glass-panel p-6 rounded-3xl border border-slate-700/60 space-y-5">
+                    <div class="space-y-1">
+                        <h3 class="text-lg font-black text-amber-300 flex items-center gap-2">
+                            <span>🐛</span> Inspeccionar Secuencia de Comandos
+                        </h3>
+                        <p class="text-xs text-slate-400">
+                            Haz clic en la instrucción que creas que es un error para cambiarla por la correcta.
+                        </p>
+                    </div>
+
+                    <!-- Code lines list -->
+                    <div id="debug-code-list" class="space-y-2">
+                        <!-- Dynamic code list render -->
+                    </div>
+
+                    <div id="debug-feedback" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2">
+                        <p class="font-bold text-amber-400">💡 Pista del Ingeniero:</p>
+                        <p id="debug-hint-text">El robot avanza 2 pasos, pero luego gira hacia la pared en lugar de girar hacia la estrella. ¿Cuál bloque tiene la dirección equivocada?</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 4: SANDBOX / MODOCREADOR -->
+        <!-- ========================================================================= -->
+        <section id="view-sandbox" class="tab-view space-y-6 hidden">
+            <div class="glass-panel p-5 rounded-3xl border border-emerald-500/20 space-y-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">Creatividad Libre</span>
+                <h2 class="text-2xl font-black text-white">🚀 Modo Creador de Algoritmos</h2>
+                <p class="text-slate-300 text-sm max-w-3xl">
+                    ¡Crea tus propios desafíos! Haz clic en las casillas del mapa para colocar obstáculos 🪨 o la meta 🏆. Luego escribe el programa completo para resolver tu propio juego.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Sandbox Canvas Grid -->
+                <div class="lg:col-span-7 glass-panel p-5 rounded-3xl flex flex-col items-center space-y-4">
+                    <div class="w-full flex justify-between items-center text-xs text-slate-400 px-2 font-semibold">
+                        <span>Haz clic en la casilla para cambiar objeto: [Libre ➔ Obstáculo 🪨 ➔ Meta 🏆]</span>
+                    </div>
+
+                    <div id="grid-sandbox" class="grid grid-cols-5 gap-2 bg-slate-900/90 p-4 rounded-2xl border-2 border-slate-700 shadow-inner max-w-md w-full aspect-square">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-center gap-3 w-full pt-2">
+                        <button onclick="runSandboxProgram()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-2xl shadow-lg transition text-sm">
+                            ▶️ Probar Mi Solución
+                        </button>
+                        <button onclick="resetSandboxRobot()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-2xl border border-slate-700 text-sm transition">
+                            🔄 Reubicar Robot
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sandbox Controls Palette -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="glass-panel p-4 rounded-3xl border border-slate-700/60 space-y-3">
+                        <h3 class="text-xs font-extrabold text-slate-300 uppercase tracking-wide">Añadir Comandos al Algoritmo:</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="addBlock('sandbox', 'move')" class="p-2.5 bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 rounded-xl font-bold text-blue-200 text-xs">
+                                ⬆️ Avanzar
+                            </button>
+                            <button onclick="addBlock('sandbox', 'turn-right')" class="p-2.5 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 rounded-xl font-bold text-indigo-200 text-xs">
+                                ↪️ Girar Der.
+                            </button>
+                            <button onclick="addBlock('sandbox', 'turn-left')" class="p-2.5 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 rounded-xl font-bold text-indigo-200 text-xs">
+                                ↩️ Girar Izq.
+                            </button>
+                            <button onclick="addBlock('sandbox', 'loop-2')" class="p-2.5 bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/40 rounded-xl font-bold text-amber-200 text-xs">
+                                🔄 Repetir x2 (Avanzar)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-3xl border border-slate-700/60 min-h-[200px] flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-700/60 mb-2">
+                                <h3 class="text-xs font-extrabold text-slate-200">Algoritmo Personalizado:</h3>
+                                <button onclick="clearProgram('sandbox')" class="text-xs text-rose-400 font-bold hover:underline">
+                                    Vaciar
+                                </button>
+                            </div>
+                            <div id="program-sandbox" class="space-y-1.5 max-h-[180px] overflow-y-auto p-1 text-xs">
+                                <!-- Sandbox program blocks -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 5: DIPLOMA / CERTIFICATE -->
+        <!-- ========================================================================= -->
+        <section id="view-certificado" class="tab-view space-y-6 hidden">
+            <div class="max-w-3xl mx-auto glass-panel p-8 rounded-3xl border-2 border-amber-500/40 text-center space-y-6 relative overflow-hidden bg-slate-900/90 shadow-2xl">
+                <!-- Certificate Background Watermark -->
+                <div class="absolute -right-10 -bottom-10 text-9xl opacity-5 pointer-events-none select-none">🏆</div>
+
+                <div class="space-y-2">
+                    <span class="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-300 font-extrabold text-xs uppercase tracking-widest rounded-full">
+                        Reconocimiento de Logro
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-black text-amber-200">Diploma de Pensamiento Lógico</h2>
+                    <p class="text-xs sm:text-sm text-slate-400">Otorgado por completar los desafíos de programación para 4° Grado</p>
+                </div>
+
+                <div class="py-4 space-y-4 border-y border-slate-800 my-4">
+                    <p class="text-sm text-slate-300">Este certificado reconoce formalmente que:</p>
+                    <div class="max-w-md mx-auto">
+                        <input type="text" id="student-name-input" placeholder="Escribe tu Nombre y Apellido aquí" value="Estudiante de 4° Grado" class="w-full text-center text-xl sm:text-2xl font-black bg-slate-800/90 border-2 border-amber-500/50 rounded-2xl px-4 py-3 text-amber-300 focus:outline-none focus:border-amber-400 shadow-inner">
+                    </div>
+                    <p class="text-xs text-slate-300 max-w-lg mx-auto">
+                        Ha demostrado habilidades de pensamiento computacional, creación de algoritmos, uso de bucles de repetición y depuración de código de forma sobresaliente.
+                    </p>
+                </div>
+
+                <!-- Star metrics -->
+                <div class="flex justify-center items-center gap-6">
+                    <div class="text-center">
+                        <div class="text-2xl font-black text-amber-300 flex items-center justify-center gap-1">
+                            ⭐ <span id="cert-stars">0</span>/6
+                        </div>
+                        <p class="text-xs text-slate-400">Estrellas Obtendidas</p>
+                    </div>
+                    <div class="h-8 w-px bg-slate-800"></div>
+                    <div class="text-center">
+                        <div class="text-2xl font-black text-purple-300">
+                            4.º Grado
+                        </div>
+                        <p class="text-xs text-slate-400">Nivel Educativo</p>
+                    </div>
+                </div>
+
+                <!-- Print button -->
+                <div class="pt-2">
+                    <button onclick="window.print()" class="px-8 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black rounded-2xl shadow-xl shadow-amber-500/20 transition transform hover:scale-105 active:scale-95 text-sm">
+                        🖨️ Imprimir Diploma o Guardar en PDF
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center text-xs text-slate-500 border-t border-slate-800/80">
+        <p>RoboLab 4° Grado — Diseñado para el aprendizaje activo de la Lógica de Programación en la escuela</p>
+    </footer>
+
+    <script>
+        /* ========================================================================= */
+        /* AUDIO SYNTHESIZER (Web Audio API - No external files needed)             */
+        /* ========================================================================= */
+        let audioEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'move') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'turn') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.linearRampToValueAtTime(400, now + 0.12);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } else if (type === 'win') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.15); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.3); // G5
+                    osc.frequency.setValueAtTime(1046.50, now + 0.45); // C6
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.7);
+                    osc.start(now);
+                    osc.stop(now + 0.7);
+                } else if (type === 'error') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.linearRampToValueAtTime(100, now + 0.25);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                }
+            } catch (e) {
+                console.log("Audio not allowed yet");
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('sound-btn');
+            btn.innerHTML = audioEnabled ? '🔊' : '🔇';
+            btn.classList.toggle('opacity-50', !audioEnabled);
+        }
+
+        /* ========================================================================= */
+        /* GLOBAL APP STATE & ACHIEVEMENTS                                          */
+        /* ========================================================================= */
+        let starsEarned = new Set();
+
+        function addStar(starId) {
+            starsEarned.add(starId);
+            const count = starsEarned.size;
+            document.getElementById('star-count').innerText = count;
+            document.getElementById('cert-stars').innerText = count;
+
+            // Trigger confetti burst
+            confetti({
+                particleCount: 50,
+                spread: 60,
+                origin: { y: 0.7 }
+            });
+        }
+
+        function switchTab(tabName) {
+            playSound('turn');
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${tabName}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-600', 'text-white', 'shadow-md');
+                btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
+            });
+
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400', 'hover:bg-slate-800');
+                activeBtn.classList.add('bg-purple-600', 'text-white', 'shadow-md');
+            }
+        }
+
+        /* ========================================================================= */
+        /* MISSION 1: BUCLES (LOOPS) ENGINE                                         */
+        /* ========================================================================= */
+        let loopLevel = 1;
+        let loopGridSize = 5;
+        let loopRobotPos = { x: 0, y: 0, dir: 1 }; // dir: 0=Up, 1=Right, 2=Down, 3=Left
+        let loopGoalPos = { x: 4, y: 0 };
+        let loopProgram = [];
+        let isExecuting = false;
+
+        function loadLoopSublevel(lvl) {
+            loopLevel = lvl;
+            document.getElementById('sub-loop-1').className = lvl === 1 ? 'px-3 py-1 rounded-xl text-xs font-bold bg-purple-600 text-white' : 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white';
+            document.getElementById('sub-loop-2').className = lvl === 2 ? 'px-3 py-1 rounded-xl text-xs font-bold bg-purple-600 text-white' : 'px-3 py-1 rounded-xl text-xs font-bold bg-slate-800 text-slate-400 hover:text-white';
+
+            if (lvl === 1) {
+                // Level 1: Straight line 4 steps (perfect for Repeat x3 + 1 move)
+                loopRobotPos = { x: 0, y: 2, dir: 1 };
+                loopGoalPos = { x: 4, y: 2 };
+                document.getElementById('loop-goal-text').innerText = "Meta: ¡Recoge la tuerca en la casilla derecha!";
+            } else {
+                // Level 2: L shape
+                loopRobotPos = { x: 0, y: 4, dir: 1 };
+                loopGoalPos = { x: 3, y: 1 };
+                document.getElementById('loop-goal-text').innerText = "Meta: Avanza 3 veces, gira a la izquierda y avanza 3 veces.";
+            }
+            resetLoopLevel();
+        }
+
+        function resetLoopLevel() {
+            if (loopLevel === 1) {
+                loopRobotPos = { x: 0, y: 2, dir: 1 };
+            } else {
+                loopRobotPos = { x: 0, y: 4, dir: 1 };
+            }
+            renderLoopGrid();
+            hideFeedback('loop-feedback');
+        }
+
+        function renderLoopGrid() {
+            const container = document.getElementById('grid-loop');
+            container.innerHTML = '';
+
+            for (let y = 0; y < loopGridSize; y++) {
+                for (let x = 0; x < loopGridSize; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell rounded-xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-xl relative';
+
+                    // Check if Goal
+                    if (x === loopGoalPos.x && y === loopGoalPos.y) {
+                        cell.innerHTML = '<span class="text-2xl animate-bounce">🔩</span>';
+                        cell.classList.add('bg-amber-500/10', 'border-amber-500/40');
+                    }
+
+                    // Check if Robot
+                    if (x === loopRobotPos.x && y === loopRobotPos.y) {
+                        const angles = { 0: '-90deg', 1: '0deg', 2: '90deg', 3: '180deg' };
+                        const angle = angles[loopRobotPos.dir];
+                        cell.innerHTML = `<span class="robot-anim text-3xl inline-block" style="--robot-angle: ${angle}">🤖</span>`;
+                        cell.classList.add('bg-purple-600/30', 'border-purple-500');
+                    }
+
+                    container.appendChild(cell);
+                }
+            }
+        }
+
+        function addBlock(mode, type) {
+            playSound('turn');
+            if (mode === 'loop') {
+                if (loopProgram.length >= 8) {
+                    showFeedback('loop-feedback', '⚠️ Máximo 8 bloques alcanzado', 'bg-amber-500/20 text-amber-300');
+                    return;
+                }
+                loopProgram.push(type);
+                renderProgram('loop');
+            } else if (mode === 'sandbox') {
+                sandboxProgram.push(type);
+                renderProgram('sandbox');
+            }
+        }
+
+        function removeBlock(mode, index) {
+            playSound('turn');
+            if (mode === 'loop') {
+                loopProgram.splice(index, 1);
+                renderProgram('loop');
+            } else if (mode === 'sandbox') {
+                sandboxProgram.splice(index, 1);
+                renderProgram('sandbox');
+            }
+        }
+
+        function clearProgram(mode) {
+            playSound('turn');
+            if (mode === 'loop') {
+                loopProgram = [];
+                renderProgram('loop');
+            } else if (mode === 'sandbox') {
+                sandboxProgram = [];
+                renderProgram('sandbox');
+            }
+        }
+
+        function renderProgram(mode) {
+            if (mode === 'loop') {
+                const container = document.getElementById('program-loop');
+                document.getElementById('loop-block-counter').innerText = `${loopProgram.length} Bloques`;
+
+                if (loopProgram.length === 0) {
+                    container.innerHTML = `<div class="text-slate-500 text-xs italic text-center py-8">Haz clic en los bloques de arriba para armar las instrucciones.</div>`;
+                    return;
+                }
+
+                container.innerHTML = loopProgram.map((cmd, idx) => {
+                    let label = '⬆️ Avanzar 1 Paso';
+                    let bg = 'bg-blue-600/30 border-blue-500/40 text-blue-200';
+                    if (cmd === 'turn-right') {
+                        label = '↪️ Girar Derecha';
+                        bg = 'bg-indigo-600/30 border-indigo-500/40 text-indigo-200';
+                    } else if (cmd === 'turn-left') {
+                        label = '↩️ Girar Izquierda';
+                        bg = 'bg-indigo-600/30 border-indigo-500/40 text-indigo-200';
+                    } else if (cmd === 'loop-3') {
+                        label = '🔄 REPETIR 3 Veces (Avanzar)';
+                        bg = 'bg-amber-600/40 border-amber-500/60 text-amber-200 font-extrabold';
+                    }
+
+                    return `
+                        <div id="loop-block-${idx}" class="flex items-center justify-between p-2 rounded-xl border text-xs font-bold ${bg} transition">
+                            <span>${idx + 1}. ${label}</span>
+                            <button onclick="removeBlock('loop', ${idx})" class="text-slate-400 hover:text-rose-400 px-1">✖</button>
+                        </div>
+                    `;
+                }).join('');
+            } else if (mode === 'sandbox') {
+                const container = document.getElementById('program-sandbox');
+                if (sandboxProgram.length === 0) {
+                    container.innerHTML = `<div class="text-slate-500 italic text-center py-4">Sin bloques agregados.</div>`;
+                    return;
+                }
+
+                container.innerHTML = sandboxProgram.map((cmd, idx) => {
+                    let label = cmd === 'move' ? '⬆️ Avanzar' : cmd === 'turn-right' ? '↪️ Girar Der.' : cmd === 'turn-left' ? '↩️ Girar Izq.' : '🔄 Repetir x2';
+                    return `
+                        <div class="flex items-center justify-between p-1.5 rounded-lg border border-slate-700 bg-slate-800 text-slate-200 font-medium">
+                            <span>${idx + 1}. ${label}</span>
+                            <button onclick="removeBlock('sandbox', ${idx})" class="text-rose-400">✖</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        /* Expand commands resolving loops into atomic moves */
+        function expandCommands(program) {
+            const expanded = [];
+            program.forEach(cmd => {
+                if (cmd === 'loop-3') {
+                    expanded.push('move', 'move', 'move');
+                } else if (cmd === 'loop-2') {
+                    expanded.push('move', 'move');
+                } else {
+                    expanded.push(cmd);
+                }
+            });
+            return expanded;
+        }
+
+        async function runLoopProgram() {
+            if (isExecuting) return;
+            if (loopProgram.length === 0) {
+                showFeedback('loop-feedback', '⚠️ Agrega al menos un bloque para ejecutar.', 'bg-amber-500/20 text-amber-300');
+                return;
+            }
+
+            isExecuting = true;
+            resetLoopLevel();
+            const commands = expandCommands(loopProgram);
+
+            for (let i = 0; i < commands.length; i++) {
+                const cmd = commands[i];
+
+                if (cmd === 'move') {
+                    // Move forward based on dir
+                    let nextX = loopRobotPos.x;
+                    let nextY = loopRobotPos.y;
+
+                    if (loopRobotPos.dir === 0) nextY--; // Up
+                    else if (loopRobotPos.dir === 1) nextX++; // Right
+                    else if (loopRobotPos.dir === 2) nextY++; // Down
+                    else if (loopRobotPos.dir === 3) nextX--; // Left
+
+                    // Check bounds
+                    if (nextX >= 0 && nextX < loopGridSize && nextY >= 0 && nextY < loopGridSize) {
+                        loopRobotPos.x = nextX;
+                        loopRobotPos.y = nextY;
+                        playSound('move');
+                    } else {
+                        playSound('error');
+                        showFeedback('loop-feedback', '💥 ¡Robo-Bot chocó con la pared!', 'bg-rose-500/20 text-rose-300');
+                        isExecuting = false;
+                        return;
+                    }
+                } else if (cmd === 'turn-right') {
+                    loopRobotPos.dir = (loopRobotPos.dir + 1) % 4;
+                    playSound('turn');
+                } else if (cmd === 'turn-left') {
+                    loopRobotPos.dir = (loopRobotPos.dir + 3) % 4;
+                    playSound('turn');
+                }
+
+                renderLoopGrid();
+                await new Promise(r => setTimeout(r, 450));
+            }
+
+            // Check if reached goal
+            if (loopRobotPos.x === loopGoalPos.x && loopRobotPos.y === loopGoalPos.y) {
+                playSound('win');
+                showFeedback('loop-feedback', '🎉 ¡EXCELENTE! Has completado la misión con lógica perfecta.', 'bg-emerald-500/20 text-emerald-300');
+                addStar(`loop-lvl-${loopLevel}`);
+            } else {
+                playSound('error');
+                showFeedback('loop-feedback', '❌ Casi lo logras... El robot no llegó a la tuerca dorada. ¡Intenta ajustar los bloques!', 'bg-amber-500/20 text-amber-300');
+            }
+
+            isExecuting = false;
+        }
+
+        function showFeedback(id, text, classes) {
+            const el = document.getElementById(id);
+            el.className = `mt-3 p-3 rounded-2xl text-xs font-bold text-center ${classes}`;
+            el.innerText = text;
+            el.classList.remove('hidden');
+        }
+
+        function hideFeedback(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        /* ========================================================================= */
+        /* MISSION 2: CONDICIONALES ENGINE                                         */
+        /* ========================================================================= */
+        function checkConditional1() {
+            const val = document.getElementById('cond-select-1').value;
+            if (val === 'avanzar') {
+                playSound('win');
+                document.getElementById('cond-badge-1').className = 'text-xs font-extrabold text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded-md';
+                document.getElementById('cond-badge-1').innerText = '✅ ¡Correcto!';
+                addStar('cond-1');
+            } else {
+                playSound('error');
+                alert('Pista: Si el semáforo está VERDE 🟢, los vehículos y robots deben AVANZAR.');
+            }
+        }
+
+        function checkConditional2() {
+            const val = document.getElementById('cond-select-2').value;
+            if (val === 'girar') {
+                playSound('win');
+                document.getElementById('cond-badge-2').className = 'text-xs font-extrabold text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded-md';
+                document.getElementById('cond-badge-2').innerText = '✅ ¡Correcto!';
+                addStar('cond-2');
+            } else {
+                playSound('error');
+                alert('Pista: Si hay una PARED 🧱, avanzar te hará chocar. La mejor opción es GIRAR.');
+            }
+        }
+
+        function testRandomConditional() {
+            playSound('turn');
+            const states = [
+                { color: '🟢', name: 'VERDE', action: '⬆️ Avanzando...', bg: 'bg-emerald-500' },
+                { color: '🔴', name: 'ROJO', action: '🛑 Detenido', bg: 'bg-rose-500' },
+                { color: '🟡', name: 'AMARILLO', action: '⚠️ Precaución', bg: 'bg-amber-500' }
+            ];
+
+            const item = states[Math.floor(Math.random() * states.length)];
+            const floor = document.getElementById('sim-floor');
+            const resp = document.getElementById('sim-robot-response');
+
+            floor.className = `w-20 h-20 rounded-3xl ${item.bg} flex items-center justify-center text-3xl shadow-xl transition-all scale-110`;
+            floor.innerText = item.color;
+
+            resp.innerHTML = `<span class="text-xs font-extrabold text-white text-center">${item.action}</span>`;
+            setTimeout(() => floor.classList.remove('scale-110'), 200);
+        }
+
+        /* ========================================================================= */
+        /* MISSION 3: CAZA DE BUGS (DEBUGGING) ENGINE                                */
+        /* ========================================================================= */
+        let debugCodeList = [
+            { id: 0, text: '⬆️ Avanzar 1 Paso', correct: true },
+            { id: 1, text: '⬆️ Avanzar 1 Paso', correct: true },
+            { id: 2, text: '↩️ Girar Izquierda (BUG)', correct: false, alt: '↪️ Girar Derecha' },
+            { id: 3, text: '⬆️ Avanzar 1 Paso', correct: true }
+        ];
+
+        function renderDebugCode() {
+            const container = document.getElementById('debug-code-list');
+            container.innerHTML = debugCodeList.map((item, idx) => {
+                const borderClass = item.correct ? 'border-slate-700 bg-slate-800 text-slate-200' : 'border-rose-500 bg-rose-500/20 text-rose-200 animate-pulse';
+                return `
+                    <div onclick="fixBugLine(${idx})" class="p-3 rounded-2xl border ${borderClass} flex items-center justify-between cursor-pointer hover:border-amber-400 transition text-xs font-bold">
+                        <span>Línea ${idx + 1}: ${item.text}</span>
+                        <span>${item.correct ? 'OK' : '🛠️ Haz clic para corregir'}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function fixBugLine(idx) {
+            playSound('turn');
+            if (!debugCodeList[idx].correct) {
+                debugCodeList[idx].text = '↪️ Girar Derecha (Corregido ✅)';
+                debugCodeList[idx].correct = true;
+                document.getElementById('bug-status-text').className = 'text-emerald-400 font-bold';
+                document.getElementById('bug-status-text').innerText = '¡BUG Eliminado!';
+                playSound('win');
+                addStar('bug-cleared');
+            }
+            renderDebugCode();
+        }
+
+        function renderDebugGrid() {
+            const container = document.getElementById('grid-bug');
+            container.innerHTML = '';
+            for (let y = 0; y < 4; y++) {
+                for (let x = 0; x < 4; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell rounded-xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-xl';
+
+                    if (x === 0 && y === 0) cell.innerHTML = '🤖';
+                    if (x === 2 && y === 0) cell.innerHTML = '⭐';
+                    if (x === 0 && y === 2) cell.innerHTML = '🌊'; // puddle bug hazard
+
+                    container.appendChild(cell);
+                }
+            }
+        }
+
+        function testDebugCode() {
+            playSound('move');
+            const allCorrect = debugCodeList.every(i => i.correct);
+            if (allCorrect) {
+                playSound('win');
+                alert('🎉 ¡El robot avanzó y giró hacia la ESTRELLA correctamente! Has eliminado el BUG.');
+            } else {
+                playSound('error');
+                alert('🌊 ¡SPLASH! El robot giró hacia la izquierda y cayó en el charco de aceite. Corrige la línea del BUG.');
+            }
+        }
+
+        function resetDebugGrid() {
+            renderDebugGrid();
+        }
+
+        /* ========================================================================= */
+        /* MISSION 4: SANDBOX ENGINE                                                */
+        /* ========================================================================= */
+        let sandboxGrid = Array(25).fill('empty'); // 5x5
+        let sandboxRobotPos = { x: 0, y: 4, dir: 1 };
+        let sandboxProgram = [];
+
+        function initSandboxGrid() {
+            sandboxGrid[2] = 'goal';
+            sandboxGrid[12] = 'rock';
+            renderSandboxGrid();
+        }
+
+        function renderSandboxGrid() {
+            const container = document.getElementById('grid-sandbox');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 25; i++) {
+                const x = i % 5;
+                const y = Math.floor(i / 5);
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell rounded-xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-xl cursor-pointer select-none';
+
+                cell.onclick = () => toggleSandboxCell(i);
+
+                if (sandboxGrid[i] === 'rock') cell.innerHTML = '🪨';
+                if (sandboxGrid[i] === 'goal') cell.innerHTML = '🏆';
+
+                if (x === sandboxRobotPos.x && y === sandboxRobotPos.y) {
+                    cell.innerHTML = '🤖';
+                    cell.classList.add('bg-emerald-500/30', 'border-emerald-500');
+                }
+
+                container.appendChild(cell);
+            }
+        }
+
+        function toggleSandboxCell(idx) {
+            playSound('turn');
+            if (sandboxGrid[idx] === 'empty') sandboxGrid[idx] = 'rock';
+            else if (sandboxGrid[idx] === 'rock') sandboxGrid[idx] = 'goal';
+            else sandboxGrid[idx] = 'empty';
+            renderSandboxGrid();
+        }
+
+        function resetSandboxRobot() {
+            sandboxRobotPos = { x: 0, y: 4, dir: 1 };
+            renderSandboxGrid();
+        }
+
+        async function runSandboxProgram() {
+            if (sandboxProgram.length === 0) return;
+            resetSandboxRobot();
+            const commands = expandCommands(sandboxProgram);
+
+            for (const cmd of commands) {
+                if (cmd === 'move') {
+                    let nextX = sandboxRobotPos.x;
+                    let nextY = sandboxRobotPos.y;
+                    if (sandboxRobotPos.dir === 0) nextY--;
+                    else if (sandboxRobotPos.dir === 1) nextX++;
+                    else if (sandboxRobotPos.dir === 2) nextY++;
+                    else if (sandboxRobotPos.dir === 3) nextX--;
+
+                    if (nextX >= 0 && nextX < 5 && nextY >= 0 && nextY < 5) {
+                        const targetIdx = nextY * 5 + nextX;
+                        if (sandboxGrid[targetIdx] === 'rock') {
+                            playSound('error');
+                            alert('💥 ¡El robot choco con una roca 🪨!');
+                            return;
+                        }
+                        sandboxRobotPos.x = nextX;
+                        sandboxRobotPos.y = nextY;
+                        playSound('move');
+                    }
+                } else if (cmd === 'turn-right') {
+                    sandboxRobotPos.dir = (sandboxRobotPos.dir + 1) % 4;
+                    playSound('turn');
+                } else if (cmd === 'turn-left') {
+                    sandboxRobotPos.dir = (sandboxRobotPos.dir + 3) % 4;
+                    playSound('turn');
+                }
+
+                renderSandboxGrid();
+                await new Promise(r => setTimeout(r, 400));
+            }
+
+            const currentIdx = sandboxRobotPos.y * 5 + sandboxRobotPos.x;
+            if (sandboxGrid[currentIdx] === 'goal') {
+                playSound('win');
+                addStar('sandbox-win');
+                alert('🏆 ¡FELICIDADES! Has completado tu propio nivel personalizado.');
+            }
+        }
+
+        /* Initialization on Page Load */
+        window.onload = function () {
+            loadLoopSublevel(1);
+            renderDebugCode();
+            renderDebugGrid();
+            initSandboxGrid();
+        };
+    </script>
+</body>
+</html>
