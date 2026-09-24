@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conociendo Mis Logros - Información de Pruebas</title>
+    <!-- Tailwind CSS para estilos rápidos y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- FontAwesome para iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              brand: {
+                blue: "#004C97", // Azul principal oscuro
+                lightblue: "#E6F0FA", // Azul claro de fondo
+                yellow: "#FDCB05", // Amarillo de resaltado
+                pink: "#D81B60", // Rosa del badge
+                section1: "#0070C0", // Azul de sección 1
+                section1bg: "#EAF3FA",
+                section2: "#673AB7", // Morado de sección 2
+                section2bg: "#F5EEF8",
+                section3: "#FF9800", // Naranja de sección 3
+                section3bg: "#FFF6E5",
+                section4: "#E91E63", // Rojo/Rosa de sección 4
+                section4bg: "#FDEDF2",
+                footer: "#11224E", // Azul oscuro del footer
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* Estilos personalizados adicionales */
+      body {
+        background-color: #f0f8ff; /* Fondo general muy claro */
+      }
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .text-outline {
+        -webkit-text-stroke: 1px white;
+      }
+      /* Efecto hover suave para enlaces */
+      .link-card {
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .link-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body class="text-gray-800 font-sans antialiased min-h-screen flex flex-col">
+    <header
+      class="bg-brand-lightblue pt-8 pb-4 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
+    >
+      <div
+        class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between relative z-10"
+      >
+        <!-- Textos Principales -->
+        <div class="text-center md:text-left mb-6 md:mb-0 w-full md:w-2/3">
+          <h2
+            class="text-brand-blue font-bold text-xl md:text-2xl mb-1 flex items-center justify-center md:justify-start gap-2"
+          >
+            <i class="fas fa-pen-nib text-brand-blue transform -rotate-45"></i>
+            Nueva aplicación de las pruebas
+          </h2>
+          <h1
+            class="text-brand-blue font-black text-5xl md:text-7xl leading-none mb-2 text-shadow text-outline"
+            style="
+              letter-spacing: -1px;
+              text-shadow:
+                3px 3px 0px #fdcb05,
+                5px 5px 10px rgba(0, 0, 0, 0.2);
+            "
+          >
+            Conociendo Mis Logros
+          </h1>
+          <div
+            class="inline-block bg-brand-pink text-white px-6 py-2 rounded-full font-bold text-lg md:text-xl shadow-md transform -rotate-2 mt-2"
+          >
+            Lenguaje y Matemática
+          </div>
+
+          <p
+            class="mt-6 text-gray-700 font-medium max-w-xl text-sm md:text-base bg-white p-4 rounded-lg shadow-sm border border-blue-100"
+          >
+            El Ministerio de Educación implementará una
+            <strong class="text-brand-blue"
+              >nueva prueba de Conociendo Mis Logros (CML)</strong
+            >
+            para Lenguaje y Matemática.<br />
+            Los docentes que aplicarán las pruebas están siendo capacitados.
+          </p>
+          <div
+            class="mt-3 inline-block bg-brand-blue text-white text-sm font-semibold px-4 py-1 rounded-md shadow"
+          >
+            ¡Aquí te compartimos todo lo que necesitas saber!
+          </div>
+        </div>
+
+        <!-- Ilustración Derecha (Mockup visual) -->
+        <div
+          class="w-full md:w-1/3 flex justify-center md:justify-end items-center relative"
+        >
+          <!-- Laptop mockup -->
+          <div
+            class="relative w-48 h-32 bg-gray-200 rounded-t-lg border-4 border-gray-800 shadow-xl flex items-center justify-center overflow-hidden"
+          >
+            <div class="absolute inset-0 bg-white"></div>
+            <div class="z-10 text-center">
+              <i class="fas fa-chart-simple text-3xl text-brand-blue"></i>
+              <h3 class="font-black text-2xl text-brand-blue mt-1">CML</h3>
+            </div>
+          </div>
+          <div
+            class="absolute bottom-0 w-64 h-4 bg-gray-300 rounded-b-lg border-2 border-gray-800 border-t-0 shadow-md"
+          ></div>
+
+          <!-- Libros mockup -->
+          <div
+            class="absolute -right-4 -bottom-4 flex flex-col gap-1 transform rotate-6"
+          >
+            <div
+              class="bg-brand-pink text-white text-xs font-bold px-4 py-2 rounded shadow border border-white"
+            >
+              Lenguaje
+            </div>
+            <div
+              class="bg-brand-blue text-white text-xs font-bold px-4 py-2 rounded shadow border border-white"
+            >
+              Matemática
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Elementos decorativos de fondo -->
+      <div
+        class="absolute top-10 right-1/4 text-brand-yellow text-4xl opacity-50 transform rotate-12"
+      >
+        <i class="fas fa-burst"></i>
+      </div>
+      <div
+        class="absolute bottom-10 left-10 text-brand-yellow text-3xl opacity-50"
+      >
+        <i class="fas fa-certificate"></i>
+      </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <!-- Cambiamos el grid para tener mejor control de las filas en pantallas grandes -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- SECCIÓN 1: Cuándo y cómo -->
+        <section
+          class="bg-brand-section1bg rounded-2xl p-5 border-2 border-brand-section1 shadow-sm relative pt-10 lg:col-span-1 h-full"
+        >
+          <div
+            class="absolute -top-4 -left-4 bg-brand-section1 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl shadow-md border-2 border-white z-10"
+          >
+            1
+          </div>
+          <h3
+            class="bg-brand-section1 text-white absolute top-0 left-6 right-0 py-2 px-6 rounded-tr-xl font-bold text-lg md:text-xl shadow-sm -mt-[2px] ml-4"
+          >
+            ¿Cuándo y cómo se aplican?
+          </h3>
+
+          <div class="mt-6 flex flex-col gap-4">
+            <div class="flex items-start gap-4">
+              <div class="text-brand-section1 text-3xl flex-shrink-0 mt-1">
+                <i class="far fa-calendar-alt"></i>
+              </div>
+              <p class="text-sm font-medium">
+                Las <strong class="text-gray-900">fechas, horarios</strong> y
+                demás detalles los darán a conocer los
+                <strong class="text-gray-900">directores</strong> de cada
+                institución.
+              </p>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="text-brand-section1 text-3xl flex-shrink-0">
+                <i class="far fa-clock"></i>
+              </div>
+              <p class="text-sm font-medium pt-1">
+                La prueba tiene una duración de <br /><span
+                  class="bg-brand-yellow px-2 py-0.5 rounded font-bold mt-1 inline-block"
+                  >1 hora.</span
+                >
+              </p>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="text-brand-section1 text-3xl flex-shrink-0 mt-1">
+                <i class="fas fa-laptop-house"></i>
+              </div>
+              <p class="text-sm font-medium">
+                El sitio estará habilitado desde las <br /><span
+                  class="bg-brand-yellow px-2 py-0.5 rounded font-bold mt-1 inline-block"
+                  >7:00 a. m.</span
+                >
+              </p>
+            </div>
+
+            <div
+              class="bg-blue-100 rounded-lg p-3 flex gap-3 items-start mt-2 border border-blue-200"
+            >
+              <i
+                class="fas fa-info-circle text-brand-blue text-xl mt-0.5 flex-shrink-0"
+              ></i>
+              <p class="text-xs text-brand-blue font-medium leading-tight">
+                No significa que todos empezarán a esa hora, sino que
+                <strong>desde esa hora estará disponible</strong> el sitio.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECCIÓN 2: Enlaces importantes -->
+        <section
+          class="bg-white rounded-2xl border-2 border-brand-section2 shadow-md relative h-full flex flex-col lg:col-span-1"
+        >
+          <div
+            class="absolute -top-4 -left-4 bg-brand-section2 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl shadow-md border-2 border-white z-20"
+          >
+            2
+          </div>
+          <h3
+            class="bg-brand-section2 text-white absolute top-0 left-6 right-0 py-3 px-6 rounded-tr-xl rounded-tl-none font-bold text-xl shadow-sm -mt-[2px] ml-4 z-10"
+          >
+            Enlaces importantes
+          </h3>
+
+          <div
+            class="p-4 pt-16 flex flex-col gap-4 flex-grow bg-brand-section2bg rounded-b-xl"
+          >
+            <!-- Enlace 1 -->
+            <div
+              class="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center gap-4 link-card"
+            >
+              <div
+                class="bg-blue-500 text-white rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-inner"
+              >
+                <i class="fas fa-user-graduate text-xl"></i>
+              </div>
+              <div class="flex-grow">
+                <h4
+                  class="font-bold text-brand-blue text-sm mb-1 leading-tight"
+                >
+                  Nuevo enlace para el estudiante<br /><span
+                    class="font-normal text-xs"
+                    >(ingreso a la prueba):</span
+                  >
+                </h4>
+                <a
+                  href="https://evaluaciones.edu.gob.sv/com.sote.portalalumno"
+                  target="_blank"
+                  class="flex items-center justify-between bg-white px-3 py-2 rounded border border-gray-300 text-xs text-blue-600 hover:bg-blue-100 transition truncate group"
+                  title="Ir a portal de alumno"
+                >
+                  <span class="truncate max-w-[180px] sm:max-w-[220px]"
+                    >evaluaciones.edu.gob.sv/...</span
+                  >
+                  <i
+                    class="fas fa-external-link-alt text-gray-400 group-hover:text-blue-600"
+                  ></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- Enlace 2 -->
+            <div
+              class="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-4 link-card"
+            >
+              <div
+                class="bg-green-500 text-white rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-inner"
+              >
+                <i class="fas fa-file-code text-xl"></i>
+              </div>
+              <div class="flex-grow">
+                <h4 class="font-bold text-green-800 text-sm mb-1 leading-tight">
+                  Enlace para generar código si no tiene documento (NIE):
+                </h4>
+                <a
+                  href="https://evaluaciones-gob-sv.vercel.app/"
+                  target="_blank"
+                  class="flex items-center justify-between bg-white px-3 py-2 rounded border border-gray-300 text-xs text-green-600 hover:bg-green-100 transition truncate group"
+                  title="Ir a generador de código"
+                >
+                  <span class="truncate max-w-[180px] sm:max-w-[220px]"
+                    >evaluaciones-gob-sv.vercel.app</span
+                  >
+                  <i
+                    class="fas fa-external-link-alt text-gray-400 group-hover:text-green-600"
+                  ></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- Enlace 3 -->
+            <div
+              class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-4 link-card"
+            >
+              <div
+                class="bg-purple-500 text-white rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-inner"
+              >
+                <i class="fas fa-clipboard-list text-xl"></i>
+              </div>
+              <div class="flex-grow">
+                <h4
+                  class="font-bold text-purple-800 text-sm mb-1 leading-tight"
+                >
+                  Enlace para registrar las actas<br />y las incidencias:
+                </h4>
+                <a
+                  href="https://script.google.com/macros/s/AKfycbwpkmLUv_36NTSMNwoYMe_FEWtoZWMhVAfO87X3HlDsBD0TFCrDizdRDY6nVtPeRpkkMA/exec"
+                  target="_blank"
+                  class="flex items-center justify-between bg-white px-3 py-2 rounded border border-gray-300 text-[10px] text-purple-600 hover:bg-purple-100 transition group"
+                  title="Ir a formulario de actas"
+                >
+                  <span class="truncate max-w-[180px] sm:max-w-[200px]"
+                    >script.google.com/macros/...</span
+                  >
+                  <i
+                    class="fas fa-external-link-alt text-gray-400 group-hover:text-purple-600"
+                  ></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECCIÓN 3: Qué encontrarás -->
+        <section
+          class="bg-brand-section3bg rounded-2xl p-5 border-2 border-brand-section3 shadow-sm relative pt-10 lg:col-span-1 h-full flex flex-col"
+        >
+          <div
+            class="absolute -top-4 -left-4 bg-brand-section3 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl shadow-md border-2 border-white z-10"
+          >
+            3
+          </div>
+          <h3
+            class="bg-brand-section3 text-white absolute top-0 left-6 right-0 py-2 px-6 rounded-tr-xl font-bold text-lg md:text-xl shadow-sm -mt-[2px] ml-4"
+          >
+            ¿Qué encontrarás en el sitio?
+          </h3>
+
+          <div class="mt-6 flex flex-col gap-5 flex-grow">
+            <div
+              class="flex items-start gap-4 bg-white p-3 rounded-xl shadow-sm border border-orange-100"
+            >
+              <div
+                class="bg-brand-section3 text-white rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-inner text-xl"
+              >
+                <i class="far fa-user"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-gray-800 text-sm mb-1">
+                  Opción para entrar sin NIE
+                </h4>
+                <p class="text-xs text-gray-600 leading-snug">
+                  Si el estudiante no posee documento (NIE), podrá generar un
+                  código desde el enlace indicado.
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="flex items-start gap-4 bg-white p-3 rounded-xl shadow-sm border border-orange-100"
+            >
+              <div
+                class="bg-brand-section3 text-white rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-inner text-xl"
+              >
+                <i class="fas fa-clipboard-user"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-gray-800 text-sm mb-1">
+                  Sitio para el docente aplicador
+                </h4>
+                <p class="text-xs text-gray-600 leading-snug">
+                  Aquí podrás llenar el acta y registrar las
+                  <strong>incidencias</strong> que se presenten durante la
+                  aplicación.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECCIÓN 4: Qué son las incidencias (Abarca todo el ancho en desktop) -->
+        <section
+          class="bg-brand-section4bg rounded-2xl p-5 border-2 border-brand-section4 shadow-sm relative pt-10 lg:col-span-3 flex flex-col lg:flex-row gap-6 items-start lg:items-center"
+        >
+          <!-- Título e Introducción Sección 4 -->
+          <div class="lg:w-1/3 flex flex-col relative h-full justify-center">
+            <div
+              class="absolute -top-14 -left-9 bg-brand-section4 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl shadow-md border-2 border-white z-10"
+            >
+              4
+            </div>
+            <h3
+              class="bg-brand-section4 text-white absolute -top-10 left-1 right-0 py-2 px-6 rounded-tr-xl font-bold text-lg shadow-sm -mt-[2px] ml-4 whitespace-nowrap lg:whitespace-normal"
+            >
+              ¿Qué son las incidencias?
+            </h3>
+
+            <div class="mt-2 flex gap-3 items-center lg:items-start lg:mt-6">
+              <i
+                class="fas fa-exclamation-triangle text-brand-section4 text-5xl mt-1 flex-shrink-0 animate-pulse"
+              ></i>
+              <p class="text-sm md:text-base font-semibold text-brand-section4">
+                Las incidencias están relacionadas con las siguientes señales de
+                alerta:
+              </p>
+            </div>
+          </div>
+
+          <!-- Lista de Incidencias en Cuadrícula para aprovechar el espacio -->
+          <div
+            class="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-4 rounded-xl shadow-inner border border-red-100 w-full"
+          >
+            <div
+              class="flex items-center gap-3 bg-brand-section4bg bg-opacity-50 p-2 rounded-lg border border-brand-section4 border-opacity-20 hover:bg-opacity-100 transition"
+            >
+              <div
+                class="bg-brand-yellow text-brand-section4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-brand-section4 flex-shrink-0 shadow-sm"
+              >
+                <i class="fas fa-user-friends"></i>
+              </div>
+              <p
+                class="text-xs sm:text-sm text-gray-800 font-medium leading-tight"
+              >
+                Voltear la cabeza con frecuencia hacia otro compañero.
+              </p>
+            </div>
+
+            <div
+              class="flex items-center gap-3 bg-brand-section4bg bg-opacity-50 p-2 rounded-lg border border-brand-section4 border-opacity-20 hover:bg-opacity-100 transition"
+            >
+              <div
+                class="bg-brand-yellow text-brand-section4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-brand-section4 flex-shrink-0 shadow-sm"
+              >
+                <i class="fas fa-headphones"></i>
+              </div>
+              <p
+                class="text-xs sm:text-sm text-gray-800 font-medium leading-tight"
+              >
+                Auriculares o dispositivos de comunicación no autorizados.
+              </p>
+            </div>
+
+            <div
+              class="flex items-center gap-3 bg-brand-section4bg bg-opacity-50 p-2 rounded-lg border border-brand-section4 border-opacity-20 hover:bg-opacity-100 transition"
+            >
+              <div
+                class="bg-brand-yellow text-brand-section4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-brand-section4 flex-shrink-0 shadow-sm"
+              >
+                <i class="fas fa-window-restore"></i>
+              </div>
+              <p
+                class="text-xs sm:text-sm text-gray-800 font-medium leading-tight"
+              >
+                Navegar en pestañas o apps fuera de la plataforma de evaluación.
+              </p>
+            </div>
+
+            <div
+              class="flex items-center gap-3 bg-brand-section4bg bg-opacity-50 p-2 rounded-lg border border-brand-section4 border-opacity-20 hover:bg-opacity-100 transition"
+            >
+              <div
+                class="bg-brand-yellow text-brand-section4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-brand-section4 flex-shrink-0 shadow-sm"
+              >
+                <i class="fas fa-user-secret"></i>
+              </div>
+              <p
+                class="text-xs sm:text-sm text-gray-800 font-medium leading-tight"
+              >
+                Materiales escondidos bajo el pupitre o dentro de la ropa.
+              </p>
+            </div>
+
+            <div
+              class="flex items-center gap-3 bg-brand-section4bg bg-opacity-50 p-2 rounded-lg border border-brand-section4 border-opacity-20 hover:bg-opacity-100 transition md:col-span-2 lg:col-span-1"
+            >
+              <div
+                class="bg-brand-yellow text-brand-section4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-brand-section4 flex-shrink-0 shadow-sm"
+              >
+                <i class="fas fa-pause-circle"></i>
+              </div>
+              <p
+                class="text-xs sm:text-sm text-gray-800 font-medium leading-tight"
+              >
+                Pausa prolongada sin actividad aparente en pantalla.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Sección de Agradecimiento y Logo (Fuera del Grid Principal para mejor flujo) -->
+      <div
+        class="mt-12 flex flex-col md:flex-row items-center justify-center md:justify-end gap-6 relative px-4"
+      >
+        <div
+          class="text-center md:text-right transform -rotate-2 bg-white p-4 rounded-xl shadow-md border-2 border-brand-blue relative z-10"
+        >
+          <h3 class="text-brand-blue font-black text-2xl md:text-3xl italic">
+            ¡Gracias
+          </h3>
+          <h3
+            class="text-brand-blue font-black text-xl md:text-2xl italic mb-1"
+          >
+            por su compromiso!
+          </h3>
+          <p class="text-sm text-gray-600 font-semibold">
+            El éxito de esta prueba depende de ti.
+          </p>
+        </div>
+
+        <!-- Ilustración Profe Saúl (Visible solo en pantallas medianas o mayores) -->
+        <div
+          class="hidden md:flex relative w-32 h-32 bg-gray-100 rounded-full border-4 border-brand-footer items-center justify-center shadow-lg overflow-hidden shrink-0 z-10"
+        >
+          <i class="fas fa-chalkboard-teacher text-6xl text-brand-blue"></i>
+        </div>
+        <!-- Decoración trasera -->
+        <div
+          class="hidden md:block absolute -right-10 top-0 w-64 h-64 bg-brand-yellow rounded-full mix-blend-multiply filter blur-3xl opacity-30 z-0"
+        ></div>
+      </div>
+    </main>
+
+    <footer
+      class="bg-brand-footer text-white mt-auto w-full relative overflow-hidden"
+    >
+      <!-- Cinta azul claro superior del footer -->
+      <div
+        class="bg-brand-blue py-2 px-4 flex flex-col sm:flex-row justify-between items-center z-10 relative"
+      >
+        <div class="flex gap-4 items-center mb-2 sm:mb-0">
+          <a
+            href="#"
+            aria-label="YouTube"
+            class="bg-white text-brand-blue w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200 transition"
+          >
+            <i class="fab fa-youtube text-lg"></i>
+          </a>
+          <a
+            href="#"
+            aria-label="TikTok"
+            class="bg-white text-brand-blue w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200 transition"
+          >
+            <i class="fab fa-tiktok text-lg"></i>
+          </a>
+          <span class="font-semibold text-sm">@elprofesaul</span>
+        </div>
+
+        <div
+          class="flex items-center gap-3 font-semibold text-sm md:text-base opacity-90"
+        >
+          <i class="fas fa-graduation-cap text-xl"></i>
+          <span>Juntos por mejores aprendizajes</span>
+          <i class="fas fa-sparkles text-sm"></i>
+        </div>
+
+        <div
+          class="hidden sm:block font-handwriting text-xl mt-1 opacity-90"
+          style="font-family: &quot;Brush Script MT&quot;, cursive"
+        >
+          El Profe Saúl
+        </div>
+      </div>
+
+      <!-- Banner oscuro decorativo (simulando la etiqueta del profe) -->
+      <div
+        class="absolute right-0 bottom-10 bg-brand-footer text-white p-4 rounded-tl-full shadow-lg border-t-2 border-l-2 border-brand-blue z-0 w-64 h-32 flex flex-col justify-end items-center opacity-80 md:opacity-100 hidden lg:flex transform translate-x-4"
+      >
+        <!-- Mockup simple de personaje -->
+        <div
+          class="absolute -top-16 right-10 w-24 h-24 bg-gray-300 rounded-full border-4 border-white flex items-center justify-center overflow-hidden"
+        >
+          <i class="fas fa-user-tie text-5xl text-gray-500 mt-4"></i>
+        </div>
+        <div class="text-center pb-2 pr-4">
+          <h4 class="font-bold text-lg">@elprofesaul</h4>
+          <p class="text-xs text-gray-400">Recursos • Tecnología • Educación</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Pequeño script para agregar feedback visual al hacer clic en los enlaces
+      document.addEventListener("DOMContentLoaded", () => {
+        const links = document.querySelectorAll(".link-card a");
+
+        links.forEach((link) => {
+          link.addEventListener("click", function (e) {
+            // No prevenimos el comportamiento por defecto (abrir enlace)
+            // Solo añadimos un efecto visual al contenedor
+            const card = this.closest(".link-card");
+            card.style.transform = "scale(0.98)";
+            setTimeout(() => {
+              card.style.transform = "";
+            }, 150);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
