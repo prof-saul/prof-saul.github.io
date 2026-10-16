@@ -17,9 +17,9 @@ function init(text,name){
  if(rows.length<2)throw Error('El archivo está vacío o no tiene estudiantes.');
  const h=rows[0].map(x=>x.trim()),ni=h.indexOf('Nombre');
  if(ni<0)throw Error('Este archivo no tiene la columna “Nombre”. Use el CSV Gradebook (Points) de Lenguaje.');
- const re=/^(\d+)\.(\d+)\.(\d+)\s+(.*?)\(puntos,\s*de\s*([\d.]+)\)\s*$/,LS=[];
+ const re=/^(\d+)\.(\d+)\.(\d+)\s+(.*?)\(puntos,\s*de\s*([\d.]+)\)\s*$/i,LS=[];
  h.forEach((x,i)=>{const m=x.match(re);if(m)LS.push({i,code:`${m[1]}.${m[2]}.${m[3]}`,day:+m[1],ova:+m[2],max:+m[5],topic:((m[4].match(/OVA\s*\d+\s*[,:]?\s*(.*)$/)||[])[1]||'').trim()})});
- if(!LS.length)throw Error('No encontré lecciones con el formato “1.1.1 Grado 4, Día 1, OVA 1 … (puntos, de N)”. Este visor solo funciona con el CSV Gradebook de Lenguaje.');
+ if(!LS.length)throw Error('No encontré lecciones con el formato “1.1.1 Grado 4, Día 1, OVA 1 … (puntos, de N)”. Este visor solo funciona con el CSV Gradebook de Lenguaje. Columnas encontradas: '+h.slice(0,6).join(' | ').slice(0,300));
  const ti=h.findIndex(x=>x.startsWith('Total (puntos)')),pi=h.findIndex(x=>x.startsWith('Total posible')),ei=h.findIndex(x=>x.startsWith('Correo'));
  ST=rows.slice(1).filter(r=>(r[ni]||'').trim()).map(r=>{const c={};LS.forEach(l=>{const v=(r[l.i]||'').trim();c[l.i]=NUM.test(v)?{s:'H',v:+v}:v=='NC'?{s:'C'}:{s:'P'}});
   return{name:r[ni].trim(),mail:ei>=0?r[ei]:'',tot:ti>=0?r[ti]:'',pos:pi>=0?r[pi]:'',c}});
