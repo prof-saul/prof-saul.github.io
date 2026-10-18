@@ -11,18 +11,43 @@ $('#file').onchange=e=>e.target.files[0]&&load(e.target.files[0]);
 ['dragover','dragenter'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('over')}));
 ['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over')}));
 drop.addEventListener('drop',e=>e.dataTransfer.files[0]&&load(e.dataTransfer.files[0]));
-function load(f){const r=new FileReader();r.onload=e=>{try{init(e.target.result.replace(/^\ufeff/,''),f.name);showErr('')}catch(x){showErr(x.message)}};r.readAsText(f,'utf-8')}
+const nz=s=>norm(String(s==null?'':s).replace(/[\u00a0\s]+/g,' ').trim()),cl=s=>String(s==null?'':s).replace(/[\u00a0\s]+/g,' ').trim(),
+RE=/^(\d+)\.(\d+)\.(\d+)\s+(.*?)\(\s*puntos?\s*,?\s*de\s*([\d.,]+)\s*\)\s*$/i,
+EXC='Este es un archivo de Excel (.xls/.xlsx). Descargue el reporte en formato CSV, o en Excel use “Guardar como… CSV”.';
+function decode(buf){const u=new Uint8Array(buf);
+ if(u[0]==0xFF&&u[1]==0xFE)return new TextDecoder('utf-16le').decode(u);
+ if(u[0]==0xFE&&u[1]==0xFF)return new TextDecoder('utf-16be').decode(u);
+ if(u.length>3&&u[1]==0&&u[3]==0)return new TextDecoder('utf-16le').decode(u);
+ try{return new TextDecoder('utf-8',{fatal:true}).decode(u)}catch(e){return new TextDecoder('windows-1252').decode(u)}}
+function detect(t){const ls=t.split(/\r?\n/).filter(l=>l.trim()).slice(0,10);let best=',',n=-1;
+ [',',';','\t','|'].forEach(d=>{let k=0;ls.forEach(l=>{let q=false;for(const c of l){if(c=='"')q=!q;else if(c==d&&!q)k++}});if(k>n){n=k;best=d}});return best}
+function parseCSV(t,d){const rows=[];let r=[],f='',q=false;
+ for(let i=0;i<t.length;i++){const c=t[i];
+  if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}
+  else if(c=='"')q=true;else if(c==d){r.push(f);f=''}
+  else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;r.push(f);f='';rows.push(r);r=[]}else f+=c}
+ if(f!==''||r.length){r.push(f);rows.push(r)}return rows.filter(r=>r.some(x=>x.trim()!==''))}
+function load(f){
+ if(/\.xlsx?$/i.test(f.name))return showErr(EXC);
+ const r=new FileReader();r.onload=e=>{try{init(decode(e.target.result),f.name);showErr('')}catch(x){showErr(x.message)}};r.readAsArrayBuffer(f)}
 function init(text,name){
- const rows=Papa.parse(text,{skipEmptyLines:true}).data;
+ text=text.replace(/^\ufeff/,'');
+ if(text.slice(0,2)=='PK')throw Error(EXC);
+ const d=detect(text),rows=parseCSV(text,d);
  if(rows.length<2)throw Error('El archivo está vacío o no tiene estudiantes.');
- const h=rows[0].map(x=>x.trim()),ni=h.indexOf('Nombre');
- if(ni<0)throw Error('Este archivo no tiene la columna “Nombre”. Use el CSV Gradebook (Points) de Lenguaje.');
- const re=/^(\d+)\.(\d+)\.(\d+)\s+(.*?)\(puntos,\s*de\s*([\d.]+)\)\s*$/i,LS=[];
- h.forEach((x,i)=>{const m=x.match(re);if(m)LS.push({i,code:`${m[1]}.${m[2]}.${m[3]}`,day:+m[1],ova:+m[2],max:+m[5],topic:((m[4].match(/OVA\s*\d+\s*[,:]?\s*(.*)$/)||[])[1]||'').trim()})});
- if(!LS.length)throw Error('No encontré lecciones con el formato “1.1.1 Grado 4, Día 1, OVA 1 … (puntos, de N)”. Este visor solo funciona con el CSV Gradebook de Lenguaje. Columnas encontradas: '+h.slice(0,6).join(' | ').slice(0,300));
- const ti=h.findIndex(x=>x.startsWith('Total (puntos)')),pi=h.findIndex(x=>x.startsWith('Total posible')),ei=h.findIndex(x=>x.startsWith('Correo'));
- ST=rows.slice(1).filter(r=>(r[ni]||'').trim()).map(r=>{const c={};LS.forEach(l=>{const v=(r[l.i]||'').trim();c[l.i]=NUM.test(v)?{s:'H',v:+v}:v=='NC'?{s:'C'}:{s:'P'}});
-  return{name:r[ni].trim(),mail:ei>=0?r[ei]:'',tot:ti>=0?r[ti]:'',pos:pi>=0?r[pi]:'',c}});
+ const hi=rows.slice(0,15).findIndex(r=>r.some(x=>RE.test(cl(x))));
+ if(hi<0)throw Error('No encontré lecciones con el formato “1.1.1 Grado 4, Día 1, OVA 1 … (puntos, de N)”. Este visor solo funciona con el CSV Gradebook de Lenguaje. Separador detectado: “'+(d=='\t'?'tabulador':d)+'” · Columnas en la primera fila: '+rows[0].length+' · Primeras columnas: '+rows[0].slice(0,5).map(cl).join(' | ').slice(0,250));
+ const h=rows[hi].map(cl),LS=[];
+ h.forEach((x,i)=>{const m=x.match(RE);if(m)LS.push({i,code:`${m[1]}.${m[2]}.${m[3]}`,day:+m[1],ova:+m[2],max:parseFloat(m[5].replace(',','.'))||0,topic:((m[4].match(/OVA\s*\d+\s*[,:]?\s*(.*)$/i)||[])[1]||'').trim()})});
+ const isL=i=>LS.some(l=>l.i==i);
+ let ni=h.findIndex(x=>/^(nombre|nombres|estudiante|alumno|name|student)/.test(nz(x)));
+ if(ni<0)ni=h.findIndex((x,i)=>x&&!isL(i)&&!/^(correo|email|e-mail|total|id|carnet|usuario|username)/.test(nz(x)));
+ if(ni<0)throw Error('No encontré la columna con el nombre de los estudiantes.');
+ const ti=h.findIndex(x=>nz(x).startsWith('total (puntos')),pi=h.findIndex(x=>nz(x).startsWith('total posible')),ei=h.findIndex(x=>/^(correo|email|e-mail)/.test(nz(x)));
+ ST=rows.slice(hi+1).filter(r=>cl(r[ni])&&!/^(promedio|media|total)\b/.test(nz(r[ni]))).map(r=>{const c={};
+  LS.forEach(l=>{const v=cl(r[l.i]).toUpperCase().replace(',','.');c[l.i]=NUM.test(v)?{s:'H',v:+v}:v=='NC'?{s:'C'}:{s:'P'}});
+  return{name:cl(r[ni]),mail:ei>=0?cl(r[ei]):'',tot:ti>=0?cl(r[ti]):'',pos:pi>=0?cl(r[pi]):'',c}});
+ if(!ST.length)throw Error('El archivo tiene lecciones pero no encontré estudiantes debajo de los encabezados.');
  const dm={};LS.forEach(l=>(dm[l.day]=dm[l.day]||{n:l.day,lessons:[],t:{}}).lessons.push(l));
  D=Object.values(dm).sort((a,b)=>a.n-b.n);
  D.forEach(d=>{d.lessons.forEach(l=>{if(l.topic&&!/^comprensi/i.test(l.topic))d.t[l.topic]=(d.t[l.topic]||0)+1});
