@@ -1,32 +1,71 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Visor de lecciones pendientes</title>
-<link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<header class="noprint"><div class="wrap top"><h1>📋 Lecciones pendientes por estudiante</h1>
-<div class="tools"><button onclick="fs(-1)" aria-label="Letra más pequeña">A−</button><button onclick="fs(1)" aria-label="Letra más grande">A+</button><button onclick="theme()">🌓 Claro / oscuro</button><button id="again" hidden onclick="resetApp()">Cargar otro archivo</button></div></div></header>
-<main class="wrap">
-<section id="start">
-<label class="drop" id="drop"><input type="file" id="file" accept=".csv,.txt,text/csv" hidden>
-<b>Haga clic aquí para elegir el archivo CSV</b><br><span class="mut">o arrástrelo hasta este recuadro. Debe ser el reporte “Gradebook … Points” de Lenguaje.</span></label>
-<div id="err" hidden></div>
-</section>
-<section id="app" hidden>
-<p id="meta" class="mut"></p>
-<nav class="tabs noprint" id="tabs">
-<button data-t="res">📊 Resumen</button><button data-t="est">👤 Por estudiante</button><button data-t="dia">📅 Por día</button><button data-t="con">📝 Consolidado de faltantes</button></nav>
-<div class="filters noprint"><b>Días a revisar:</b>
-<label>Desde <input type="number" id="from" min="1" value="1"></label>
-<label>Hasta <input type="number" id="to" min="1" value="140"></label>
-<label><input type="checkbox" id="act" checked> Solo días con trabajo del grupo</label>
-<span class="mut" id="cnt"></span></div>
-<div id="panel"></div>
-</section>
-</main>
-<script src="app.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Visor de lecciones pendientes</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="noprint">
+      <div class="wrap top">
+        <h1>📋 Lecciones pendientes por estudiante</h1>
+        <div class="tools">
+          <button onclick="fs(-1)" aria-label="Letra más pequeña">A−</button
+          ><button onclick="fs(1)" aria-label="Letra más grande">A+</button
+          ><button onclick="theme()">🌓 Claro / oscuro</button
+          ><button id="again" hidden onclick="resetApp()">
+            Cargar otro archivo
+          </button>
+        </div>
+      </div>
+    </header>
+    <main class="wrap">
+      <section id="start">
+        <label class="drop" id="drop"
+          ><input type="file" id="file" accept=".csv,.txt,text/csv" hidden />
+          <b>Haga clic aquí para elegir el archivo CSV</b><br /><span
+            class="mut"
+            >o arrástrelo hasta este recuadro. Debe ser el reporte “Gradebook …
+            Points” de Lenguaje.</span
+          ></label
+        >
+        <div id="err" hidden></div>
+      </section>
+      <section id="app" hidden>
+        <p id="meta" class="mut"></p>
+        <nav class="tabs noprint" id="tabs">
+          <button data-t="res">📊 Resumen</button
+          ><button data-t="est">👤 Por estudiante</button
+          ><button data-t="dia">📅 Por día</button
+          ><button data-t="con">📝 Consolidado de faltantes</button>
+        </nav>
+        <div class="filters noprint">
+          <b>Días a revisar:</b>
+          <label
+            >Desde <input type="number" id="from" min="1" value="1"
+          /></label>
+          <label
+            >Hasta <input type="number" id="to" min="1" value="140"
+          /></label>
+          <label
+            ><input type="checkbox" id="act" checked /> Solo días con trabajo
+            del grupo</label
+          >
+          <span class="mut" id="cnt"></span>
+        </div>
+        <div id="panel"></div>
+      </section>
+
+      <section>
+        <footer>
+          <a href="https://www.youtube.com/@elprofesaul">@elprofesaul</a>
+        </footer>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
 </html>
