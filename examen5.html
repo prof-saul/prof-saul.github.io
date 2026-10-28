@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Examen final – Ciencia y Tecnología 5.º grado</title>
+<style>
+:root{--bg:#eef3fb;--card:#fff;--tx:#1d2b4f;--mut:#5a6785;--pri:#1f3a93;--acc:#009688;--ok:#2e8b57;--bad:#c0392b;--bd:#cfd8ea;--sel:#e3ebff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1630;--card:#18234a;--tx:#e8edfb;--mut:#a3b0d4;--pri:#8fa8ff;--acc:#4fd1c5;--ok:#5fd08e;--bad:#ff8a7a;--bd:#33427a;--sel:#26356b}}
+:root[data-theme="dark"]{--bg:#0e1630;--card:#18234a;--tx:#e8edfb;--mut:#a3b0d4;--pri:#8fa8ff;--acc:#4fd1c5;--ok:#5fd08e;--bad:#ff8a7a;--bd:#33427a;--sel:#26356b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Trebuchet MS",Verdana,sans-serif;line-height:1.5}
+main{max-width:720px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:22px;margin-top:14px}
+h1{margin:0;color:var(--pri);font-size:1.6rem}
+h2{margin:0 0 8px;font-size:1.2rem}
+.sub{color:var(--mut);margin:4px 0 0}
+input[type=text]{width:100%;padding:12px;font-size:1.1rem;border:2px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);margin-top:10px}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:12px 20px;background:var(--pri);color:#fff;font-weight:bold}
+:root:not([data-theme="light"]) button.main{color:#0e1630}
+button.sec{background:transparent;color:var(--pri);border:2px solid var(--pri)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.bar{height:10px;background:var(--bd);border-radius:6px;overflow:hidden;margin:10px 0}
+.bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .3s}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px;border:2px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);font-weight:normal}
+.opt.sel{border-color:var(--pri);background:var(--sel)}
+.row{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
+.hide{display:none}
+.score{font-size:3rem;font-weight:bold;color:var(--pri);margin:0}
+.rev{border-left:5px solid var(--bd);padding:8px 12px;margin:10px 0;border-radius:6px;background:var(--bg)}
+.rev.ok{border-color:var(--ok)}.rev.no{border-color:var(--bad)}
+.ok-t{color:var(--ok)}.no-t{color:var(--bad)}
+@media print{button{display:none}body{background:#fff}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap">
+<style>
+:root,:root:not([data-theme="zz"]){--bg:#3b2a1a;--card:#c6c6c6;--tx:#1e1e1e;--mut:#4a4a4a;--pri:#2d6a1f;--acc:#55ff55;--ok:#1e7a1e;--bad:#b00000;--bd:#373737;--sel:#7fc15a}
+html{background:#5e4025}
+body{font-family:"VT323","Courier New",monospace;font-size:1.35rem;line-height:1.3;background:linear-gradient(#5d9b3a 0 14px,#3d7a28 14px 22px,transparent 22px),repeating-conic-gradient(#6b4a2b 0 25%,#5e4025 0 50%) 0 0/32px 32px}
+h1,h2,.score,button{font-family:"Press Start 2P","Courier New",monospace}
+h1{color:#fff;text-shadow:3px 3px 0 #000;font-size:1.3rem;margin-top:30px;line-height:1.5}
+h2{color:#1e1e1e;font-size:.9rem;line-height:1.7}
+main>.sub{color:#fff;text-shadow:2px 2px 0 #000}
+.card .sub{color:#4a4a4a}
+.card{border:4px solid #373737;border-radius:0;box-shadow:inset 4px 4px 0 #fff,inset -4px -4px 0 #7b7b7b,6px 6px 0 rgba(0,0,0,.45)}
+input[type=text]{border:4px solid #373737;border-radius:0;background:#fff;color:#1e1e1e;font-family:"VT323",monospace;font-size:1.5rem;box-shadow:inset 3px 3px 0 #8b8b8b}
+button{border-radius:0;border:4px solid #1e1e1e;font-size:.65rem;line-height:1.5;text-shadow:2px 2px 0 #333;box-shadow:inset 3px 3px 0 rgba(255,255,255,.45),inset -3px -3px 0 rgba(0,0,0,.35)}
+button.main,:root:not([data-theme="zz"]) button.main{background:#5d9b3a;color:#fff}
+button.sec{background:#7b7b7b;color:#fff;border:4px solid #1e1e1e}
+button:active:not(:disabled){transform:translate(2px,2px)}
+.opt{background:#a8a8a8;color:#1e1e1e;text-shadow:none;border:4px solid #373737;font-family:"VT323",monospace;font-size:1.4rem;padding:10px 14px;box-shadow:inset 3px 3px 0 #fff,inset -3px -3px 0 #6b6b6b}
+.opt:hover{background:#b9b9b9}
+.opt.sel{background:#7fc15a;border-color:#1e4d12;box-shadow:inset 3px 3px 0 #b6e89a,inset -3px -3px 0 #3d7a28}
+.bar{height:20px;border:4px solid #373737;border-radius:0;background:#8b8b8b}
+.bar i{background:repeating-linear-gradient(90deg,#55ff55 0 12px,#3dc23d 12px 16px)}
+.score{color:#2d6a1f;font-size:1.7rem;line-height:1.5}
+.rev{background:#d8d8d8;border-radius:0;border-left-width:8px}
+.printonly{display:none}
+#ps{grid-template-columns:repeat(2,1fr);gap:6px 20px;margin-top:14px;font-size:1.5rem}
+@media print{html,body{background:#fff!important}.card{box-shadow:none!important;border:0!important;background:#fff!important}#start,#quiz,#rvbox,#msg{display:none!important}#ps{display:grid!important}h1,main>.sub{color:#000!important;text-shadow:none!important}#eh,.score{color:#000!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>🚀 Examen final</h1>
+<p class="sub">Ciencia y Tecnología · Quinto grado · Unidades 5 y 6</p>
+
+<section id="start" class="card">
+<h2>Pregunta inicial</h2>
+<label for="nm">¿Cuál es tu nombre completo?</label>
+<input id="nm" type="text" maxlength="60" autocomplete="off" placeholder="Escribe tu nombre aquí">
+<p class="sub">El examen tiene 20 preguntas. Elige una respuesta en cada una. Al final verás tu resultado.</p>
+<div class="row"><span></span><button id="go" class="main" disabled>Comenzar</button></div>
+</section>
+
+<section id="quiz" class="card hide">
+<div class="sub" id="who"></div>
+<div class="bar"><i id="pb"></i></div>
+<div class="sub" id="cnt"></div>
+<h2 id="q"></h2>
+<div id="opts"></div>
+<div class="row">
+<button class="sec" id="prev">← Anterior</button>
+<button class="main" id="next">Siguiente →</button>
+</div>
+</section>
+
+<section id="end" class="card hide">
+<h2 id="eh"></h2>
+<p class="score" id="sc"></p>
+<p id="msg"></p>
+<div class="row"><button class="sec" onclick="window.print()">Imprimir resultado</button></div>
+<div id="ps" class="printonly"></div>
+<div id="rvbox"><h2 style="margin-top:22px">Revisión de respuestas</h2>
+<div id="rv"></div></div>
+</section>
+</main>
+<script>
+// La primera opción de cada pregunta es la correcta; se mezclan al mostrarlas.
+var Q=[
+["¿Qué símbolo representa la rapidez de la luz y cuál es su valor?",["c = 300 000 000 m/s","c = 150 000 000 m/s","v = 300 000 km/h","c = 30 000 000 m/s"]],
+["¿Qué es una unidad astronómica (UA)?",["La distancia media entre el Sol y la Tierra (unos 150 millones de km)","La distancia entre la Tierra y la Luna","La distancia que recorre la luz en un año","El tamaño del Sol"]],
+["¿Qué indica un corrimiento hacia el rojo en la luz de una galaxia?",["Que la galaxia se está alejando de nosotros","Que la galaxia se está acercando a nosotros","Que la galaxia está en reposo","Que la galaxia es más pequeña que la Vía Láctea"]],
+["¿Por qué Andrómeda muestra un corrimiento hacia el azul visto desde la Vía Láctea?",["Porque ambas galaxias se están acercando","Porque ambas galaxias se están alejando","Porque Andrómeda es una galaxia irregular","Porque el universo no se expande"]],
+["En el «calendario cósmico», ¿qué ocurrió el 1 de enero y el 30 de septiembre?",["El Big Bang y la formación del Sistema Solar","La formación de la Vía Láctea y el Big Bang","Nacieron las primeras estrellas y aparecieron los humanos","Se formaron las primeras galaxias y se extinguieron los dinosaurios"]],
+["¿Qué proceso es responsable de la formación de los planetas?",["La acreción de materia","La erosión","La fosilización","La subducción"]],
+["Según la teoría nebular, el sistema solar se formó a partir de:",["Una nube de gas y polvo que se contrajo por la gravedad","Una explosión de un planeta gigante","El choque de dos galaxias","Una estrella que se enfrió por completo"]],
+["¿Por qué los planetas interiores son pequeños y rocosos?",["Porque la zona cercana al Sol era demasiado cálida para retener materiales ligeros","Porque se formaron lejos del Sol","Porque están hechos solo de gas","Porque no sufrieron colisiones"]],
+["¿En qué se convertirá el Sol cuando se agote el hidrógeno de su centro y cuál será su final?",["Gigante roja y después enana blanca","Agujero negro y después supernova","Estrella de neutrones y después pulsar","Nebulosa y después galaxia"]],
+["Según su forma, ¿cómo se clasifican las galaxias?",["Espirales, elípticas e irregulares","Rojas, azules y verdes","Grandes, medianas y pequeñas","Frías, tibias y calientes"]],
+["¿Qué determina las fases y el destino final de una estrella?",["Su masa","Su color","Su distancia a la Tierra","Su edad en el calendario cósmico"]],
+["¿Qué diferencia a una sonda espacial de un satélite artificial?",["La sonda realiza un largo viaje hasta el astro que estudia u orbita el Sol","La sonda siempre lleva astronautas","La sonda solo orbita la Tierra","No hay ninguna diferencia"]],
+["¿Qué ocurrió el 20 de julio de 1969?",["Buzz Aldrin y Neil Armstrong aterrizaron en la Luna (Apolo 11)","Se lanzó el Sputnik 1","La perra Laika llegó a la órbita","Se lanzaron las sondas Voyager"]],
+["¿Cuál es el orden correcto de las capas internas de la Tierra, de afuera hacia adentro?",["Corteza, manto, núcleo externo, núcleo interno","Manto, corteza, núcleo interno, núcleo externo","Núcleo interno, núcleo externo, manto, corteza","Corteza, núcleo externo, manto, núcleo interno"]],
+["¿Qué función cumple la magnetósfera?",["Desvía la mayor parte del material solar que se dirige a la Tierra","Produce los terremotos","Forma las rocas sedimentarias","Calienta el núcleo de la Tierra"]],
+["¿Qué diferencia hay entre datación relativa y datación absoluta?",["La relativa indica qué fue antes o después; la absoluta calcula la edad exacta","La relativa calcula la edad exacta; la absoluta solo ordena eventos","Ambas dan la edad exacta","Ambas solo se usan con fósiles"]],
+["¿Cuál es el orden de las unidades de la escala de tiempo geológico, de mayor a menor duración?",["Eón, era, periodo","Periodo, era, eón","Era, eón, periodo","Eón, periodo, era"]],
+["¿Qué es un fósil guía?",["Un fósil de organismos que vivieron poco tiempo pero en zonas extensas, útil para datar rocas","Un fósil que solo se encuentra en El Salvador","Un fósil de dinosaurio completo","Un fósil de organismos que vivieron millones de años en un solo lugar"]],
+["¿Qué ocurre en un borde convergente de placas tectónicas?",["Las placas chocan y una se hunde bajo la otra","Las placas se separan y se crea corteza nueva","Las placas se deslizan sin crear ni destruir corteza","Las placas no se mueven"]],
+["¿Qué diferencia hay entre la magnitud y la intensidad de un sismo?",["La magnitud es la energía liberada; la intensidad son los efectos en la superficie","La magnitud son los efectos en la superficie; la intensidad es la energía liberada","Son exactamente lo mismo","La magnitud mide la profundidad y la intensidad la duración"]]
+];
+var N=Q.length,items=[],ans=[],cur=0,name="";
+function $(i){return document.getElementById(i)}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function build(){items=Q.map(function(q){var o=q[1].map(function(t,i){return{t:t,ok:i===0}});return{q:q[0],o:shuffle(o)}});ans=new Array(N).fill(-1);cur=0}
+function show(id){["start","quiz","end"].forEach(function(s){$(s).classList.toggle("hide",s!==id)});window.scrollTo(0,0)}
+function render(){
+var it=items[cur];
+$("who").textContent="Estudiante: "+name;
+$("cnt").textContent="Pregunta "+(cur+1)+" de "+N;
+$("pb").style.width=((cur+1)/N*100)+"%";
+$("q").textContent=(cur+1)+". "+it.q;
+var h="";it.o.forEach(function(o,i){h+='<button class="opt'+(ans[cur]===i?' sel':'')+'" data-i="'+i+'">'+String.fromCharCode(65+i)+") "+esc(o.t)+"</button>"});
+$("opts").innerHTML=h;
+$("prev").disabled=cur===0;
+$("next").textContent=cur===N-1?"Finalizar ✔":"Siguiente →";
+$("next").disabled=ans[cur]<0;
+}
+function finish(){
+var c=0,rv="",ps="";
+items.forEach(function(it,k){
+var good=it.o.findIndex(function(o){return o.ok}),mine=ans[k],hit=mine===good;if(hit)c++;ps+='<span>'+(k+1)+'. '+(hit?'✔ Buena':'✘ Mala')+'</span>';
+rv+='<div class="rev '+(hit?'ok':'no')+'"><strong>'+(k+1)+". "+esc(it.q)+"</strong><br>"+
+(hit?'<span class="ok-t">✔ Correcta: '+esc(it.o[good].t)+"</span>":'<span class="no-t">✘ Tu respuesta: '+esc(it.o[mine].t)+'</span><br><span class="ok-t">✔ Correcta: '+esc(it.o[good].t)+"</span>")+"</div>"});
+var nota=(c/N*10).toFixed(1);
+$("eh").textContent="Resultado de "+name;
+$("sc").textContent=c+" / "+N+"  ·  Nota: "+nota;
+$("msg").textContent=c>=18?"¡Excelente trabajo! Dominas los contenidos.":c>=14?"¡Muy bien! Repasa las preguntas que fallaste.":c>=10?"Aprobaste. Conviene repasar algunos temas.":"Necesitas repasar las unidades 5 y 6. ¡Ánimo!";
+$("rv").innerHTML=rv;$("ps").innerHTML=ps;show("end");
+}
+$("nm").addEventListener("input",function(){$("go").disabled=this.value.trim().length<3});
+$("go").onclick=function(){name=$("nm").value.trim();build();show("quiz");render()};
+$("opts").addEventListener("click",function(e){var b=e.target.closest(".opt");if(!b)return;ans[cur]=+b.dataset.i;render()});
+$("prev").onclick=function(){if(cur>0){cur--;render()}};
+$("next").onclick=function(){if(cur<N-1){cur++;render()}else if(ans.indexOf(-1)<0)finish()};
+
+</script>
+</body>
+</html>
