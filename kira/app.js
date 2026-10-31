@@ -71,12 +71,12 @@ document.addEventListener('click',e=>{const b=e.target.closest('.seg button');if
 ['from','to','act'].forEach(i=>$('#'+i).addEventListener('input',()=>upd()));
 window.onbeforeprint=()=>document.querySelectorAll('details').forEach(d=>d.open=true);
 /* ---------- vistas ---------- */
-function show(t){tab=t;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));
+function show(t){tab=t;document.body.dataset.tab=t;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));
  const P=$('#panel');
  if(t=='res')P.innerHTML='<div id="out"></div>';
  if(t=='est'){P.innerHTML=`<div class="bar noprint"><input type="text" id="q" placeholder="🔍 Escriba parte del nombre…" oninput="fillSel()"><select id="sel" aria-label="Estudiante" onchange="U.stu=+this.value;upd()"></select></div><div class="bar noprint">${seg('fil',[['all','Todos los días'],['inc','Solo con pendientes'],['ok','Solo completos']])}</div><div id="out"></div>`;fillSel();return}
  if(t=='dia'){P.innerHTML=`<div class="bar noprint"><select id="dsel" aria-label="Día" onchange="U.day=+this.value;upd()"></select>${seg('fil',[['all','Todos'],['inc','Incompletos'],['ok','Completos']])}</div><div id="out"></div>`;fillDays()}
- if(t=='con')P.innerHTML=`<div class="bar noprint"><input type="text" id="q" placeholder="🔍 Buscar estudiante…" oninput="upd()">${seg('sort',[['name','Orden A-Z'],['most','Más faltantes primero']])}</div><div class="bar noprint"><button onclick="tg(true)">Abrir todos</button><button onclick="tg(false)">Cerrar todos</button><button onclick="csv()">⬇ Descargar CSV</button><button onclick="print()">🖨 Imprimir</button></div><div id="out"></div>`;
+ if(t=='con')P.innerHTML=`<div class="bar noprint"><input type="text" id="q" placeholder="🔍 Buscar estudiante…" oninput="upd()">${seg('sort',[['name','Orden A-Z'],['most','Más faltantes primero']])}</div><div class="bar noprint"><button onclick="tg(true)">Abrir todos</button><button onclick="tg(false)">Cerrar todos</button><button onclick="csv()">⬇ Descargar CSV</button><button onclick="print()">🖨 Imprimir</button><button onclick="wa()">📲 Enviar por WhatsApp</button></div><div id="out"></div>`;
  upd()}
 const tg=o=>document.querySelectorAll('#out details').forEach(d=>d.open=o);
 function fillSel(){const q=norm($('#q').value),sel=$('#sel'),ok=ST.map((s,i)=>[s,i]).filter(([s])=>norm(s.name).includes(q));
@@ -105,8 +105,24 @@ function conList(){const q=norm(($('#q')||{value:''}).value),ds=vis();
 function uCon(){const l=conList(),sum=l.reduce((a,o)=>a+o.p,0);
  $('#out').innerHTML=`<div class="card"><b style="font-size:1.15rem">Consolidado general de lecciones faltantes</b><p style="margin:6px 0 0">${l.length} estudiantes con pendientes · <b>${sum}</b> lecciones faltantes en total</p></div>`+
  (l.length?l.map(o=>`<details><summary><b>${esc(o.s.name)}</b><span class="b none">${o.p} lecciones faltantes</span><span class="mut">en ${o.days.length} días</span></summary><div class="body">${o.days.map(({d,x})=>{const g=grp(miss(o.s,d));
- return`<div class="drow"><b>Día ${d.n}</b> · ${esc(d.title)} <span class="b ${sk(x)}">faltan ${x.p} de ${x.n}</span><div class="codes">${Object.keys(g).map(v=>`<span class="og"><b>OVA ${v}:</b> ${g[v].map(z=>z.code).join(', ')}</span>`).join('')}</div></div>`}).join('')}</div></details>`).join(''):'<p class="card">🎉 No hay lecciones faltantes con estos filtros.</p>')}
+ return`<div class="drow"><b>Día ${d.n}</b> · ${esc(d.title)} <span class="b ${sk(x)}">faltan ${x.p} de ${x.n}</span><div class="codes">${Object.keys(g).map(v=>`<span class="og"><b>OVA ${v}:</b> ${g[v].map(z=>z.code).join(', ')}</span>`).join('')}</div></div>`}).join('')}</div></details>`).join(''):'<p class="card">🎉 No hay lecciones faltantes con estos filtros.</p>')+
+ `<div class="plist">${l.map(o=>`<p>${esc(o.s.name)} - ${esc(dtxt(o))}</p>`).join('')}</div>`}
 function csv(){const rows=[['Estudiante','Correo','Lecciones faltantes','Detalle por día']];
  conList().forEach(o=>rows.push([o.s.name,o.s.mail,o.p,o.days.map(y=>`Día ${y.d.n}: ${miss(o.s,y.d).map(l=>l.code).join(', ')}`).join(' | ')]));
  const t='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n'),a=document.createElement('a');
  a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='consolidado_lecciones_faltantes.csv';a.click()}
+/* ---------- listado simple: impresión y WhatsApp ---------- */
+const djoin=n=>n.length<2?n.join(''):n.slice(0,-1).join(', ')+' y '+n[n.length-1],
+dtxt=o=>{const n=o.days.map(y=>y.d.n);return(n.length>1?'Días ':'Día ')+djoin(n)};
+function wa(){const l=conList();
+ if(!l.length){alert('No hay estudiantes con lecciones faltantes con estos filtros.');return}
+ const t=l.map(o=>o.s.name+' - '+dtxt(o)).join('\n');
+ window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank')}
+document.head.insertAdjacentHTML('beforeend',`<style>
+.plist{display:none}
+@media print{
+ body[data-tab="con"] #meta,body[data-tab="con"] footer,body[data-tab="con"] #out>*:not(.plist){display:none!important}
+ body[data-tab="con"] .plist{display:block!important;color:#000;font-size:14pt;line-height:1.5}
+ body[data-tab="con"] .plist p{margin:0 0 6px;break-inside:avoid}
+}
+</style>`);
